@@ -1,0 +1,6 @@
+{
+    "imports": {
+        "oauth": "https://deno.land/x/oauth4webapi@v2.10.3/mod.ts",
+        "supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.8"
+    }
+}
