@@ -47,13 +47,13 @@ class AccountCreatedWidget extends StatelessWidget {
                 );
               },
               style: ButtonStyle(
-                backgroundColor: MaterialStateProperty.all<Color>(
-                    Color(0xFF497077)), // Set button background color
+                backgroundColor:
+                    MaterialStateProperty.all<Color>(Color(0xFF497077)),
               ),
               child: Text(
                 'Login',
                 style: TextStyle(
-                  color: Colors.white, // Set text color to white
+                  color: Colors.white,
                 ),
               ),
             ),

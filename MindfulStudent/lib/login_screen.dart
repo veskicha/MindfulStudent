@@ -1,6 +1,7 @@
-import 'package:flutter/gestures.dart'; // Import TapGestureRecognizer
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'signup_screen.dart'; // Import the sign-up screen file
+import 'signup_screen.dart';
+import 'home_screen.dart';
 
 class ScreenLogin extends StatelessWidget {
   @override
@@ -80,7 +81,11 @@ class ScreenLogin extends StatelessWidget {
               SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
-                  // Login action
+                  // Navigate to the home screen
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                  );
                 },
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.8,
