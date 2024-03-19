@@ -1,9 +1,13 @@
 import 'package:flutter/material.dart';
 
-import 'splash_screen.dart'; // Import your splash_screen.dart file
+import 'backend.dart';
+import 'constants.dart' as constants;
+import 'screens/home/splash_screen.dart';
 
 void main() {
+  Backend.initialize(constants.supabaseUrl, constants.supabaseAnonKey);
+
   runApp(const MaterialApp(
-    home: SplashScreen(), // Open SplashScreen instead of ScreenloginWidget
+    home: SplashScreen(),
   ));
 }

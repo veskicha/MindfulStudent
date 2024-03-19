@@ -1,7 +1,7 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 
-import 'home_screen.dart';
+import '../home/home_screen.dart';
 import 'signup_screen.dart';
 
 class ScreenLogin extends StatelessWidget {
