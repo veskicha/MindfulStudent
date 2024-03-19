@@ -54,6 +54,6 @@ export class FitbitProvider extends OAuth2Provider {
 
     const data = await resp.json();
 
-    return data;
+    return data["sleep"];
   }
 }
