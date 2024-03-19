@@ -1,20 +1,16 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
-import 'package:mindfulstudent/screens/home/home_screen.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'backend.dart';
 import 'constants.dart' as constants;
 import 'screens/home/splash_screen.dart';
 
 Future<void> main() async {
-  final isLoggedIn = await Backend.initialize(
-      constants.supabaseUrl, constants.supabaseAnonKey);
-  log("Supabase init done, logged in? > $isLoggedIn");
+  await Supabase.initialize(
+      url: constants.supabaseUrl, anonKey: constants.supabaseAnonKey);
 
-  final initScreen = isLoggedIn ? const HomeScreen() : const SplashScreen();
-
-  runApp(MaterialApp(
-    home: initScreen,
+  runApp(const MaterialApp(
+    home: SplashScreen(),
   ));
 }
+
+final supabase = Supabase.instance.client;

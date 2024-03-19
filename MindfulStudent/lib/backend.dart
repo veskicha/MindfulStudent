@@ -24,7 +24,7 @@ class Backend {
   }
 
   static bool get isLoggedIn {
-    return Backend.client.auth.currentUser != null;
+    return Backend.client.auth.currentSession != null;
   }
 
   static Future<bool> login(String email, String password) async {
