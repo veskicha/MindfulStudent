@@ -41,11 +41,14 @@ export class TokenStorage {
 
         const token = tokens.data[0];
 
+        const expiresAt = new Date();
+        expiresAt.setTime(Date.parse(token.expiresAt));
+
         return {
             service: service,
             accessToken: token.accessToken,
             refreshToken: token.refreshToken,
-            expiresAt: token.expiresAt
+            expiresAt: expiresAt
         }
     }
 

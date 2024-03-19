@@ -48,9 +48,10 @@ export abstract class OAuth2Provider {
         );
         const result = await oauth.processRefreshTokenResponse(
             this.getAuthServer(), this.getClient(), resp
-        )
+        );
 
         if (oauth.isOAuth2Error(result)) {
+            console.error(await resp.text());
             throw new Error(result.error_description);
         }
 
