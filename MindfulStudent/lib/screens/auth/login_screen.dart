@@ -1,11 +1,47 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/backend.dart';
 
 import '../home/home_screen.dart';
 import 'signup_screen.dart';
 
-class ScreenLogin extends StatelessWidget {
-  const ScreenLogin({super.key});
+class LoginScreen extends StatefulWidget {
+  const LoginScreen({super.key});
+
+  @override
+  LoginScreenState createState() => LoginScreenState();
+}
+
+class LoginScreenState extends State<LoginScreen> {
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+
+  void login() {
+    final email = emailController.text;
+    final password = passwordController.text;
+
+    Backend.login(email, password).then((isSuccessful) => {
+          if (isSuccessful)
+            {
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => const HomeScreen()),
+              )
+            }
+          else
+            {
+              // TODO: show error?
+            }
+        });
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -48,6 +84,7 @@ class ScreenLogin extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
+                  controller: emailController,
                   decoration: InputDecoration(
                     hintText: 'Your Email',
                     hintStyle: const TextStyle(color: Color(0xFFAAAAAA)),
@@ -66,6 +103,7 @@ class ScreenLogin extends StatelessWidget {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
+                  controller: passwordController,
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: 'Password',
@@ -83,13 +121,7 @@ class ScreenLogin extends StatelessWidget {
               ),
               const SizedBox(height: 20),
               GestureDetector(
-                onTap: () {
-                  // Navigate to the home screen
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => const HomeScreen()),
-                  );
-                },
+                onTap: login,
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.8,
                   height: 50,

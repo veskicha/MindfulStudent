@@ -46,7 +46,7 @@ class AccountCreatedWidget extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => const ScreenLogin()),
+                  MaterialPageRoute(builder: (context) => const LoginScreen()),
                 );
               },
               style: ButtonStyle(
