@@ -1,9 +1,12 @@
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'signup_screen.dart';
+
 import 'home_screen.dart';
+import 'signup_screen.dart';
 
 class ScreenLogin extends StatelessWidget {
+  const ScreenLogin({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -11,17 +14,17 @@ class ScreenLogin extends StatelessWidget {
         child: Container(
           width: MediaQuery.of(context).size.width,
           height: MediaQuery.of(context).size.height,
-          decoration: BoxDecoration(
+          decoration: const BoxDecoration(
             color: Colors.white,
           ),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              SizedBox(height: 40),
+              const SizedBox(height: 40),
               Container(
                 width: MediaQuery.of(context).size.width * 0.5,
                 height: MediaQuery.of(context).size.width * 0.5,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   color: Color(0xFF497077),
                   image: DecorationImage(
@@ -30,8 +33,8 @@ class ScreenLogin extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Login',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -41,60 +44,60 @@ class ScreenLogin extends StatelessWidget {
                   fontWeight: FontWeight.w700,
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
                   decoration: InputDecoration(
                     hintText: 'Your Email',
-                    hintStyle: TextStyle(color: Color(0xFFAAAAAA)),
+                    hintStyle: const TextStyle(color: Color(0xFFAAAAAA)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Color(0xFF497077)),
+                      borderSide: const BorderSide(color: Color(0xFF497077)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Color(0xFF497077)),
+                      borderSide: const BorderSide(color: Color(0xFF497077)),
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
                 child: TextField(
                   obscureText: true,
                   decoration: InputDecoration(
                     hintText: 'Password',
-                    hintStyle: TextStyle(color: Color(0xFFAAAAAA)),
+                    hintStyle: const TextStyle(color: Color(0xFFAAAAAA)),
                     border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Color(0xFF497077)),
+                      borderSide: const BorderSide(color: Color(0xFF497077)),
                     ),
                     focusedBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(10),
-                      borderSide: BorderSide(color: Color(0xFF497077)),
+                      borderSide: const BorderSide(color: Color(0xFF497077)),
                     ),
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               GestureDetector(
                 onTap: () {
                   // Navigate to the home screen
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
+                    MaterialPageRoute(builder: (context) => const HomeScreen()),
                   );
                 },
                 child: Container(
                   width: MediaQuery.of(context).size.width * 0.8,
                   height: 50,
                   decoration: BoxDecoration(
-                    color: Color(0xFF497077),
+                    color: const Color(0xFF497077),
                     borderRadius: BorderRadius.circular(20),
                   ),
-                  child: Center(
+                  child: const Center(
                     child: Text(
                       'Login',
                       style: TextStyle(
@@ -107,16 +110,16 @@ class ScreenLogin extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
               Text.rich(
                 TextSpan(
                   text: 'Don’t have an account? ',
-                  style: TextStyle(color: Color(0xFF242424)),
+                  style: const TextStyle(color: Color(0xFF242424)),
                   children: [
                     // Wrap "Sign Up" text in GestureDetector to navigate to sign-up screen
                     TextSpan(
                       text: 'Sign Up',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: Color(0xFF497077),
                         decoration: TextDecoration.underline,
                       ),
@@ -126,19 +129,19 @@ class ScreenLogin extends StatelessWidget {
                           Navigator.push(
                             context,
                             MaterialPageRoute(
-                                builder: (context) => ScreenSignUp()),
+                                builder: (context) => const ScreenSignUp()),
                           );
                         },
                     ),
                   ],
                 ),
               ),
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
               GestureDetector(
                 onTap: () {
                   // Forgot password action
                 },
-                child: Text(
+                child: const Text(
                   'Forgot password?',
                   style: TextStyle(
                     color: Colors.black,

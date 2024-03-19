@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'account_created.dart'; // Importing the account_created.dart file
 
 class ScreenSignUp extends StatelessWidget {
+  const ScreenSignUp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -12,7 +15,7 @@ class ScreenSignUp extends StatelessWidget {
             Container(
               width: MediaQuery.of(context).size.width,
               height: MediaQuery.of(context).size.height * 0.4,
-              color: Color(0x4C497077),
+              color: const Color(0x4C497077),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
@@ -21,8 +24,8 @@ class ScreenSignUp extends StatelessWidget {
                     width: MediaQuery.of(context).size.width * 0.5,
                     height: MediaQuery.of(context).size.width * 0.5,
                   ),
-                  SizedBox(height: 20),
-                  Text(
+                  const SizedBox(height: 20),
+                  const Text(
                     'Sign Up',
                     style: TextStyle(
                       color: Color(0xFF497077),
@@ -34,7 +37,7 @@ class ScreenSignUp extends StatelessWidget {
                 ],
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -42,73 +45,73 @@ class ScreenSignUp extends StatelessWidget {
                   TextField(
                     decoration: InputDecoration(
                       hintText: 'Name',
-                      hintStyle: TextStyle(
+                      hintStyle: const TextStyle(
                         color: Color(0xFFAAAAAA),
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w400,
                       ),
                       border: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0x4C497077)),
+                        borderSide: const BorderSide(color: Color(0x4C497077)),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       filled: true,
                       fillColor: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   TextField(
                     decoration: InputDecoration(
                       hintText: 'Your Email',
-                      hintStyle: TextStyle(
+                      hintStyle: const TextStyle(
                         color: Color(0xFFAAAAAA),
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w400,
                       ),
                       border: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0x4C497077)),
+                        borderSide: const BorderSide(color: Color(0x4C497077)),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       filled: true,
                       fillColor: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   TextField(
                     obscureText: true,
                     decoration: InputDecoration(
                       hintText: 'Password',
-                      hintStyle: TextStyle(
+                      hintStyle: const TextStyle(
                         color: Color(0xFFAAAAAA),
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w400,
                       ),
                       border: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0x4C497077)),
+                        borderSide: const BorderSide(color: Color(0x4C497077)),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       filled: true,
                       fillColor: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   TextField(
                     obscureText: true,
                     decoration: InputDecoration(
                       hintText: 'Confirm Password',
-                      hintStyle: TextStyle(
+                      hintStyle: const TextStyle(
                         color: Color(0xFFAAAAAA),
                         fontFamily: 'Poppins',
                         fontWeight: FontWeight.w400,
                       ),
                       border: OutlineInputBorder(
-                        borderSide: BorderSide(color: Color(0x4C497077)),
+                        borderSide: const BorderSide(color: Color(0x4C497077)),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       filled: true,
                       fillColor: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -117,10 +120,20 @@ class ScreenSignUp extends StatelessWidget {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) => AccountCreatedWidget()),
+                              builder: (context) =>
+                                  const AccountCreatedWidget()),
                         );
                       },
-                      child: Text(
+                      style: ButtonStyle(
+                        backgroundColor: MaterialStateProperty.all<Color>(
+                            const Color(0xFF497077)),
+                        shape: MaterialStateProperty.all<OutlinedBorder>(
+                          RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                        ),
+                      ),
+                      child: const Text(
                         'Create Account',
                         style: TextStyle(
                           color: Colors.white,
@@ -128,22 +141,13 @@ class ScreenSignUp extends StatelessWidget {
                           fontWeight: FontWeight.w600,
                         ),
                       ),
-                      style: ButtonStyle(
-                        backgroundColor:
-                            MaterialStateProperty.all<Color>(Color(0xFF497077)),
-                        shape: MaterialStateProperty.all<OutlinedBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                      ),
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text(
+                      const Text(
                         'Already have an account?',
                         style: TextStyle(
                           color: Color(0xFF242424),
@@ -156,7 +160,7 @@ class ScreenSignUp extends StatelessWidget {
                           // Navigate back to login screen
                           Navigator.pop(context);
                         },
-                        child: Text(
+                        child: const Text(
                           'Login',
                           style: TextStyle(
                             color: Color(0xFF497077),

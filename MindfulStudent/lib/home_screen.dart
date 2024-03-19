@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -23,17 +25,17 @@ class FeatureBlock extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: Color(0xFFC8D4D6),
+          color: const Color(0xFFC8D4D6),
           borderRadius: BorderRadius.circular(10),
         ),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.asset(imagePath),
-            SizedBox(height: 8),
+            const SizedBox(height: 8),
             Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 16,
                 fontWeight: FontWeight.bold,
               ),
@@ -47,7 +49,7 @@ class FeatureBlock extends StatelessWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  double _progress = 0.7;
+  final double _progress = 0.7;
 
   void _onItemTapped(int index) {
     setState(() {
@@ -63,10 +65,10 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              color: Color(0xFFC8D4D6),
+              color: const Color(0xFFC8D4D6),
               width: double.infinity,
               height: 220,
-              child: Stack(
+              child: const Stack(
                 children: [
                   Positioned(
                     top: 100,
@@ -97,7 +99,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Daily Progress',
                     style: TextStyle(
                       color: Color(0xFF497077),
@@ -105,16 +107,16 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Stack(
                     alignment: Alignment.center,
                     children: [
                       SizedBox(
                         height: 20,
                         child: LinearProgressIndicator(
-                          backgroundColor: Color(0xFFE5E5E5),
-                          valueColor:
-                              AlwaysStoppedAnimation<Color>(Color(0xFF5C7F85)),
+                          backgroundColor: const Color(0xFFE5E5E5),
+                          valueColor: const AlwaysStoppedAnimation<Color>(
+                              Color(0xFF5C7F85)),
                           value: _progress,
                         ),
                       ),
@@ -126,12 +128,12 @@ class _HomeScreenState extends State<HomeScreen> {
                             children: [
                               Text(
                                 '${(_progress * 100).toInt()}%',
-                                style: TextStyle(
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              Icon(
+                              const Icon(
                                 Icons.arrow_forward_ios,
                                 color: Colors.white,
                                 size: 16,
@@ -142,12 +144,12 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   ),
-                  SizedBox(height: 20),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   GridView.count(
                     shrinkWrap: true,
-                    physics:
-                        NeverScrollableScrollPhysics(), // Disable GridView scrolling
+                    physics: const NeverScrollableScrollPhysics(),
+                    // Disable GridView scrolling
                     crossAxisCount: 2,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
@@ -210,12 +212,12 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xFF5C7F85),
-        selectedItemColor: Color(0xFF5C7F85),
+        backgroundColor: const Color(0xFF5C7F85),
+        selectedItemColor: const Color(0xFF5C7F85),
         unselectedItemColor: Colors.black,
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        items: [
+        items: const [
           BottomNavigationBarItem(
             icon: ImageIcon(
               AssetImage('assets/HomeIcon.png'),
@@ -251,7 +253,7 @@ class _HomeScreenState extends State<HomeScreen> {
 }
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: HomeScreen(),
   ));
 }

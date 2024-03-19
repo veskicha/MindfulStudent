@@ -1,11 +1,14 @@
 import 'package:flutter/material.dart';
+
 import 'login_screen.dart';
 
 class AccountCreatedWidget extends StatelessWidget {
+  const AccountCreatedWidget({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color.fromRGBO(200, 212, 214, 1),
+      backgroundColor: const Color.fromRGBO(200, 212, 214, 1),
       body: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -20,8 +23,8 @@ class AccountCreatedWidget extends StatelessWidget {
                     width: MediaQuery.of(context).size.width * 0.5,
                     height: MediaQuery.of(context).size.width * 0.5,
                   ),
-                  SizedBox(height: 20),
-                  Text(
+                  const SizedBox(height: 20),
+                  const Text(
                     'Your account has been created',
                     textAlign: TextAlign.center,
                     style: TextStyle(
@@ -43,14 +46,14 @@ class AccountCreatedWidget extends StatelessWidget {
               onPressed: () {
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => ScreenLogin()),
+                  MaterialPageRoute(builder: (context) => const ScreenLogin()),
                 );
               },
               style: ButtonStyle(
                 backgroundColor:
-                    MaterialStateProperty.all<Color>(Color(0xFF497077)),
+                    MaterialStateProperty.all<Color>(const Color(0xFF497077)),
               ),
-              child: Text(
+              child: const Text(
                 'Login',
                 style: TextStyle(
                   color: Colors.white,

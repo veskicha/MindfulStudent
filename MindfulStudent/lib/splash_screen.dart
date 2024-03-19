@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+
 import 'login_screen.dart';
 
 class SplashScreen extends StatelessWidget {
+  const SplashScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
@@ -9,11 +12,11 @@ class SplashScreen extends StatelessWidget {
         // Navigate to the login screen when tapped
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => ScreenLogin()),
+          MaterialPageRoute(builder: (context) => const ScreenLogin()),
         );
       },
       child: Scaffold(
-        backgroundColor: Color.fromRGBO(255, 255, 255, 1),
+        backgroundColor: const Color.fromRGBO(255, 255, 255, 1),
         body: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -21,7 +24,7 @@ class SplashScreen extends StatelessWidget {
               Container(
                 width: 250,
                 height: 250,
-                decoration: BoxDecoration(
+                decoration: const BoxDecoration(
                   shape: BoxShape.circle,
                   image: DecorationImage(
                     image: AssetImage('assets/Logophotoroom1.png'),
@@ -29,8 +32,8 @@ class SplashScreen extends StatelessWidget {
                   ),
                 ),
               ),
-              SizedBox(height: 20),
-              Text(
+              const SizedBox(height: 20),
+              const Text(
                 'Welcome to MindfulStudent',
                 textAlign: TextAlign.center,
                 style: TextStyle(
@@ -41,8 +44,8 @@ class SplashScreen extends StatelessWidget {
                   fontWeight: FontWeight.normal,
                 ),
               ),
-              SizedBox(height: 10),
-              Text(
+              const SizedBox(height: 10),
+              const Text(
                 'Tap anywhere to continue',
                 textAlign: TextAlign.center,
                 style: TextStyle(
