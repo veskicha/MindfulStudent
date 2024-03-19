@@ -47,7 +47,10 @@ export class FitbitProvider extends OAuth2Provider {
     url.searchParams.set("offset", "0");
 
     const resp = await oauth.protectedResourceRequest(token.accessToken, "GET", url);
-    if (resp.status !== 200) throw new Error("Could not retrieve sleep pattern details.")
+    if (resp.status !== 200) {
+      console.error(await resp.text());
+      throw new Error(`Could not retrieve sleep pattern details`)
+    }
 
     const data = await resp.json();
 
