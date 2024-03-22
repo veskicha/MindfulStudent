@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mindfulstudent/main.dart';
+import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/screens/home/home_screen.dart';
 
 import '../auth/login_screen.dart';
@@ -24,8 +24,7 @@ class SplashScreenState extends State<SplashScreen> {
       return;
     }
 
-    final session = supabase.auth.currentSession;
-    if (session != null) {
+    if (Auth.isLoggedIn) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
