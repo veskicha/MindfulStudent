@@ -1,6 +1,9 @@
+import 'dart:developer';
+
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:mindfulstudent/backend.dart';
+import 'package:mindfulstudent/backend/auth.dart';
+import 'package:mindfulstudent/components/input/textlinefield.dart';
 
 import '../home/home_screen.dart';
 import 'signup_screen.dart';
@@ -13,34 +16,20 @@ class LoginScreen extends StatefulWidget {
 }
 
 class LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
+  final TextLineField emailField = TextLineField("Email address");
+  final TextLineField passwordField =
+      TextLineField("Password", obscureText: true);
 
   void login() {
-    final email = emailController.text;
-    final password = passwordController.text;
+    final email = emailField.getText();
+    final password = passwordField.getText();
 
-    Backend.login(email, password).then((isSuccessful) => {
-          if (isSuccessful)
-            {
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
-              )
-            }
-          else
-            {
-              // TODO: show error?
-            }
-        });
-  }
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-
-    super.dispose();
+    Auth.login(email, password).then((_) {
+      Navigator.pushReplacement(
+          context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+    }).catchError((e) {
+      log(e);
+    });
   }
 
   @override
@@ -81,44 +70,9 @@ class LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 20),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  controller: emailController,
-                  decoration: InputDecoration(
-                    hintText: 'Your Email',
-                    hintStyle: const TextStyle(color: Color(0xFFAAAAAA)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Color(0xFF497077)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Color(0xFF497077)),
-                    ),
-                  ),
-                ),
-              ),
+              emailField,
               const SizedBox(height: 10),
-              Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: TextField(
-                  controller: passwordController,
-                  obscureText: true,
-                  decoration: InputDecoration(
-                    hintText: 'Password',
-                    hintStyle: const TextStyle(color: Color(0xFFAAAAAA)),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Color(0xFF497077)),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(10),
-                      borderSide: const BorderSide(color: Color(0xFF497077)),
-                    ),
-                  ),
-                ),
-              ),
+              passwordField,
               const SizedBox(height: 20),
               GestureDetector(
                 onTap: login,
