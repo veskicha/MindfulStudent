@@ -15,6 +15,8 @@ class Auth {
 
   static Future<bool> signup(String email, String name, String password) async {
     log("Create new account: $email");
-    return true;
+    final res = await supabase.auth
+        .signUp(email: email, password: password, data: {"name": name});
+    return res.session != null;
   }
 }

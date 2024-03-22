@@ -1,9 +1,52 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/backend/auth.dart';
+import 'package:mindfulstudent/components/input/textlinefield.dart';
+import 'package:mindfulstudent/screens/home/home_screen.dart';
 
-import 'account_created.dart'; // Importing the account_created.dart file
+class SignupScreen extends StatefulWidget {
+  const SignupScreen({super.key});
 
-class ScreenSignUp extends StatelessWidget {
-  const ScreenSignUp({super.key});
+  @override
+  SignupScreenState createState() => SignupScreenState();
+}
+
+class SignupScreenState extends State<SignupScreen> {
+  final TextLineField nameField = TextLineField("Your name");
+  final TextLineField emailField = TextLineField("Your email");
+  final TextLineField passwordField =
+      TextLineField("Your password", obscureText: true);
+  final TextLineField passwordConfirmField =
+      TextLineField("Confirm password", obscureText: true);
+
+  void signup() {
+    final name = nameField.getText();
+    final email = emailField.getText();
+    final password = passwordField.getText();
+    final passwordConfirm = passwordConfirmField.getText();
+
+    if (password != passwordConfirm) {
+      // TODO: show error!
+      log("Passwords do not match :c");
+      return;
+    }
+
+    Auth.signup(email, name, password).then((res) {
+      if (!res) {
+        // Need to confirm password
+        // TODO: show message!
+        return;
+      } else {
+        // Success!
+        Navigator.pushReplacement(context,
+            MaterialPageRoute(builder: (context) => const HomeScreen()));
+      }
+    }).catchError((e) {
+      // TODO: show error!
+      return;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,88 +85,18 @@ class ScreenSignUp extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
                 children: [
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Name',
-                      hintStyle: const TextStyle(
-                        color: Color(0xFFAAAAAA),
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400,
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: const BorderSide(color: Color(0x4C497077)),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                  ),
+                  nameField,
                   const SizedBox(height: 20),
-                  TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Your Email',
-                      hintStyle: const TextStyle(
-                        color: Color(0xFFAAAAAA),
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400,
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: const BorderSide(color: Color(0x4C497077)),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                  ),
+                  emailField,
                   const SizedBox(height: 20),
-                  TextField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: 'Password',
-                      hintStyle: const TextStyle(
-                        color: Color(0xFFAAAAAA),
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400,
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: const BorderSide(color: Color(0x4C497077)),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                  ),
+                  passwordField,
                   const SizedBox(height: 20),
-                  TextField(
-                    obscureText: true,
-                    decoration: InputDecoration(
-                      hintText: 'Confirm Password',
-                      hintStyle: const TextStyle(
-                        color: Color(0xFFAAAAAA),
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w400,
-                      ),
-                      border: OutlineInputBorder(
-                        borderSide: const BorderSide(color: Color(0x4C497077)),
-                        borderRadius: BorderRadius.circular(10),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                  ),
+                  passwordConfirmField,
                   const SizedBox(height: 20),
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: () {
-                        // Navigate to account_created page
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                              builder: (context) =>
-                                  const AccountCreatedWidget()),
-                        );
-                      },
+                      onPressed: signup,
                       style: ButtonStyle(
                         backgroundColor: MaterialStateProperty.all<Color>(
                             const Color(0xFF497077)),
