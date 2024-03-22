@@ -1,9 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/components/input/textlinefield.dart';
 import 'package:mindfulstudent/screens/home/home_screen.dart';
+import 'package:mindfulstudent/util.dart';
+import 'package:toastification/toastification.dart';
 
 class SignupScreen extends StatefulWidget {
   const SignupScreen({super.key});
@@ -27,24 +27,21 @@ class SignupScreenState extends State<SignupScreen> {
     final passwordConfirm = passwordConfirmField.getText();
 
     if (password != passwordConfirm) {
-      // TODO: show error!
-      log("Passwords do not match :c");
+      showToast(context, "Passwords do not match!",
+          type: ToastificationType.error);
       return;
     }
 
     Auth.signup(email, name, password).then((res) {
       if (!res) {
-        // Need to confirm password
-        // TODO: show message!
+        showToast(context, "Please check your email for a confirmation link.",
+            type: ToastificationType.info);
         return;
       } else {
         // Success!
         Navigator.pushReplacement(context,
             MaterialPageRoute(builder: (context) => const HomeScreen()));
       }
-    }).catchError((e) {
-      // TODO: show error!
-      return;
     });
   }
 
