@@ -1,9 +1,9 @@
-import 'dart:developer';
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/components/input/textlinefield.dart';
+import 'package:mindfulstudent/util.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../home/home_screen.dart';
 import 'signup_screen.dart';
@@ -25,10 +25,14 @@ class LoginScreenState extends State<LoginScreen> {
     final password = passwordField.getText();
 
     Auth.login(email, password).then((_) {
-      Navigator.pushReplacement(
-          context, MaterialPageRoute(builder: (context) => const HomeScreen()));
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const HomeScreen()));
     }).catchError((e) {
-      log(e);
+      if (e is AuthException) {
+        showError(context, "Login error", description: e.message);
+        return;
+      }
+      showError(context, "Unknown error", description: e.toString());
     });
   }
 

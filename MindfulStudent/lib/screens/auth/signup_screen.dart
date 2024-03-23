@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/components/input/textlinefield.dart';
+import 'package:mindfulstudent/screens/auth/login_screen.dart';
 import 'package:mindfulstudent/screens/home/home_screen.dart';
 import 'package:mindfulstudent/util.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
 
 class SignupScreen extends StatefulWidget {
@@ -27,21 +29,30 @@ class SignupScreenState extends State<SignupScreen> {
     final passwordConfirm = passwordConfirmField.getText();
 
     if (password != passwordConfirm) {
-      showToast(context, "Passwords do not match!",
-          type: ToastificationType.error);
+      showError(context, "Passwords do not match!");
       return;
     }
 
     Auth.signup(email, name, password).then((res) {
       if (!res) {
-        showToast(context, "Please check your email for a confirmation link.",
-            type: ToastificationType.info);
+        showInfo(context, "Account created!",
+            description: "Please check your email for a confirmation link.");
+        Navigator.of(context).pushReplacement(
+            MaterialPageRoute(builder: (context) => const LoginScreen()));
         return;
-      } else {
-        // Success!
-        Navigator.pushReplacement(context,
-            MaterialPageRoute(builder: (context) => const HomeScreen()));
       }
+
+      showToast(context, "Account created!",
+          description: "Welcome to MindfulStudent!",
+          type: ToastificationType.success);
+      Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => const HomeScreen()));
+    }).catchError((e) {
+      if (e is AuthException) {
+        showError(context, "Signup error", description: e.message);
+        return;
+      }
+      showError(context, "Unknown error", description: e.toString());
     });
   }
 
