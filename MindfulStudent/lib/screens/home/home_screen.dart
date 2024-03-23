@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -158,7 +159,7 @@ class HomeScreenState extends State<HomeScreen> {
                         title: 'Chat',
                         imagePath: 'assets/Chat.png',
                         onTap: () {
-                          // Handle navigation to feature chat page
+                          Navigator.pushNamed(context, '/chat');
                         },
                       ),
                       FeatureBlock(
@@ -172,7 +173,7 @@ class HomeScreenState extends State<HomeScreen> {
                         title: 'Sleep',
                         imagePath: 'assets/Sleep.png',
                         onTap: () {
-                          // Handle navigation to Sleep page
+                          Navigator.pushNamed(context, '/sleep');
                         },
                       ),
                       FeatureBlock(
@@ -211,43 +212,10 @@ class HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: const Color(0xFF5C7F85),
-        selectedItemColor: const Color(0xFF5C7F85),
-        unselectedItemColor: Colors.black,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(
-            icon: ImageIcon(
-              AssetImage('assets/HomeIcon.png'),
-              size: 24,
-            ),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(
-              AssetImage('assets/Sleep.png'),
-              size: 24,
-            ),
-            label: 'Sleep',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(
-              AssetImage('assets/Chat.png'),
-              size: 24,
-            ),
-            label: 'Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(
-              AssetImage('assets/Profile.png'),
-              size: 24,
-            ),
-            label: 'Profile',
-          ),
-        ],
-      ),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
+      ), // Using the BottomNavBar widget
     );
   }
 }
