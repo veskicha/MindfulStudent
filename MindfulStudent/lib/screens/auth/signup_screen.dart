@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
-import 'package:mindfulstudent/components/input/textlinefield.dart';
 import 'package:mindfulstudent/screens/auth/login_screen.dart';
 import 'package:mindfulstudent/screens/home/home_screen.dart';
 import 'package:mindfulstudent/util.dart';
+import 'package:mindfulstudent/widgets/text_line_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
 

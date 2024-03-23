@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 
 class EditProfilePage extends StatefulWidget {
+  const EditProfilePage({super.key});
+
   @override
-  _EditProfilePageState createState() => _EditProfilePageState();
+  EditProfilePageState createState() => EditProfilePageState();
 }
 
-class _EditProfilePageState extends State<EditProfilePage> {
+class EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
@@ -22,18 +24,18 @@ class _EditProfilePageState extends State<EditProfilePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF497077),
+        backgroundColor: const Color(0xFF497077),
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
         ),
-        title: Text('Edit Profile'),
+        title: const Text('Edit Profile'),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            CircleAvatar(
+            const CircleAvatar(
               radius: 50,
               backgroundColor: Color(0xFFC8D4D6),
               child: Icon(
@@ -42,8 +44,8 @@ class _EditProfilePageState extends State<EditProfilePage> {
                 color: Colors.white,
               ),
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Name',
               style: TextStyle(
                 fontSize: 18,
@@ -53,13 +55,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             TextField(
               controller: _nameController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'Name Surname',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Email',
               style: TextStyle(
                 fontSize: 18,
@@ -69,13 +71,13 @@ class _EditProfilePageState extends State<EditProfilePage> {
             ),
             TextField(
               controller: _emailController,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: 'namesurname@gmail.com',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 16),
-            Text(
+            const SizedBox(height: 16),
+            const Text(
               'Password',
               style: TextStyle(
                 fontSize: 18,
@@ -86,21 +88,21 @@ class _EditProfilePageState extends State<EditProfilePage> {
             TextField(
               controller: _passwordController,
               obscureText: true,
-              decoration: InputDecoration(
+              decoration: const InputDecoration(
                 hintText: '********',
                 border: OutlineInputBorder(),
               ),
             ),
-            SizedBox(height: 24),
+            const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
                 // Navigate back to ProfilePage
                 Navigator.pop(context);
               },
-              child: Text('Save Changes'),
               style: ElevatedButton.styleFrom(
-                primary: Color(0xFF497077),
+                backgroundColor: const Color(0xFF497077),
               ),
+              child: const Text('Save Changes'),
             ),
           ],
         ),

@@ -5,6 +5,7 @@ class BottomNavBar extends StatelessWidget {
   final Function(int) onItemTapped;
 
   const BottomNavBar({
+    super.key,
     required this.selectedIndex,
     required this.onItemTapped,
   });
@@ -12,8 +13,8 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: Color(0xFF5C7F85),
-      selectedItemColor: Color(0xFF5C7F85),
+      backgroundColor: const Color(0xFF5C7F85),
+      selectedItemColor: const Color(0xFF5C7F85),
       unselectedItemColor: Colors.black,
       currentIndex: selectedIndex,
       onTap: (index) {
@@ -37,7 +38,7 @@ class BottomNavBar extends StatelessWidget {
             break;
         }
       },
-      items: [
+      items: const [
         BottomNavigationBarItem(
           icon: ImageIcon(
             AssetImage('assets/HomeIcon.png'),
@@ -72,15 +73,17 @@ class BottomNavBar extends StatelessWidget {
 }
 
 class ChatPage extends StatelessWidget {
+  const ChatPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: PreferredSize(
-        preferredSize: Size.fromHeight(80.0),
+        preferredSize: const Size.fromHeight(80.0),
         child: AppBar(
-          backgroundColor: Color(0xFF497077),
-          title: Padding(
-            padding: const EdgeInsets.only(top: 20.0),
+          backgroundColor: const Color(0xFF497077),
+          title: const Padding(
+            padding: EdgeInsets.only(top: 20.0),
             child: Text(
               'Chats',
               style: TextStyle(
@@ -91,7 +94,7 @@ class ChatPage extends StatelessWidget {
           ),
           actions: [
             IconButton(
-              icon: Icon(Icons.search),
+              icon: const Icon(Icons.search),
               onPressed: () {
                 // Handle search action
               },
@@ -107,7 +110,7 @@ class ChatPage extends StatelessWidget {
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Search',
-                prefixIcon: Icon(Icons.search),
+                prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20.0),
                 ),
@@ -120,7 +123,7 @@ class ChatPage extends StatelessWidget {
               itemCount: 10, // Replace with actual number of chats
               itemBuilder: (context, index) {
                 return ListTile(
-                  leading: CircleAvatar(
+                  leading: const CircleAvatar(
                     backgroundColor: Colors.grey, // Placeholder color
                     child: Icon(Icons.person),
                   ),
@@ -131,7 +134,7 @@ class ChatPage extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => ChatScreen(),
+                        builder: (context) => const ChatScreen(),
                       ),
                     );
                   },
@@ -168,12 +171,14 @@ class ChatPage extends StatelessWidget {
 }
 
 class ChatScreen extends StatelessWidget {
+  const ChatScreen({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Color(0xFF497077),
-        title: Text('Contact Name'),
+        backgroundColor: const Color(0xFF497077),
+        title: const Text('Contact Name'),
       ),
       body: Column(
         children: [
@@ -182,7 +187,7 @@ class ChatScreen extends StatelessWidget {
             child: Padding(
               padding: const EdgeInsets.all(8.0),
               child: ListView(
-                children: [
+                children: const [
                   // Replace with actual chat messages
                   ChatBubble(message: 'Hello', isMe: true),
                   ChatBubble(message: 'Hi there!', isMe: false),
@@ -192,8 +197,8 @@ class ChatScreen extends StatelessWidget {
           ),
           // Message Input
           Container(
-            padding: EdgeInsets.all(8.0),
-            color: Color(0xFFC8D4D6),
+            padding: const EdgeInsets.all(8.0),
+            color: const Color(0xFFC8D4D6),
             child: Row(
               children: [
                 Expanded(
@@ -206,15 +211,15 @@ class ChatScreen extends StatelessWidget {
                     ),
                   ),
                 ),
-                SizedBox(width: 8.0),
+                const SizedBox(width: 8.0),
                 IconButton(
-                  icon: Icon(Icons.attach_file),
+                  icon: const Icon(Icons.attach_file),
                   onPressed: () {
                     // Handle attachment button tap
                   },
                 ),
                 IconButton(
-                  icon: Icon(Icons.send),
+                  icon: const Icon(Icons.send),
                   onPressed: () {
                     // Handle send button tap
                   },
@@ -233,6 +238,7 @@ class ChatBubble extends StatelessWidget {
   final bool isMe;
 
   const ChatBubble({
+    super.key,
     required this.message,
     required this.isMe,
   });
@@ -242,10 +248,10 @@ class ChatBubble extends StatelessWidget {
     return Align(
       alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
-        margin: EdgeInsets.symmetric(vertical: 4.0),
-        padding: EdgeInsets.all(8.0),
+        margin: const EdgeInsets.symmetric(vertical: 4.0),
+        padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          color: isMe ? Color(0xFF497077) : Colors.grey[300],
+          color: isMe ? const Color(0xFF497077) : Colors.grey[300],
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Text(
@@ -260,7 +266,7 @@ class ChatBubble extends StatelessWidget {
 }
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: ChatPage(),
   ));
 }

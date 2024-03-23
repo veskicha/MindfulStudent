@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
+import 'package:syncfusion_flutter_charts/charts.dart';
 
 class SleepTrackingPage extends StatefulWidget {
+  const SleepTrackingPage({super.key});
+
   @override
-  _SleepTrackingPageState createState() => _SleepTrackingPageState();
+  SleepTrackingPageState createState() => SleepTrackingPageState();
 }
 
-class _SleepTrackingPageState extends State<SleepTrackingPage> {
+class SleepTrackingPageState extends State<SleepTrackingPage> {
   int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
@@ -30,8 +32,8 @@ class _SleepTrackingPageState extends State<SleepTrackingPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+          const Padding(
+            padding: EdgeInsets.all(16.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
@@ -55,7 +57,7 @@ class _SleepTrackingPageState extends State<SleepTrackingPage> {
           ),
           Expanded(
             child: SfCartesianChart(
-              primaryXAxis: DateTimeAxis(),
+              primaryXAxis: const DateTimeAxis(),
               series: <CartesianSeries<SleepData, DateTime>>[
                 LineSeries<SleepData, DateTime>(
                   dataSource: chartData,
@@ -66,21 +68,21 @@ class _SleepTrackingPageState extends State<SleepTrackingPage> {
             ),
           ),
           Container(
-            color: Color(0xFF497077),
+            color: const Color(0xFF497077),
             padding: const EdgeInsets.all(16.0),
             child: Center(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(
+                  const Text(
                     'Your optimal bedtime',
                     style: TextStyle(
                       fontSize: 18,
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 8),
-                  Text(
+                  const SizedBox(height: 8),
+                  const Text(
                     '21:30 - 22:30',
                     style: TextStyle(
                       fontSize: 24,
@@ -92,7 +94,7 @@ class _SleepTrackingPageState extends State<SleepTrackingPage> {
                     onTap: () {
                       // Handle daily tips and suggestions action
                     },
-                    child: Text(
+                    child: const Text(
                       'Daily tips and suggestions →',
                       style: TextStyle(
                         color: Colors.white,
@@ -104,7 +106,7 @@ class _SleepTrackingPageState extends State<SleepTrackingPage> {
               ),
             ),
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: 16),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 16.0),
             child: Row(
@@ -112,8 +114,8 @@ class _SleepTrackingPageState extends State<SleepTrackingPage> {
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.all(16.0),
-                    color: Color(0xFFC8D4D6),
-                    child: Column(
+                    color: const Color(0xFFC8D4D6),
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
@@ -142,12 +144,12 @@ class _SleepTrackingPageState extends State<SleepTrackingPage> {
                     ),
                   ),
                 ),
-                SizedBox(width: 16),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Container(
                     padding: const EdgeInsets.all(16.0),
-                    color: Color(0xFFC8D4D6),
-                    child: Column(
+                    color: const Color(0xFFC8D4D6),
+                    child: const Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(

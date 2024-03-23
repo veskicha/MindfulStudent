@@ -5,6 +5,7 @@ class BottomNavBar extends StatelessWidget {
   final Function(int) onItemTapped;
 
   const BottomNavBar({
+    super.key,
     required this.selectedIndex,
     required this.onItemTapped,
   });
@@ -12,8 +13,8 @@ class BottomNavBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BottomNavigationBar(
-      backgroundColor: Color(0xFF5C7F85),
-      selectedItemColor: Color(0xFF5C7F85),
+      backgroundColor: const Color(0xFF5C7F85),
+      selectedItemColor: const Color(0xFF5C7F85),
       unselectedItemColor: Colors.black,
       currentIndex: selectedIndex,
       onTap: (index) {
@@ -37,7 +38,7 @@ class BottomNavBar extends StatelessWidget {
             break;
         }
       },
-      items: [
+      items: const [
         BottomNavigationBarItem(
           icon: ImageIcon(
             AssetImage('assets/HomeIcon.png'),

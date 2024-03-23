@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:mindfulstudent/edit_profile.dart';
-import 'package:provider/provider.dart';
 import 'package:mindfulstudent/provider/user_profile_provider.dart';
-import 'widgets/bottom_nav_bar.dart';
+import 'package:mindfulstudent/screens/home/edit_profile_screen.dart';
+import 'package:provider/provider.dart';
+
+import '../../widgets/bottom_nav_bar.dart';
 
 class ProfilePage extends StatefulWidget {
+  const ProfilePage({super.key});
+
   @override
-  _ProfilePageState createState() => _ProfilePageState();
+  ProfilePageState createState() => ProfilePageState();
 }
 
-class _ProfilePageState extends State<ProfilePage> {
+class ProfilePageState extends State<ProfilePage> {
   int _selectedIndex = 3; // Default selected index
 
   void _onItemTapped(int index) {
@@ -33,7 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   width: MediaQuery.of(context).size.width,
                   fit: BoxFit.cover,
                 ),
-                Positioned(
+                const Positioned(
                   top: 60,
                   child: Text(
                     'Profile',
@@ -47,13 +50,13 @@ class _ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
-          Spacer(),
+          const Spacer(),
           Consumer<UserProfileProvider>(
             builder: (context, userProfileProvider, child) {
               UserProfile userProfile = userProfileProvider.userProfile;
               return Column(
                 children: [
-                  CircleAvatar(
+                  const CircleAvatar(
                     radius: 60,
                     backgroundColor: Color(0xFF497077),
                     child: Icon(
@@ -62,66 +65,66 @@ class _ProfilePageState extends State<ProfilePage> {
                       color: Colors.white,
                     ),
                   ),
-                  SizedBox(height: 20),
+                  const SizedBox(height: 20),
                   Text(
                     userProfile.name,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF497077),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Text(
                     userProfile.age.toString(),
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 20,
                       color: Color(0xFF497077),
                     ),
                   ),
-                  SizedBox(height: 10),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(
+                      const Icon(
                         Icons.location_on,
                         color: Color(0xFF497077),
                       ),
-                      SizedBox(width: 8),
+                      const SizedBox(width: 8),
                       Text(
                         userProfile.location,
-                        style: TextStyle(color: Color(0xFF497077)),
+                        style: const TextStyle(color: Color(0xFF497077)),
                       ),
                     ],
                   ),
-                  SizedBox(height: 40),
+                  const SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: () {
                       // Navigate to EditProfilePage
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => EditProfilePage()),
+                            builder: (context) => const EditProfilePage()),
                       );
                     },
-                    child: Text(
-                      'Edit profile',
-                      style: TextStyle(color: Colors.white),
-                    ),
                     style: ElevatedButton.styleFrom(
-                      primary: Color(0xFF497077),
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 100, vertical: 16),
+                      backgroundColor: const Color(0xFF497077),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 100, vertical: 16),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(30),
                       ),
+                    ),
+                    child: const Text(
+                      'Edit profile',
+                      style: TextStyle(color: Colors.white),
                     ),
                   ),
                 ],
               );
             },
           ),
-          Spacer(),
+          const Spacer(),
         ],
       ),
       bottomNavigationBar: BottomNavBar(
