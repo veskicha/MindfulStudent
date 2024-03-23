@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'widgets/bottom_nav_bar.dart';
 
 class HomeScreen extends StatefulWidget {
   @override
@@ -209,43 +210,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Color(0xFF5C7F85),
-        selectedItemColor: Color(0xFF5C7F85),
-        unselectedItemColor: Colors.black,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: [
-          BottomNavigationBarItem(
-            icon: ImageIcon(
-              AssetImage('assets/HomeIcon.png'),
-              size: 24,
-            ),
-            label: 'Home',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(
-              AssetImage('assets/Sleep.png'),
-              size: 24,
-            ),
-            label: 'Sleep',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(
-              AssetImage('assets/Chat.png'),
-              size: 24,
-            ),
-            label: 'Chat',
-          ),
-          BottomNavigationBarItem(
-            icon: ImageIcon(
-              AssetImage('assets/Profile.png'),
-              size: 24,
-            ),
-            label: 'Profile',
-          ),
-        ],
-      ),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
+      ), // Using the BottomNavBar widget
     );
   }
 }
