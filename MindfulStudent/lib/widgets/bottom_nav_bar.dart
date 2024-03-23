@@ -23,16 +23,16 @@ class BottomNavBar extends StatelessWidget {
         // Navigate to the respective page based on the index
         switch (index) {
           case 0:
-            Navigator.pushNamed(context, '/home');
+            Navigator.pushReplacementNamed(context, '/home');
             break;
           case 1:
-            Navigator.pushNamed(context, '/sleep');
+            Navigator.pushReplacementNamed(context, '/sleep');
             break;
           case 2:
-            Navigator.pushNamed(context, '/chat');
+            Navigator.pushReplacementNamed(context, '/chat');
             break;
           case 3:
-            Navigator.pushNamed(context, '/profile');
+            Navigator.pushReplacementNamed(context, '/profile');
             break;
           default:
             break;

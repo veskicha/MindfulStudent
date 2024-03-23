@@ -186,7 +186,7 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
-      ), // Using the BottomNavBar widget
+      ),
     );
   }
 }

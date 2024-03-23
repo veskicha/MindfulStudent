@@ -1,79 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 
-class BottomNavBar extends StatelessWidget {
-  final int selectedIndex;
-  final Function(int) onItemTapped;
-
-  const BottomNavBar({
-    super.key,
-    required this.selectedIndex,
-    required this.onItemTapped,
-  });
+class ChatPage extends StatefulWidget {
+  const ChatPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      backgroundColor: const Color(0xFF5C7F85),
-      selectedItemColor: const Color(0xFF5C7F85),
-      unselectedItemColor: Colors.black,
-      currentIndex: selectedIndex,
-      onTap: (index) {
-        // Call the onItemTapped function provided by the parent widget
-        onItemTapped(index);
-        // Navigate to the respective page based on the index
-        switch (index) {
-          case 0:
-            Navigator.pushNamed(context, '/home');
-            break;
-          case 1:
-            Navigator.pushNamed(context, '/sleep');
-            break;
-          case 2:
-            Navigator.pushNamed(context, '/chat');
-            break;
-          case 3:
-            Navigator.pushNamed(context, '/profile');
-            break;
-          default:
-            break;
-        }
-      },
-      items: const [
-        BottomNavigationBarItem(
-          icon: ImageIcon(
-            AssetImage('assets/HomeIcon.png'),
-            size: 24,
-          ),
-          label: 'Home',
-        ),
-        BottomNavigationBarItem(
-          icon: ImageIcon(
-            AssetImage('assets/Sleep.png'),
-            size: 24,
-          ),
-          label: 'Sleep',
-        ),
-        BottomNavigationBarItem(
-          icon: ImageIcon(
-            AssetImage('assets/Chat.png'),
-            size: 24,
-          ),
-          label: 'Chat',
-        ),
-        BottomNavigationBarItem(
-          icon: ImageIcon(
-            AssetImage('assets/Profile.png'),
-            size: 24,
-          ),
-          label: 'Profile',
-        ),
-      ],
-    );
-  }
+  ChatPageState createState() => ChatPageState();
 }
 
-class ChatPage extends StatelessWidget {
-  const ChatPage({super.key});
+class ChatPageState extends State<ChatPage> {
+  int _selectedIndex = 2;
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -145,26 +87,8 @@ class ChatPage extends StatelessWidget {
         ],
       ),
       bottomNavigationBar: BottomNavBar(
-        selectedIndex: 2, // Chat page index
-        onItemTapped: (index) {
-          // Handle bottom navigation bar item tapped
-          switch (index) {
-            case 0:
-              Navigator.pushNamed(context, '/home');
-              break;
-            case 1:
-              Navigator.pushNamed(context, '/sleep');
-              break;
-            case 2:
-              // Already on chat page
-              break;
-            case 3:
-              Navigator.pushNamed(context, '/profile');
-              break;
-            default:
-              break;
-          }
-        },
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
       ),
     );
   }
