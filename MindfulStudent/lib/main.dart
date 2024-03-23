@@ -1,9 +1,16 @@
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'splash_screen.dart'; // Import your splash_screen.dart file
+import 'constants.dart' as constants;
+import 'screens/home/splash_screen.dart';
 
-void main() {
+Future<void> main() async {
+  await Supabase.initialize(
+      url: constants.supabaseUrl, anonKey: constants.supabaseAnonKey);
+
   runApp(const MaterialApp(
-    home: SplashScreen(), // Open SplashScreen instead of ScreenloginWidget
+    home: SplashScreen(),
   ));
 }
+
+final supabase = Supabase.instance.client;
