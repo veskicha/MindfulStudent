@@ -157,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: 'Chat',
                         imagePath: 'assets/Chat.png',
                         onTap: () {
-                          // Handle navigation to feature chat page
+                          Navigator.pushNamed(context, '/chat');
                         },
                       ),
                       FeatureBlock(
@@ -171,7 +171,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         title: 'Sleep',
                         imagePath: 'assets/Sleep.png',
                         onTap: () {
-                          // Handle navigation to Sleep page
+                          Navigator.pushNamed(context, '/sleep');
                         },
                       ),
                       FeatureBlock(

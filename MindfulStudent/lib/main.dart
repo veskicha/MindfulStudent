@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/sleep_tracking.dart';
 import 'package:provider/provider.dart';
 import 'package:mindfulstudent/chat_screen.dart';
 import 'package:mindfulstudent/home_screen.dart';
@@ -21,7 +22,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/home': (context) => HomeScreen(),
           '/chat': (context) => ChatPage(),
-          '/sleep': (context) => HomeScreen(),
+          '/sleep': (context) => SleepTrackingPage(),
           '/profile': (context) => ProfilePage(),
         },
       ),

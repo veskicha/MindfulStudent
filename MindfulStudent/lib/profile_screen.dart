@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/edit_profile.dart';
 import 'package:provider/provider.dart';
 import 'package:mindfulstudent/provider/user_profile_provider.dart';
 import 'widgets/bottom_nav_bar.dart';
@@ -96,7 +97,12 @@ class _ProfilePageState extends State<ProfilePage> {
                   SizedBox(height: 40),
                   ElevatedButton(
                     onPressed: () {
-                      // Handle edit profile action
+                      // Navigate to EditProfilePage
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => EditProfilePage()),
+                      );
                     },
                     child: Text(
                       'Edit profile',
