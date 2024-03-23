@@ -18,6 +18,10 @@ class TextLineField extends StatefulWidget {
   String getText() {
     return _controller.text;
   }
+
+  void setText(String text) {
+    _controller.text = text;
+  }
 }
 
 class TextLineFieldState extends State<TextLineField> {
@@ -29,22 +33,19 @@ class TextLineFieldState extends State<TextLineField> {
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: TextField(
-        controller: widget.getController(),
-        obscureText: widget.obscureText,
-        decoration: InputDecoration(
-          hintText: widget.hintText,
-          hintStyle: const TextStyle(color: Color(0xFFAAAAAA)),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFF497077)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(10),
-            borderSide: const BorderSide(color: Color(0xFF497077)),
-          ),
+    return TextField(
+      controller: widget.getController(),
+      obscureText: widget.obscureText,
+      decoration: InputDecoration(
+        hintText: widget.hintText,
+        hintStyle: const TextStyle(color: Color(0xFFAAAAAA)),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFF497077)),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(10),
+          borderSide: const BorderSide(color: Color(0xFF497077)),
         ),
       ),
     );

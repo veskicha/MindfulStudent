@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/provider/user_profile_provider.dart';
-import 'package:mindfulstudent/screens/home/edit_profile_screen.dart';
+import 'package:mindfulstudent/screens/home/profile_edit_screen.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/bottom_nav_bar.dart';

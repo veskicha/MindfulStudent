@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/widgets/text_line_field.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -8,16 +9,17 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class EditProfilePageState extends State<EditProfilePage> {
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
+  final TextLineField _nameField = TextLineField("Loading...");
+  final TextLineField _emailField = TextLineField("Loading...");
+  final TextLineField _passwordField = TextLineField("Loading...");
 
   @override
   void initState() {
     super.initState();
-    _nameController.text = 'Name Surname';
-    _emailController.text = 'namesurname@gmail.com';
-    _passwordController.text = '********'; // Placeholder for password
+
+    _nameField.setText("Name Surname");
+    _emailField.setText("namesurname@gmail.com");
+    _passwordField.setText("*********");
   }
 
   @override
@@ -53,13 +55,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                 color: Color(0xFF497077),
               ),
             ),
-            TextField(
-              controller: _nameController,
-              decoration: const InputDecoration(
-                hintText: 'Name Surname',
-                border: OutlineInputBorder(),
-              ),
-            ),
+            _nameField,
             const SizedBox(height: 16),
             const Text(
               'Email',
@@ -69,13 +65,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                 color: Color(0xFF497077),
               ),
             ),
-            TextField(
-              controller: _emailController,
-              decoration: const InputDecoration(
-                hintText: 'namesurname@gmail.com',
-                border: OutlineInputBorder(),
-              ),
-            ),
+            _emailField,
             const SizedBox(height: 16),
             const Text(
               'Password',
@@ -85,14 +75,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                 color: Color(0xFF497077),
               ),
             ),
-            TextField(
-              controller: _passwordController,
-              obscureText: true,
-              decoration: const InputDecoration(
-                hintText: '********',
-                border: OutlineInputBorder(),
-              ),
-            ),
+            _passwordField,
             const SizedBox(height: 24),
             ElevatedButton(
               onPressed: () {
