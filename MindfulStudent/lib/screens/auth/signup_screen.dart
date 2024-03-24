@@ -33,7 +33,7 @@ class SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    Auth.signup(email, name, password).then((res) {
+    Auth.signUp(email, name, password).then((res) {
       if (!res) {
         showInfo(context, "Account created!",
             description: "Please check your email for a confirmation link.");
