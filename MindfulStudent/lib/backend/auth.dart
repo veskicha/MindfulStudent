@@ -81,14 +81,7 @@ class Auth {
     final id = Auth.user?.id;
     if (id == null) return null;
 
-    try {
-      await supabase
-          .from("profiles")
-          .update({"name": profile.name}).eq("id", id);
-    } catch (e) {
-      log(e.toString());
-      return null;
-    }
+    await supabase.from("profiles").update({"name": profile.name}).eq("id", id);
 
     // This will also trigger the provider to update
     return await getProfile();

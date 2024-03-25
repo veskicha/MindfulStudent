@@ -3,6 +3,7 @@ import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/main.dart';
+import 'package:mindfulstudent/util.dart';
 import 'package:mindfulstudent/widgets/button.dart';
 import 'package:mindfulstudent/widgets/text_line_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -34,7 +35,7 @@ class EditProfilePageState extends State<EditProfilePage> {
     _emailField.setText(user.email ?? "");
   }
 
-  Future<bool> _updateProfile() async {
+  Future<bool> _updateProfile(BuildContext context) async {
     final name = _nameField.getText();
     final email = _emailField.getText();
     final password = _passwordField.getText();
@@ -43,7 +44,8 @@ class EditProfilePageState extends State<EditProfilePage> {
     final doUpdatePassword = password.isNotEmpty || passwordConfirm.isNotEmpty;
 
     if (doUpdatePassword && password != passwordConfirm) {
-      // TODO: show error!
+      showError(context, "Profile error",
+          description: "Passwords do not match!");
       return false;
     }
 
@@ -66,8 +68,17 @@ class EditProfilePageState extends State<EditProfilePage> {
       log("Updating password");
       userAttrs.password = password;
     }
-    await Auth.updateUser(userAttrs);
 
+    if (userAttrs.email != null || userAttrs.password != null) {
+      await Auth.updateUser(userAttrs).catchError((e) {
+        if (e is AuthException) {
+          showError(context, "Save error", description: e.message);
+          return false;
+        }
+        showError(context, "Unknown error", description: e.toString());
+        return false;
+      });
+    }
     return true;
   }
 
@@ -76,6 +87,7 @@ class EditProfilePageState extends State<EditProfilePage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF497077),
+        foregroundColor: Colors.white,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -130,7 +142,7 @@ class EditProfilePageState extends State<EditProfilePage> {
               _passwordConfirmField,
               const SizedBox(height: 24),
               Button('Save Changes', onPressed: () async {
-                final ok = await _updateProfile();
+                final ok = await _updateProfile(context);
                 if (ok && context.mounted) Navigator.of(context).pop();
               })
             ],
