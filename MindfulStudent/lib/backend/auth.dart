@@ -4,17 +4,13 @@ import 'package:mindfulstudent/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class Profile {
-  static final Map<String, Profile> _cache = {};
-
   final String id;
   String? name;
+  String? avatarUrl;
 
-  Profile(this.id, this.name);
+  Profile({required this.id, required this.name, required this.avatarUrl});
 
   static Future<Profile?> get(String id) async {
-    final cachedProfile = _cache[id];
-    if (cachedProfile != null) return cachedProfile;
-
     late final Map<String, dynamic> data;
     try {
       final rows = await supabase.from("profiles").select().eq("id", id);
@@ -25,8 +21,8 @@ class Profile {
       return null;
     }
 
-    _cache[id] = Profile(data["id"], data["name"]);
-    return _cache[id];
+    return Profile(
+        id: data["id"], name: data["name"], avatarUrl: data["avatarUrl"]);
   }
 }
 
@@ -42,6 +38,10 @@ class Auth {
   static Future<bool> login(String email, String password) async {
     log("Attempt login for $email");
     await supabase.auth.signInWithPassword(email: email, password: password);
+
+    // Don't wait for this future to complete - handled by provider
+    getProfile();
+
     return true;
   }
 
@@ -49,16 +49,26 @@ class Auth {
     log("Create new account: $email");
     final res = await supabase.auth
         .signUp(email: email, password: password, data: {"name": name});
-    return res.session != null;
+    final ok = res.session != null;
+
+    // Don't await this
+    if (ok) getProfile();
+
+    return ok;
   }
 
   static Future<void> signOut() async {
     await supabase.auth.signOut();
+
+    profileProvider.updateProfile(null);
   }
 
   static Future<Profile?> getProfile() async {
     final user = Auth.user;
     if (user == null) return null;
-    return Profile.get(user.id);
+
+    final profile = await Profile.get(user.id);
+    profileProvider.updateProfile(profile);
+    return profile;
   }
 }

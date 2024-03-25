@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/provider/user_profile_provider.dart';
 import 'package:mindfulstudent/screens/home/profile_edit_screen.dart';
 import 'package:provider/provider.dart';
@@ -52,8 +53,8 @@ class ProfilePageState extends State<ProfilePage> {
           ),
           const Spacer(),
           Consumer<UserProfileProvider>(
-            builder: (context, userProfileProvider, child) {
-              UserProfile userProfile = userProfileProvider.userProfile;
+            builder: (context, profileProvider, child) {
+              Profile? userProfile = profileProvider.userProfile;
               return Column(
                 children: [
                   const CircleAvatar(
@@ -67,35 +68,12 @@ class ProfilePageState extends State<ProfilePage> {
                   ),
                   const SizedBox(height: 20),
                   Text(
-                    userProfile.name,
+                    userProfile?.name ?? "Unknown User",
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF497077),
                     ),
-                  ),
-                  const SizedBox(height: 10),
-                  Text(
-                    userProfile.age.toString(),
-                    style: const TextStyle(
-                      fontSize: 20,
-                      color: Color(0xFF497077),
-                    ),
-                  ),
-                  const SizedBox(height: 10),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.location_on,
-                        color: Color(0xFF497077),
-                      ),
-                      const SizedBox(width: 8),
-                      Text(
-                        userProfile.location,
-                        style: const TextStyle(color: Color(0xFF497077)),
-                      ),
-                    ],
                   ),
                   const SizedBox(height: 40),
                   ElevatedButton(

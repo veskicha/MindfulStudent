@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
+import 'package:mindfulstudent/provider/user_profile_provider.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -53,24 +55,10 @@ class HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   final double _progress = 0.7;
-  String? welcomeText;
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
-    });
-  }
-
-  @override
-  void initState() {
-    super.initState();
-
-    Auth.getProfile().then((p) {
-      if (p == null) return;
-
-      setState(() {
-        welcomeText = 'Welcome, ${p.name}!';
-      });
     });
   }
 
@@ -85,32 +73,37 @@ class HomeScreenState extends State<HomeScreen> {
               color: const Color(0xFFC8D4D6),
               width: double.infinity,
               height: 220,
-              child: Stack(
-                children: [
-                  const Positioned(
-                    top: 100,
-                    left: 40,
-                    child: CircleAvatar(
-                      radius: 20,
-                      backgroundImage: AssetImage('assets/Profile.png'),
-                    ),
-                  ),
-                  Positioned(
-                    top: 100,
-                    left: 100,
-                    child: Text(
-                      welcomeText ?? 'Welcome!',
-                      style: const TextStyle(
-                        color: Color(0xFF497077),
-                        fontFamily: 'Poppins',
-                        fontSize: 25,
-                        fontWeight: FontWeight.normal,
+                child: Consumer<UserProfileProvider>(
+                    builder: (context, profileProvider, child) {
+                  Profile? userProfile = profileProvider.userProfile;
+                  return Stack(
+                    children: [
+                      const Positioned(
+                        top: 100,
+                        left: 40,
+                        child: CircleAvatar(
+                          radius: 20,
+                          backgroundImage: AssetImage('assets/Profile.png'),
+                        ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
-            ),
+                      Positioned(
+                        top: 100,
+                        left: 100,
+                        child: Text(
+                          userProfile == null
+                              ? 'Welcome!'
+                              : 'Welcome, ${userProfile.name}!',
+                          style: const TextStyle(
+                            color: Color(0xFF497077),
+                            fontFamily: 'Poppins',
+                            fontSize: 25,
+                            fontWeight: FontWeight.normal,
+                          ),
+                        ),
+                      ),
+                    ],
+                  );
+                })),
             Padding(
               padding: const EdgeInsets.all(20.0),
               child: Column(
