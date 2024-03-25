@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'constants.dart' as constants;
-import 'provider/user_profile_provider.dart' as provider;
+import 'provider/user_profile_provider.dart';
 import 'screens/home/chat_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/home/profile_screen.dart';
@@ -22,8 +22,8 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (context) => provider.UserProfileProvider(),
+    return ChangeNotifierProvider.value(
+      value: profileProvider,
       child: MaterialApp(
         home: const SplashScreen(),
         routes: {
@@ -38,3 +38,4 @@ class MyApp extends StatelessWidget {
 }
 
 final supabase = Supabase.instance.client;
+final profileProvider = UserProfileProvider();

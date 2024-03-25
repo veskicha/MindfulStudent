@@ -25,6 +25,9 @@ class SplashScreenState extends State<SplashScreen> {
     }
 
     if (Auth.isLoggedIn) {
+      // Pre-cache
+      Auth.getProfile();
+
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
