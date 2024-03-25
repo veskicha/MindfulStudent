@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
+import 'package:mindfulstudent/widgets/header_bar.dart';
 import 'package:syncfusion_flutter_charts/charts.dart';
 
 class SleepTrackingPage extends StatefulWidget {
@@ -29,32 +30,13 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: const PreferredSize(
+        preferredSize: Size.fromHeight(80.0),
+        child: HeaderBar('Sleep Tracking'),
+      ),
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Padding(
-            padding: EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text(
-                  'Welcome Mike',
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF497077),
-                  ),
-                ),
-                Text(
-                  'Are you gliding into sleep?',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Color(0xFF497077),
-                  ),
-                ),
-              ],
-            ),
-          ),
           Expanded(
             child: SfCartesianChart(
               primaryXAxis: const DateTimeAxis(),
