@@ -2,6 +2,7 @@ import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/util.dart';
+import 'package:mindfulstudent/widgets/button.dart';
 import 'package:mindfulstudent/widgets/text_line_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -20,11 +21,11 @@ class LoginScreenState extends State<LoginScreen> {
   final TextLineField passwordField =
       TextLineField("Password", obscureText: true);
 
-  void login() {
+  Future<void> login() {
     final email = emailField.getText();
     final password = passwordField.getText();
 
-    Auth.login(email, password).then((_) {
+    return Auth.login(email, password).then((_) {
       Navigator.of(context).pushReplacement(
           MaterialPageRoute(builder: (context) => const HomeScreen()));
     }).catchError((e) {
@@ -78,28 +79,7 @@ class LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 10),
               passwordField,
               const SizedBox(height: 20),
-              GestureDetector(
-                onTap: login,
-                child: Container(
-                  width: MediaQuery.of(context).size.width * 0.8,
-                  height: 50,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF497077),
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: const Center(
-                    child: Text(
-                      'Login',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 18,
-                        fontFamily: 'Poppins',
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
-                  ),
-                ),
-              ),
+              Button('Login', onPressed: login),
               const SizedBox(height: 20),
               Text.rich(
                 TextSpan(

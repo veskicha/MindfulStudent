@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/widgets/button.dart';
 import 'package:mindfulstudent/widgets/text_line_field.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -77,16 +78,9 @@ class EditProfilePageState extends State<EditProfilePage> {
             ),
             _passwordField,
             const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                // Navigate back to ProfilePage
-                Navigator.pop(context);
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF497077),
-              ),
-              child: const Text('Save Changes'),
-            ),
+            Button('Save Changes', onPressed: () async {
+              Navigator.of(context).pop();
+            })
           ],
         ),
       ),
