@@ -1,7 +1,9 @@
 import 'dart:developer';
 
-import 'package:mindfulstudent/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
+import '../constants.dart' as constants;
+import '/main.dart';
 
 class Profile {
   final String id;
@@ -27,6 +29,25 @@ class Profile {
 }
 
 class Auth {
+  static Future<void> init() async {
+    await Supabase.initialize(
+        url: constants.supabaseUrl, anonKey: constants.supabaseAnonKey);
+
+    supabase.auth.onAuthStateChange.listen((data) {
+      log(data.event.toString());
+      switch (data.event) {
+        case (AuthChangeEvent.initialSession):
+        case (AuthChangeEvent.signedIn):
+          if (isLoggedIn) getProfile();
+          break;
+        case (AuthChangeEvent.signedOut):
+          profileProvider.updateProfile(null);
+          break;
+        default:
+      }
+    });
+  }
+
   static bool get isLoggedIn {
     return supabase.auth.currentSession != null;
   }
@@ -39,9 +60,6 @@ class Auth {
     log("Attempt login for $email");
     await supabase.auth.signInWithPassword(email: email, password: password);
 
-    // Don't wait for this future to complete - handled by provider
-    getProfile();
-
     return true;
   }
 
@@ -49,18 +67,11 @@ class Auth {
     log("Create new account: $email");
     final res = await supabase.auth
         .signUp(email: email, password: password, data: {"name": name});
-    final ok = res.session != null;
-
-    // Don't await this
-    if (ok) getProfile();
-
-    return ok;
+    return res.session != null;
   }
 
   static Future<void> signOut() async {
     await supabase.auth.signOut();
-
-    profileProvider.updateProfile(null);
   }
 
   static Future<bool> updateUser(UserAttributes attrs) async {
