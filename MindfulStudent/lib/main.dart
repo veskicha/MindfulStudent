@@ -7,7 +7,7 @@ import 'provider/user_profile_provider.dart';
 import 'screens/home/chat_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/home/profile_screen.dart';
-import 'screens/home/sleep_tracking_page.dart';
+import 'screens/home/sleep_tracking_screen.dart';
 import 'screens/splash_screen.dart';
 
 Future<void> main() async {
