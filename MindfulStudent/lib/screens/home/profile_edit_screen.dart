@@ -34,54 +34,56 @@ class EditProfilePageState extends State<EditProfilePage> {
         ),
         title: const Text('Edit Profile'),
       ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          children: [
-            const CircleAvatar(
-              radius: 50,
-              backgroundColor: Color(0xFFC8D4D6),
-              child: Icon(
-                Icons.person,
-                size: 60,
-                color: Colors.white,
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              const CircleAvatar(
+                radius: 50,
+                backgroundColor: Color(0xFFC8D4D6),
+                child: Icon(
+                  Icons.person,
+                  size: 60,
+                  color: Colors.white,
+                ),
               ),
-            ),
-            const SizedBox(height: 16),
-            const Text(
-              'Name',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF497077),
+              const SizedBox(height: 16),
+              const Text(
+                'Name',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF497077),
+                ),
               ),
-            ),
-            _nameField,
-            const SizedBox(height: 16),
-            const Text(
-              'Email',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF497077),
+              _nameField,
+              const SizedBox(height: 16),
+              const Text(
+                'Email',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF497077),
+                ),
               ),
-            ),
-            _emailField,
-            const SizedBox(height: 16),
-            const Text(
-              'Password',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF497077),
+              _emailField,
+              const SizedBox(height: 16),
+              const Text(
+                'Password',
+                style: TextStyle(
+                  fontSize: 18,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF497077),
+                ),
               ),
-            ),
-            _passwordField,
-            const SizedBox(height: 24),
-            Button('Save Changes', onPressed: () async {
-              Navigator.of(context).pop();
-            })
-          ],
+              _passwordField,
+              const SizedBox(height: 24),
+              Button('Save Changes', onPressed: () async {
+                Navigator.of(context).pop();
+              })
+            ],
+          ),
         ),
       ),
     );
