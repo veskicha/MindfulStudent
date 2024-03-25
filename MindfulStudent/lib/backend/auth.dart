@@ -63,6 +63,11 @@ class Auth {
     profileProvider.updateProfile(null);
   }
 
+  static Future<bool> updateUser(UserAttributes attrs) async {
+    await supabase.auth.updateUser(attrs);
+    return true;
+  }
+
   static Future<Profile?> getProfile() async {
     final user = Auth.user;
     if (user == null) return null;
@@ -70,5 +75,22 @@ class Auth {
     final profile = await Profile.get(user.id);
     profileProvider.updateProfile(profile);
     return profile;
+  }
+
+  static Future<Profile?> updateProfile(Profile profile) async {
+    final id = Auth.user?.id;
+    if (id == null) return null;
+
+    try {
+      await supabase
+          .from("profiles")
+          .update({"name": profile.name}).eq("id", id);
+    } catch (e) {
+      log(e.toString());
+      return null;
+    }
+
+    // This will also trigger the provider to update
+    return await getProfile();
   }
 }

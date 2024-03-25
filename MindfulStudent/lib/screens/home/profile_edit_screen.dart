@@ -1,6 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/backend/auth.dart';
+import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/widgets/button.dart';
 import 'package:mindfulstudent/widgets/text_line_field.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -10,17 +15,60 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class EditProfilePageState extends State<EditProfilePage> {
-  final TextLineField _nameField = TextLineField("Loading...");
-  final TextLineField _emailField = TextLineField("Loading...");
-  final TextLineField _passwordField = TextLineField("Loading...");
+  final TextLineField _nameField = TextLineField("Your name");
+  final TextLineField _emailField = TextLineField("Your email address");
+  final TextLineField _passwordField =
+      TextLineField("New password", obscureText: true);
+  final TextLineField _passwordConfirmField =
+      TextLineField("Confirm new password", obscureText: true);
 
   @override
   void initState() {
     super.initState();
 
-    _nameField.setText("Name Surname");
-    _emailField.setText("namesurname@gmail.com");
-    _passwordField.setText("*********");
+    final profile = profileProvider.userProfile;
+    final user = Auth.user;
+    if (profile == null || user == null) return;
+
+    _nameField.setText(profile.name ?? "");
+    _emailField.setText(user.email ?? "");
+  }
+
+  Future<bool> _updateProfile() async {
+    final name = _nameField.getText();
+    final email = _emailField.getText();
+    final password = _passwordField.getText();
+    final passwordConfirm = _passwordConfirmField.getText();
+
+    final doUpdatePassword = password.isNotEmpty || passwordConfirm.isNotEmpty;
+
+    if (doUpdatePassword && password != passwordConfirm) {
+      // TODO: show error!
+      return false;
+    }
+
+    // Update profile data if necessary (name)
+    final curProfile = profileProvider.userProfile;
+    if (curProfile != null && name != curProfile.name) {
+      log("Updating user name");
+      final newProfile = Profile(
+          id: curProfile.id, name: name, avatarUrl: curProfile.avatarUrl);
+      await Auth.updateProfile(newProfile);
+    }
+
+    // Update email / password if necessary
+    final userAttrs = UserAttributes();
+    if (Auth.user?.email != email) {
+      log("Updating email address");
+      userAttrs.email = email;
+    }
+    if (doUpdatePassword) {
+      log("Updating password");
+      userAttrs.password = password;
+    }
+    await Auth.updateUser(userAttrs);
+
+    return true;
   }
 
   @override
@@ -78,9 +126,12 @@ class EditProfilePageState extends State<EditProfilePage> {
                 ),
               ),
               _passwordField,
+              const SizedBox(height: 16),
+              _passwordConfirmField,
               const SizedBox(height: 24),
               Button('Save Changes', onPressed: () async {
-                Navigator.of(context).pop();
+                final ok = await _updateProfile();
+                if (ok && context.mounted) Navigator.of(context).pop();
               })
             ],
           ),
