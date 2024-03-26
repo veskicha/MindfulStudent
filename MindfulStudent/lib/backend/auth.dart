@@ -38,7 +38,10 @@ class Auth {
       switch (data.event) {
         case (AuthChangeEvent.initialSession):
         case (AuthChangeEvent.signedIn):
-          if (isLoggedIn) profileProvider.updateProfile();
+          if (isLoggedIn) {
+            profileProvider.updateProfile();
+            sleepDataProvider.updateData();
+          }
           break;
         case (AuthChangeEvent.signedOut):
           profileProvider.setProfile(null);

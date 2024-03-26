@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:mindfulstudent/backend/auth.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+import 'backend/auth.dart';
+import 'provider/sleep_tracking_provider.dart';
 import 'provider/user_profile_provider.dart';
 import 'screens/home/chat_screen.dart';
 import 'screens/home/home_screen.dart';
@@ -21,8 +22,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider.value(
-      value: profileProvider,
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider.value(value: profileProvider),
+        ChangeNotifierProvider.value(value: sleepDataProvider),
+      ],
       child: MaterialApp(
         home: const SplashScreen(),
         routes: {
@@ -37,4 +41,6 @@ class MyApp extends StatelessWidget {
 }
 
 final supabase = Supabase.instance.client;
+
 final profileProvider = UserProfileProvider();
+final sleepDataProvider = SleepDataProvider();
