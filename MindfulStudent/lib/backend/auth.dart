@@ -38,10 +38,10 @@ class Auth {
       switch (data.event) {
         case (AuthChangeEvent.initialSession):
         case (AuthChangeEvent.signedIn):
-          if (isLoggedIn) getProfile();
+          if (isLoggedIn) profileProvider.updateProfile();
           break;
         case (AuthChangeEvent.signedOut):
-          profileProvider.updateProfile(null);
+          profileProvider.setProfile(null);
           break;
         default:
       }
@@ -84,7 +84,6 @@ class Auth {
     if (user == null) return null;
 
     final profile = await Profile.get(user.id);
-    profileProvider.updateProfile(profile);
     return profile;
   }
 
@@ -94,7 +93,8 @@ class Auth {
 
     await supabase.from("profiles").update({"name": profile.name}).eq("id", id);
 
-    // This will also trigger the provider to update
-    return await getProfile();
+    final newProfile = await getProfile();
+    profileProvider.setProfile(newProfile);
+    return newProfile;
   }
 }
