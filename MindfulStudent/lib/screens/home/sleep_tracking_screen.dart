@@ -1,7 +1,7 @@
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:mindfulstudent/widgets/header_bar.dart';
-import 'package:syncfusion_flutter_charts/charts.dart';
 
 class SleepTrackingPage extends StatefulWidget {
   const SleepTrackingPage({super.key});
@@ -19,12 +19,25 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
     });
   }
 
-  final List<SleepData> chartData = [
-    SleepData(DateTime(2023, 5, 1), 10),
-    SleepData(DateTime(2023, 5, 7), 12),
-    SleepData(DateTime(2023, 5, 15), 8),
-    SleepData(DateTime(2023, 5, 22), 11),
-    SleepData(DateTime(2023, 5, 30), 7),
+  final List<BarChartRodData> chartData = [
+    BarChartRodData(fromY: 2, toY: 10),
+    BarChartRodData(fromY: 2, toY: 10),
+    BarChartRodData(fromY: 5, toY: 10),
+    BarChartRodData(fromY: 2, toY: 10),
+    BarChartRodData(fromY: 2, toY: 10),
+    BarChartRodData(fromY: 2, toY: 10),
+    BarChartRodData(fromY: 2, toY: 10),
+    BarChartRodData(fromY: 2, toY: 10),
+    BarChartRodData(fromY: 5, toY: 10),
+    BarChartRodData(fromY: 2, toY: 10),
+    BarChartRodData(fromY: 2, toY: 10),
+    BarChartRodData(fromY: 2, toY: 10),
+    BarChartRodData(fromY: 2, toY: 10),
+    BarChartRodData(fromY: 2, toY: 10),
+    BarChartRodData(fromY: 5, toY: 10),
+    BarChartRodData(fromY: 2, toY: 10),
+    BarChartRodData(fromY: 2, toY: 10),
+    BarChartRodData(fromY: 2, toY: 10),
   ];
 
   @override
@@ -38,15 +51,12 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
-            child: SfCartesianChart(
-              primaryXAxis: const DateTimeAxis(),
-              series: <CartesianSeries<SleepData, DateTime>>[
-                LineSeries<SleepData, DateTime>(
-                  dataSource: chartData,
-                  xValueMapper: (SleepData data, _) => data.date,
-                  yValueMapper: (SleepData data, _) => data.hours,
-                ),
-              ],
+            child: BarChart(
+              BarChartData(
+                barGroups: chartData.indexed
+                    .map((d) => BarChartGroupData(x: d.$1, barRods: [d.$2]))
+                    .toList(),
+              ),
             ),
           ),
           Container(
@@ -171,11 +181,4 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
       ),
     );
   }
-}
-
-class SleepData {
-  final DateTime date;
-  final double hours;
-
-  SleepData(this.date, this.hours);
 }
