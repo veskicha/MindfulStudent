@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/backend/sleep.dart';
 import 'package:mindfulstudent/main.dart';
+import 'package:mindfulstudent/screens/home/sleep_tracking_screen.dart';
 import 'package:webview_flutter/webview_flutter.dart';
 
 class SleepTrackingLoginPage extends StatelessWidget {
@@ -29,8 +30,8 @@ class SleepTrackingLoginPage extends StatelessWidget {
     controller.clearLocalStorage();
     cookieManager.clearCookies();
 
-    // Future, will complete in the background
-    sleepDataProvider.updateData();
+    // Triggering the indicator will also perform a refresh
+    SleepTrackingPageState.refreshIndicatorKey.currentState?.show();
 
     // Remove screen and go back to where we came from
     navigatorKey.currentState?.pop();

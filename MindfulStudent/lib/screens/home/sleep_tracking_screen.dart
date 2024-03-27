@@ -1,6 +1,7 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
-import 'package:mindfulstudent/provider/sleep_tracking_provider.dart';
+import 'package:mindfulstudent/main.dart';
+import 'package:mindfulstudent/provider/sleep_data_provider.dart';
 import 'package:mindfulstudent/screens/home/sleep_tracking_login_screen.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:mindfulstudent/widgets/button.dart';
@@ -22,6 +23,9 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
       _selectedIndex = index;
     });
   }
+
+  static final GlobalKey<RefreshIndicatorState> refreshIndicatorKey =
+      GlobalKey<RefreshIndicatorState>();
 
   final List<BarChartRodData> chartData = [
     BarChartRodData(fromY: 2, toY: 10),
@@ -51,14 +55,25 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
         preferredSize: Size.fromHeight(80.0),
         child: HeaderBar('Sleep Tracking'),
       ),
-      body: Consumer<SleepDataProvider>(
-          builder: (context, sleepDataProvider, child) {
-        if (sleepDataProvider.sleepData == null) {
-          return buildLoginContent(context);
-        } else {
-          return buildDataContent(context);
-        }
-      }),
+      body: RefreshIndicator(
+        key: refreshIndicatorKey,
+        onRefresh: sleepDataProvider.updateData,
+        child: CustomScrollView(
+          slivers: <Widget>[
+            SliverFillRemaining(
+              child: Consumer<SleepDataProvider>(
+                builder: (context, sleepDataProvider, child) {
+                  if (sleepDataProvider.sleepData == null) {
+                    return buildLoginContent(context);
+                  } else {
+                    return buildDataContent(context);
+                  }
+                },
+              ),
+            ),
+          ],
+        ),
+      ),
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,

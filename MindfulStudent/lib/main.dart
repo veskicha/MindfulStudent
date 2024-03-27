@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import 'backend/auth.dart';
-import 'provider/sleep_tracking_provider.dart';
+import 'provider/sleep_data_provider.dart';
 import 'provider/user_profile_provider.dart';
 import 'screens/home/chat_screen.dart';
 import 'screens/home/home_screen.dart';
