@@ -3,6 +3,7 @@ import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/screens/auth/login_screen.dart';
 import 'package:mindfulstudent/screens/home/home_screen.dart';
 import 'package:mindfulstudent/util.dart';
+import 'package:mindfulstudent/widgets/button.dart';
 import 'package:mindfulstudent/widgets/text_line_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
@@ -22,7 +23,7 @@ class SignupScreenState extends State<SignupScreen> {
   final TextLineField passwordConfirmField =
       TextLineField("Confirm password", obscureText: true);
 
-  void signup() {
+  Future<void> signup() async {
     final name = nameField.getText();
     final email = emailField.getText();
     final password = passwordField.getText();
@@ -33,7 +34,7 @@ class SignupScreenState extends State<SignupScreen> {
       return;
     }
 
-    Auth.signup(email, name, password).then((res) {
+    return Auth.signUp(email, name, password).then((res) {
       if (!res) {
         showInfo(context, "Account created!",
             description: "Please check your email for a confirmation link.");
@@ -101,29 +102,7 @@ class SignupScreenState extends State<SignupScreen> {
                   const SizedBox(height: 20),
                   passwordConfirmField,
                   const SizedBox(height: 20),
-                  SizedBox(
-                    width: double.infinity,
-                    child: ElevatedButton(
-                      onPressed: signup,
-                      style: ButtonStyle(
-                        backgroundColor: MaterialStateProperty.all<Color>(
-                            const Color(0xFF497077)),
-                        shape: MaterialStateProperty.all<OutlinedBorder>(
-                          RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                        ),
-                      ),
-                      child: const Text(
-                        'Create Account',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.w600,
-                        ),
-                      ),
-                    ),
-                  ),
+                  Button('Sign Up', onPressed: signup),
                   const SizedBox(height: 20),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
