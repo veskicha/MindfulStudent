@@ -59,6 +59,10 @@ class Auth {
     return supabase.auth.currentUser;
   }
 
+  static String? get jwt {
+    return supabase.auth.currentSession?.accessToken;
+  }
+
   static Future<bool> login(String email, String password) async {
     log("Attempt login for $email");
     await supabase.auth.signInWithPassword(email: email, password: password);

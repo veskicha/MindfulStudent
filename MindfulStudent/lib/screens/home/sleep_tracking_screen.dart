@@ -1,7 +1,9 @@
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/provider/sleep_tracking_provider.dart';
+import 'package:mindfulstudent/screens/home/sleep_tracking_login_screen.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
+import 'package:mindfulstudent/widgets/button.dart';
 import 'package:mindfulstudent/widgets/header_bar.dart';
 import 'package:provider/provider.dart';
 
@@ -65,7 +67,38 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
   }
 
   Widget buildLoginContent(BuildContext context) {
-    return const Text("pls login! thank");
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.center,
+      children: [
+        const Spacer(),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+          child: Text(
+            'MindfulStudent can integrate with external services in order to provide sleep insights and suggestions.\n\n'
+            'If you wish to use this feature, please connect a provider to your account using one of the buttons below.',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF497077),
+            ),
+          ),
+        ),
+        const Spacer(),
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 40),
+          child: Button(
+            'Connect Fitbit',
+            onPressed: () async {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => SleepTrackingLoginPage()),
+              );
+            },
+          ),
+        )
+      ],
+    );
   }
 
   Widget buildDataContent(BuildContext context) {

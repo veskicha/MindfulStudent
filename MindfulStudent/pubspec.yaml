@@ -39,6 +39,7 @@ dependencies:
   supabase_flutter: ^2.3.4
   toastification: ^1.2.1
   fl_chart: ^0.66.2
+  webview_flutter: ^4.7.0
 
 dev_dependencies:
   flutter_test:

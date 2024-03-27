@@ -28,6 +28,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: sleepDataProvider),
       ],
       child: MaterialApp(
+        navigatorKey: navigatorKey,
         home: const SplashScreen(),
         routes: {
           '/home': (context) => const HomeScreen(),
@@ -39,6 +40,8 @@ class MyApp extends StatelessWidget {
     );
   }
 }
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 final supabase = Supabase.instance.client;
 

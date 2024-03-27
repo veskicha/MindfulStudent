@@ -11,7 +11,10 @@ class SleepData {}
 class SleepTracker {
   static const String _functionName = 'sleep-tracking';
 
-  static const String loginUrl = '$supabaseUrl/functions/v1/$_functionName';
+  static const String loginUrl =
+      '$supabaseUrl/functions/v1/$_functionName/login';
+  static const String callbackUrl =
+      '$supabaseUrl/functions/v1/$_functionName-callback/';
 
   static Future<SleepData?> getData() async {
     late final FunctionResponse res;
