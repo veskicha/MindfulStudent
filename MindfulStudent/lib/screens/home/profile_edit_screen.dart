@@ -6,7 +6,11 @@ import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/util.dart';
 import 'package:mindfulstudent/widgets/button.dart';
 import 'package:mindfulstudent/widgets/text_line_field.dart';
+import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:image_picker/image_picker.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -16,6 +20,9 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class EditProfilePageState extends State<EditProfilePage> {
+  
+  File? _avatarFile;
+  late String? _avatarUrl;
   final TextLineField _nameField = TextLineField("Your name");
   final TextLineField _emailField = TextLineField("Your email address");
   final TextLineField _passwordField =
@@ -26,35 +33,49 @@ class EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
-
     final profile = profileProvider.userProfile;
     final user = Auth.user;
     if (profile == null || user == null) return;
 
+    _avatarUrl = profile.avatarUrl!;
     _nameField.setText(profile.name ?? "");
     _emailField.setText(user.email ?? "");
+
   }
+
 
   Future<bool> _updateProfile(BuildContext context) async {
     final name = _nameField.getText();
     final email = _emailField.getText();
     final password = _passwordField.getText();
     final passwordConfirm = _passwordConfirmField.getText();
-
     final doUpdatePassword = password.isNotEmpty || passwordConfirm.isNotEmpty;
 
     if (doUpdatePassword && password != passwordConfirm) {
-      showError(context, "Profile error",
-          description: "Passwords do not match!");
+      showError(context, "Profile error", description: "Passwords do not match!");
       return false;
     }
 
-    // Update profile data if necessary (name)
+    String? avatarUrl;
+    // Check if there is an avatar image to upload
+    if (_avatarFile != null) {
+      avatarUrl = await _uploadImageToSupabase(_avatarFile!);
+      if (avatarUrl == null) {
+        showError(context, "Error", description: "Failed to upload avatar image.");
+        return false;
+      }
+    }
+
+    // Update profile data if necessary (name, avatarUrl)
     final curProfile = profileProvider.userProfile;
-    if (curProfile != null && name != curProfile.name) {
-      log("Updating user name");
+    if (curProfile != null &&
+        (name != curProfile.name || avatarUrl != curProfile.avatarUrl)) {
+      log("Updating user profile");
       final newProfile = Profile(
-          id: curProfile.id, name: name, avatarUrl: curProfile.avatarUrl);
+          id: curProfile.id,
+          name: name,
+          avatarUrl: avatarUrl
+      );
       await Auth.updateProfile(newProfile);
     }
 
@@ -69,6 +90,7 @@ class EditProfilePageState extends State<EditProfilePage> {
       userAttrs.password = password;
     }
 
+
     if (userAttrs.email != null || userAttrs.password != null) {
       await Auth.updateUser(userAttrs).catchError((e) {
         if (e is AuthException) {
@@ -79,8 +101,129 @@ class EditProfilePageState extends State<EditProfilePage> {
         return false;
       });
     }
+
+
+
     return true;
   }
+
+  Future<void> _pickImage() async {
+    final ImagePicker _picker = ImagePicker();
+
+    // Show options to the user
+    await showModalBottomSheet(
+      context: context,
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Wrap(
+            children: <Widget>[
+              ListTile(
+                  leading: Icon(Icons.photo_camera),
+                  title: Text('Take a Picture'),
+                  onTap: () async {
+                    Navigator.of(context).pop();
+                    var image = await _picker.pickImage(source: ImageSource.camera);
+                    _setImage(image);
+                  }),
+              ListTile(
+                leading: Icon(Icons.photo_library),
+                title: Text('Choose from Gallery'),
+                onTap: () async {
+                  Navigator.of(context).pop();
+                  var image = await _picker.pickImage(source: ImageSource.gallery);
+                  _setImage(image);
+
+                },
+              ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  void _setImage(XFile? image) async {
+    if (image != null) {
+      // Convert XFile to File
+      File imageFile = File(image.path);
+
+      // Upload the image to Supabase Storage
+      String? imageUrl = await _uploadImageToSupabase(imageFile);
+
+      if (imageUrl != null) {
+        // Update the user's profile with the new avatar URL
+        bool success = await updateProfileWithNewAvatar(Auth.user!.id, imageUrl);
+        if (success) {
+          setState(() {
+            _avatarFile = imageFile; // Update the local UI to show the new image
+          });
+        } else {
+          // Handle the failure of profile update
+          log("Failed to update user profile with new avatar URL.");
+        }
+      } else {
+        // Handle the failure of image upload
+        log("Failed to upload image to Supabase.");
+      }
+    }
+  }
+
+  Future<String?> _uploadImageToSupabase(File imageFile) async {
+    try {
+      var imageExtension = imageFile.path.split('.').last.toLowerCase();
+
+      final imageBytes = await imageFile.readAsBytes();
+      final userId = supabase.auth.currentUser!.id;
+      final imagePath = '/$userId/profile.${imageExtension}';
+      if (imageExtension == 'jpg') {
+        imageExtension = 'jpeg';
+      }
+      await supabase.storage.from('avatars').uploadBinary(
+        imagePath,
+        imageBytes,
+        fileOptions: FileOptions(
+          upsert: true,
+          contentType: 'image/$imageExtension',
+        ),
+      );
+      String imageUrl =
+      supabase.storage.from('avatars').getPublicUrl(imagePath);
+      return Uri.parse(imageUrl).replace(queryParameters: {
+        't': DateTime.now().millisecondsSinceEpoch.toString()
+      }).toString();
+    } catch (e) {
+      // Handle any errors during upload
+      print('Error uploading image: $e');
+      return null;
+    }
+  }
+
+  Future<bool> updateProfileWithNewAvatar(String userId, String avatarUrl) async {
+    final response = await Supabase.instance.client
+        .from('profiles')
+        .update({'avatarUrl': avatarUrl})
+        .eq('id', userId)
+        .select();
+
+    if (response == null) {
+      showError(context, "Error", description: "Failed to upload avatar image.");
+      return false;
+    }
+
+
+    return true;
+  }
+
+  ImageProvider<Object>? getAvatarImage() {
+    if (_avatarFile != null) {
+      return FileImage(_avatarFile!); // Using FileImage for _avatarFile
+    } else if (_avatarUrl != null) {
+      return NetworkImage(_avatarUrl!); // Using NetworkImage for _avatarUrl
+    }
+    return null; // Return null if both are unavailable
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -99,14 +242,47 @@ class EditProfilePageState extends State<EditProfilePage> {
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
-              const CircleAvatar(
-                radius: 50,
-                backgroundColor: Color(0xFFC8D4D6),
-                child: Icon(
-                  Icons.person,
-                  size: 60,
-                  color: Colors.white,
+              Stack(
+              alignment: Alignment.center,
+              children: [
+                CircleAvatar(
+                  radius: 50,
+                  backgroundImage: getAvatarImage(),
+                  backgroundColor: _avatarFile == null && _avatarUrl == null ? Color(0xFFC8D4D6) : null,
+                  child: _avatarFile == null && _avatarUrl == null
+                      ? Icon(
+                    Icons.person,
+                    size: 60,
+                    color: Colors.white,
+                  )
+                      : null,
                 ),
+
+                Positioned(
+                  bottom: 0,
+                  right: 0,
+                  child: Container(
+                    width: 35.0,
+                    height: 35.0,
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Color(0xFFC8D4D6),
+                        width: 2,
+                      ),
+                    ),
+                    child: IconButton(
+                      icon: Icon(Icons.edit),
+                      color: Color(0xFF497077),
+                      iconSize: 15,
+                      onPressed: () {
+                        _pickImage();
+                      },
+                    ),
+                  ),
+                ),
+              ],
               ),
               const SizedBox(height: 16),
               const Text(
@@ -118,7 +294,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                 ),
               ),
               _nameField,
-              const SizedBox(height: 16),
+              const SizedBox(height: 12),
               const Text(
                 'Email',
                 style: TextStyle(
@@ -152,3 +328,4 @@ class EditProfilePageState extends State<EditProfilePage> {
     );
   }
 }
+
