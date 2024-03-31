@@ -38,10 +38,11 @@ export class FitbitProvider extends OAuth2Provider {
   }
 
   async getSleepLog(token: OAuth2Token): Promise<SleepLog[]> {
-    const now = new Date();
+    const getSince = new Date();
+    getSince.setMonth(getSince.getMonth() - 1);
 
     const url = new URL("https://api.fitbit.com/1.2/user/-/sleep/list.json");
-    url.searchParams.set("afterDate", `${now.getUTCFullYear()}-${now.getUTCMonth()}-${now.getUTCDate()}`);
+    url.searchParams.set("afterDate", `${getSince.getUTCFullYear()}-${getSince.getUTCMonth() + 1}-${getSince.getUTCDate()}`);
     url.searchParams.set("sort", "asc");
     url.searchParams.set("limit", "100");
     url.searchParams.set("offset", "0");
