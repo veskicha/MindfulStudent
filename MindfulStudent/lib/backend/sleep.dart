@@ -42,13 +42,14 @@ class SleepTracker {
       if (res.status != 200) return null;
     } on FunctionException catch (e) {
       log('Sleep tracking fetch error: ${e.reasonPhrase ?? ""}');
+      log(e.details.toString());
       return null;
     }
 
     final data = SleepData();
     for (final sessionData in res.data) {
-      final startTime = DateTime.parse(sessionData["startTime"]);
-      final endTime = DateTime.parse(sessionData["endTime"]);
+      final startTime = DateTime.parse(sessionData["startTime"]).toLocal();
+      final endTime = DateTime.parse(sessionData["endTime"]).toLocal();
 
       final session = SleepSession(startTime: startTime, endTime: endTime);
 
