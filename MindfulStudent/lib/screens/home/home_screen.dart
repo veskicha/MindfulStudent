@@ -1,8 +1,11 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
+import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/provider/user_profile_provider.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -55,6 +58,43 @@ class HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
 
   final double _progress = 0.7;
+
+  @override
+  void initState() {
+    super.initState();
+    final user = Auth.user;
+
+    if (user == null) return;
+
+
+    supabase.auth.onAuthStateChange.listen((event) async{
+      if(event.event == AuthChangeEvent.signedIn){
+        await FirebaseMessaging.instance.requestPermission();
+        await FirebaseMessaging.instance.getAPNSToken();
+        final fcmToken = await FirebaseMessaging.instance.getToken();
+        await supabase.from("profiles").update({"fcm_token": fcmToken}).eq("id", user.id);
+
+      }
+    });
+    FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async{
+      await supabase.from("profiles").update({"fcm_token": fcmToken}).eq("id", user.id);
+    });
+
+    FirebaseMessaging.onMessage.listen((payload) {
+      final notification = payload.notification;
+      if(notification != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text (
+          '${notification.title} ${notification.body}'
+        )));
+      }
+    });
+  }
+
+
+
+
+
+
 
   void _onItemTapped(int index) {
     setState(() {
@@ -230,7 +270,12 @@ class HomeScreenState extends State<HomeScreen> {
 }
 
 void main() {
-  runApp(const MaterialApp(
-    home: HomeScreen(),
-  ));
+  runApp(
+    ChangeNotifierProvider<UserProfileProvider>.value(
+      value: profileProvider,
+      child: const MaterialApp(
+        home: HomeScreen(),
+      ),
+    ),
+  );
 }

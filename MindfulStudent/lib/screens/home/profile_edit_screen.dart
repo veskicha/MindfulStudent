@@ -54,7 +54,7 @@ class EditProfilePageState extends State<EditProfilePage> {
     if (curProfile != null && name != curProfile.name) {
       log("Updating user name");
       final newProfile = Profile(
-          id: curProfile.id, name: name, avatarUrl: curProfile.avatarUrl);
+          id: curProfile.id, name: name, avatarUrl: curProfile.avatarUrl , fcm_token: curProfile.fcm_token);
       await Auth.updateProfile(newProfile);
     }
 

@@ -9,8 +9,14 @@ import 'screens/home/home_screen.dart';
 import 'screens/home/profile_screen.dart';
 import 'screens/home/sleep_tracking_page.dart';
 import 'screens/splash_screen.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await Supabase.initialize(
       url: constants.supabaseUrl, anonKey: constants.supabaseAnonKey);
 
