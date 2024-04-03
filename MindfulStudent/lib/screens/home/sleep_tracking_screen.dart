@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'dart:math' as math;
 
 import 'package:fl_chart/fl_chart.dart';
@@ -119,9 +118,6 @@ class SleepChart extends StatelessWidget {
       microsecond: 0,
     );
 
-    log(session.startTime.toString());
-    log(dayStart.toString());
-
     final startOffset = session.startTime.difference(dayStart);
     final endOffset = session.endTime.difference(dayStart);
 
@@ -231,6 +227,8 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
   }
 
   Widget buildDataContent(BuildContext context) {
+    final optimalBedtime = sleepDataProvider.sleepData?.optimalBedtime;
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -240,7 +238,7 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
           padding: const EdgeInsets.all(16.0),
           child: Center(
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 const Text(
                   'Your optimal bedtime',
@@ -250,9 +248,9 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  '21:30 - 22:30',
-                  style: TextStyle(
+                Text(
+                  "${fmtTimeOfDay(optimalBedtime?.$1)} - ${fmtTimeOfDay(optimalBedtime?.$2)}",
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                     color: Colors.white,
@@ -352,4 +350,9 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
       ],
     );
   }
+
+  String fmtTimeOfDay(TimeOfDay? time) => time == null
+      ? "Unknown"
+      : "${time.hour.toString().padLeft(2, '0')}"
+          ":${time.minute.toString().padLeft(2, '0')}";
 }
