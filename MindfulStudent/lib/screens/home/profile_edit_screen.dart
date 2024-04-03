@@ -18,7 +18,7 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class EditProfilePageState extends State<EditProfilePage> {
-  
+
   File? _avatarFile;
   late String? _avatarUrl;
   final TextLineField _nameField = TextLineField("Your name");
@@ -31,6 +31,7 @@ class EditProfilePageState extends State<EditProfilePage> {
   @override
   void initState() {
     super.initState();
+
     final profile = profileProvider.userProfile;
     final user = Auth.user;
     if (profile == null || user == null) return;
@@ -72,7 +73,8 @@ class EditProfilePageState extends State<EditProfilePage> {
       final newProfile = Profile(
           id: curProfile.id,
           name: name,
-          avatarUrl: avatarUrl
+          avatarUrl: avatarUrl,
+          fcm_token: curProfile.fcm_token
       );
       await Auth.updateProfile(newProfile);
     }
