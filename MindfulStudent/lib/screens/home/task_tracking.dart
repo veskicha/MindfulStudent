@@ -21,13 +21,13 @@ class _TaskTrackingPageState extends State<TaskTrackingPage> {
         children: [
           Container(
             decoration: BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/tasks.jpg'),
-                fit: BoxFit.cover,
-                colorFilter: ColorFilter.mode(
-                  Colors.black.withOpacity(0.2), // Adjust the opacity here
-                  BlendMode.dstATop,
-                ),
+              gradient: LinearGradient(
+                begin: Alignment.topCenter,
+                end: Alignment.bottomCenter,
+                colors: [
+                  Color(0xFFC8D4D6),
+                  Color(0xFFF6F6F6),
+                ],
               ),
             ),
           ),
@@ -46,55 +46,52 @@ class _TaskTrackingPageState extends State<TaskTrackingPage> {
                 ),
               ),
               Expanded(
-                child: Container(
-                  color: Colors.transparent,
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16),
-                          child: Card(
-                            elevation: 4,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(24),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Row(
-                                children: [
-                                  Icon(Icons.add, color: Color(0xFF497077)),
-                                  SizedBox(width: 16),
-                                  Expanded(
-                                    child: TextField(
-                                      controller: _taskController,
-                                      decoration: InputDecoration(
-                                        hintText: 'Add a new task',
-                                        border: InputBorder.none,
-                                      ),
-                                      onSubmitted: (_) => _addTask(),
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        child: Card(
+                          elevation: 4,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(24),
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Row(
+                              children: [
+                                Icon(Icons.add, color: Color(0xFF497077)),
+                                SizedBox(width: 16),
+                                Expanded(
+                                  child: TextField(
+                                    controller: _taskController,
+                                    decoration: InputDecoration(
+                                      hintText: 'Add a new task',
+                                      border: InputBorder.none,
                                     ),
+                                    onSubmitted: (_) => _addTask(),
                                   ),
-                                ],
-                              ),
+                                ),
+                              ],
                             ),
                           ),
                         ),
-                        SizedBox(height: 16),
-                        if (_pendingTasks.isNotEmpty)
-                          _buildTasksSection(
-                            'Pending Tasks:',
-                            _pendingTasks,
-                            false,
-                          ),
-                        SizedBox(height: 16),
-                        if (_completedTasks.isNotEmpty)
-                          _buildTasksSection(
-                            'Completed Tasks:',
-                            _completedTasks,
-                            true,
-                          ),
-                      ],
-                    ),
+                      ),
+                      SizedBox(height: 16),
+                      if (_pendingTasks.isNotEmpty)
+                        _buildTasksSection(
+                          'Pending Tasks:',
+                          _pendingTasks,
+                          false,
+                        ),
+                      SizedBox(height: 16),
+                      if (_completedTasks.isNotEmpty)
+                        _buildTasksSection(
+                          'Completed Tasks:',
+                          _completedTasks,
+                          true,
+                        ),
+                    ],
                   ),
                 ),
               ),
@@ -155,17 +152,44 @@ class _TaskTrackingPageState extends State<TaskTrackingPage> {
                   ),
                   SizedBox(width: 16),
                   Expanded(
-                    child: Text(
-                      task['title'],
-                      style: TextStyle(
-                        fontSize: 16,
-                        color: task['completed']
-                            ? Color(0xFF497077)
-                            : Colors.black,
-                        decoration: task['completed']
-                            ? TextDecoration.lineThrough
-                            : TextDecoration.none,
-                      ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          task['title'],
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: task['completed']
+                                ? Color(0xFF497077)
+                                : Colors.black,
+                            decoration: task['completed']
+                                ? TextDecoration.lineThrough
+                                : TextDecoration.none,
+                          ),
+                        ),
+                        DropdownButton<String>(
+                          value: task['reminder'] ?? 'None',
+                          onChanged: (value) {
+                            setState(() {
+                              task['reminder'] = value;
+                            });
+                          },
+                          items: <String>[
+                            'None',
+                            'Daily',
+                            'Weekly',
+                            'Monthly',
+                          ].map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(
+                                value,
+                                style: TextStyle(color: Color(0xFF497077)),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+                      ],
                     ),
                   ),
                   IconButton(
