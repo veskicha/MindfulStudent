@@ -233,42 +233,53 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SleepChart(),
-        Container(
-          color: const Color(0xFF497077),
-          padding: const EdgeInsets.all(16.0),
-          child: Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                const Text(
-                  'Your optimal bedtime',
-                  style: TextStyle(
-                    fontSize: 18,
-                    color: Colors.white,
-                  ),
-                ),
-                const SizedBox(height: 8),
-                Text(
-                  "${fmtTimeOfDay(optimalBedtime?.$1)} - ${fmtTimeOfDay(optimalBedtime?.$2)}",
-                  style: const TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                  ),
-                ),
-                GestureDetector(
-                  onTap: () {
-                    // Handle daily tips and suggestions action
-                  },
-                  child: const Text(
-                    'Daily tips and suggestions →',
-                    style: TextStyle(
-                      color: Colors.white,
-                      decoration: TextDecoration.underline,
+        const Padding(padding: EdgeInsets.only(top: 20)),
+        Center(
+          child: FractionallySizedBox(
+            widthFactor: 0.9, // 90% of screen width
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20), // Border radius of 20
+              child: Container(
+                color: const Color(0xFF497077),
+                padding: const EdgeInsets.all(16.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  // Center align the texts
+                  children: [
+                    const Text(
+                      'Your optimal bedtime',
+                      style: TextStyle(
+                        fontSize: 18,
+                        color: Colors.white,
+                      ),
                     ),
-                  ),
+                    const SizedBox(height: 4), // Adjusted padding
+                    Text(
+                      "${fmtTimeOfDay(optimalBedtime?.$1)} - ${fmtTimeOfDay(optimalBedtime?.$2)}",
+                      style: const TextStyle(
+                        fontSize: 28, // Increased font size
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
+                    ),
+                    const SizedBox(height: 4), // Same padding as above
+                    GestureDetector(
+                      onTap: () {
+                        // Handle daily tips and suggestions action
+                      },
+                      child: const Text.rich(
+                        TextSpan(
+                          text: 'Daily tips and suggestions →',
+                          style: TextStyle(
+                            fontSize: 14, // Font size
+                            color: Colors.white, // Text color
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ],
+              ),
             ),
           ),
         ),
@@ -278,69 +289,79 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
           child: Row(
             children: [
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(16.0),
-                  color: const Color(0xFFC8D4D6),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Time asleep',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF497077),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  // Applying a border radius of 20
+                  child: Container(
+                    padding: const EdgeInsets.all(16.0),
+                    color: const Color(0xFF6292C7),
+                    // Updated background color
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Time asleep',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white, // Changed text color to white
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        '8h 12m',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF497077),
+                        SizedBox(height: 2),
+                        Text(
+                          '8h 12m',
+                          style: TextStyle(
+                            fontSize: 34, // Increased font size
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white, // Changed text color to white
+                          ),
                         ),
-                      ),
-                      Text(
-                        '10:46 pm - 7:08 am',
-                        style: TextStyle(
-                          color: Color(0xFF497077),
+                        Text(
+                          '10:46 pm - 7:08 am',
+                          style: TextStyle(
+                            color: Colors.white, // Changed text color to white
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
-              const SizedBox(width: 16),
+              const SizedBox(width: 14),
               Expanded(
-                child: Container(
-                  padding: const EdgeInsets.all(16.0),
-                  color: const Color(0xFFC8D4D6),
-                  child: const Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Last Week',
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: Color(0xFF497077),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(20),
+                  // Applying a border radius of 20
+                  child: Container(
+                    padding: const EdgeInsets.all(16.0),
+                    color: const Color(0xFFC8CC5F),
+                    // Updated background color
+                    child: const Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Last Week',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.white, // Text color is white
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 8),
-                      Text(
-                        '7h 34m',
-                        style: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                          color: Color(0xFF497077),
+                        SizedBox(height: 2),
+                        Text(
+                          '7h 34m',
+                          style: TextStyle(
+                            fontSize: 34, // Increased font size
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white, // Text color is white
+                          ),
                         ),
-                      ),
-                      Text(
-                        '10:46 pm - 7:08 am',
-                        style: TextStyle(
-                          color: Color(0xFF497077),
+                        Text(
+                          '10:46 pm - 7:08 am',
+                          style: TextStyle(
+                            color: Colors.white, // Text color is white
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
