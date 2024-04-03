@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/firebase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -34,6 +35,12 @@ class Profile {
         name: data["name"],
         avatarUrl: data["avatarUrl"],
         fcmToken: data["fcm_token"]);
+  }
+
+  NetworkImage? getAvatarImage() {
+    final url = profileProvider.userProfile?.avatarUrl;
+    if (url == null) return null;
+    return NetworkImage(url);
   }
 }
 

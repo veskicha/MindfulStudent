@@ -18,9 +18,8 @@ class EditProfilePage extends StatefulWidget {
 }
 
 class EditProfilePageState extends State<EditProfilePage> {
-
   File? _avatarFile;
-  late String? _avatarUrl;
+
   final TextLineField _nameField = TextLineField("Your name");
   final TextLineField _emailField = TextLineField("Your email address");
   final TextLineField _passwordField =
@@ -36,12 +35,9 @@ class EditProfilePageState extends State<EditProfilePage> {
     final user = Auth.user;
     if (profile == null || user == null) return;
 
-    _avatarUrl = profile.avatarUrl!;
     _nameField.setText(profile.name ?? "");
     _emailField.setText(user.email ?? "");
-
   }
-
 
   Future<bool> _updateProfile(BuildContext context) async {
     final name = _nameField.getText();
@@ -51,7 +47,8 @@ class EditProfilePageState extends State<EditProfilePage> {
     final doUpdatePassword = password.isNotEmpty || passwordConfirm.isNotEmpty;
 
     if (doUpdatePassword && password != passwordConfirm) {
-      showError(context, "Profile error", description: "Passwords do not match!");
+      showError(context, "Profile error",
+          description: "Passwords do not match!");
       return false;
     }
 
@@ -60,7 +57,8 @@ class EditProfilePageState extends State<EditProfilePage> {
     if (_avatarFile != null) {
       avatarUrl = await _uploadImageToSupabase(_avatarFile!);
       if (avatarUrl == null && context.mounted) {
-        showError(context, "Error", description: "Failed to upload avatar image.");
+        showError(context, "Error",
+            description: "Failed to upload avatar image.");
         return false;
       }
     }
@@ -89,7 +87,6 @@ class EditProfilePageState extends State<EditProfilePage> {
       userAttrs.password = password;
     }
 
-
     if (userAttrs.email != null || userAttrs.password != null) {
       await Auth.updateUser(userAttrs).catchError((e) {
         if (e is AuthException) {
@@ -100,8 +97,6 @@ class EditProfilePageState extends State<EditProfilePage> {
         return false;
       });
     }
-
-
 
     return true;
   }
@@ -133,7 +128,6 @@ class EditProfilePageState extends State<EditProfilePage> {
                   var image =
                       await picker.pickImage(source: ImageSource.gallery);
                   _setImage(image);
-
                 },
               ),
             ],
@@ -152,10 +146,12 @@ class EditProfilePageState extends State<EditProfilePage> {
 
       if (imageUrl != null) {
         // Update the user's profile with the new avatar URL
-        bool success = await updateProfileWithNewAvatar(Auth.user!.id, imageUrl);
+        bool success =
+            await updateProfileWithNewAvatar(Auth.user!.id, imageUrl);
         if (success) {
           setState(() {
-            _avatarFile = imageFile; // Update the local UI to show the new image
+            _avatarFile =
+                imageFile; // Update the local UI to show the new image
           });
         } else {
           log("Failed to update user profile with new avatar URL.");
@@ -177,15 +173,15 @@ class EditProfilePageState extends State<EditProfilePage> {
         imageExtension = 'jpeg';
       }
       await supabase.storage.from('avatars').uploadBinary(
-        imagePath,
-        imageBytes,
-        fileOptions: FileOptions(
-          upsert: true,
-          contentType: 'image/$imageExtension',
-        ),
-      );
+            imagePath,
+            imageBytes,
+            fileOptions: FileOptions(
+              upsert: true,
+              contentType: 'image/$imageExtension',
+            ),
+          );
       String imageUrl =
-      supabase.storage.from('avatars').getPublicUrl(imagePath);
+          supabase.storage.from('avatars').getPublicUrl(imagePath);
       return Uri.parse(imageUrl).replace(queryParameters: {
         't': DateTime.now().millisecondsSinceEpoch.toString()
       }).toString();
@@ -195,30 +191,21 @@ class EditProfilePageState extends State<EditProfilePage> {
     }
   }
 
-  Future<bool> updateProfileWithNewAvatar(String userId, String avatarUrl) async {
+  Future<bool> updateProfileWithNewAvatar(
+      String userId, String avatarUrl) async {
     await Supabase.instance.client
         .from('profiles')
         .update({'avatarUrl': avatarUrl})
         .eq('id', userId)
         .select();
 
-
     return true;
   }
 
-  ImageProvider<Object>? getAvatarImage() {
-    if (_avatarFile != null) {
-      return FileImage(_avatarFile!); // Using FileImage for _avatarFile
-    } else if (_avatarUrl != null) {
-      return NetworkImage(_avatarUrl!); // Using NetworkImage for _avatarUrl
-    }
-    return null; // Return null if both are unavailable
-  }
-
-
-
   @override
   Widget build(BuildContext context) {
+    final avatarUrl = profileProvider.userProfile?.getAvatarImage();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF497077),
@@ -235,48 +222,47 @@ class EditProfilePageState extends State<EditProfilePage> {
           child: Column(
             children: [
               Stack(
-              alignment: Alignment.center,
-              children: [
-                CircleAvatar(
-                  radius: 50,
-                  backgroundImage: getAvatarImage(),
-                    backgroundColor: _avatarFile == null && _avatarUrl == null
+                alignment: Alignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 50,
+                    backgroundImage: avatarUrl,
+                    backgroundColor: _avatarFile == null && avatarUrl == null
                         ? const Color(0xFFC8D4D6)
                         : null,
-                    child: _avatarFile == null && _avatarUrl == null
+                    child: _avatarFile == null && avatarUrl == null
                         ? const Icon(
                             Icons.person,
-                    size: 60,
-                    color: Colors.white,
-                  )
-                      : null,
-                ),
-
-                Positioned(
-                  bottom: 0,
-                  right: 0,
-                  child: Container(
-                    width: 35.0,
-                    height: 35.0,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      shape: BoxShape.circle,
-                      border: Border.all(
+                            size: 60,
+                            color: Colors.white,
+                          )
+                        : null,
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: Container(
+                      width: 35.0,
+                      height: 35.0,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        shape: BoxShape.circle,
+                        border: Border.all(
                           color: const Color(0xFFC8D4D6),
                           width: 2,
+                        ),
                       ),
-                    ),
-                    child: IconButton(
+                      child: IconButton(
                         icon: const Icon(Icons.edit),
                         color: const Color(0xFF497077),
                         iconSize: 15,
-                      onPressed: () {
-                        _pickImage();
-                      },
+                        onPressed: () {
+                          _pickImage();
+                        },
+                      ),
                     ),
                   ),
-                ),
-              ],
+                ],
               ),
               const SizedBox(height: 16),
               const Text(
@@ -322,4 +308,3 @@ class EditProfilePageState extends State<EditProfilePage> {
     );
   }
 }
-

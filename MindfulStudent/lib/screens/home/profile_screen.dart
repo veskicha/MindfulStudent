@@ -7,7 +7,6 @@ import 'package:mindfulstudent/screens/home/profile_edit_screen.dart';
 import 'package:mindfulstudent/widgets/button.dart';
 import 'package:provider/provider.dart';
 
-import '../../main.dart';
 import '../../widgets/bottom_nav_bar.dart';
 
 
@@ -19,32 +18,13 @@ class ProfilePage extends StatefulWidget {
 }
 
 class ProfilePageState extends State<ProfilePage> {
-
-  String? _avatarUrl;
   int _selectedIndex = 3; // Default selected index
 
-  @override
-  void initState() {
-    super.initState();
-    final profile = profileProvider.userProfile;
-    final user = Auth.user;
-    if (profile == null || user == null) return;
-    _avatarUrl = profile.avatarUrl;
-  }
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
-
-  ImageProvider<Object>? getAvatarImage() {
-    _avatarUrl = profileProvider.userProfile!.avatarUrl;
-    if (_avatarUrl != null) {
-      return NetworkImage(_avatarUrl!); // Using NetworkImage for _avatarUrl
-    }
-    return null; // Return null if both are unavailable
-  }
-
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +60,9 @@ class ProfilePageState extends State<ProfilePage> {
             padding: const EdgeInsets.symmetric(horizontal:60, vertical: 0),
             child: Consumer<UserProfileProvider>(
               builder: (context, profileProvider, child) {
-                Profile? userProfile = profileProvider.userProfile;
+                final Profile? userProfile = profileProvider.userProfile;
+                final avatarImg = userProfile?.getAvatarImage();
+
                 return Column(
                   children: [
                     Padding(
@@ -93,11 +75,11 @@ class ProfilePageState extends State<ProfilePage> {
                         ),
                         child: CircleAvatar(
                           radius: 100,
-                          backgroundImage: _avatarUrl != null ? getAvatarImage() : null,
-                          backgroundColor: _avatarUrl == null
+                          backgroundImage: avatarImg,
+                          backgroundColor: avatarImg == null
                               ? const Color(0xFF497077)
                               : null,
-                          child: _avatarUrl == null
+                          child: avatarImg == null
                               ? const Icon(
                                   Icons.person,
                             size: 80,

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
-import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/provider/user_profile_provider.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
@@ -54,31 +53,12 @@ class FeatureBlock extends StatelessWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  String? _avatarUrl;
   final double _progress = 0.7;
-
-  @override
-  void initState() {
-    super.initState();
-    final profile = profileProvider.userProfile;
-    final user = Auth.user;
-    if (profile == null || user == null) return;
-    _avatarUrl = profile.avatarUrl;
-  }
-
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
-  }
-
-  ImageProvider<Object>? getAvatarImage() {
-    _avatarUrl = profileProvider.userProfile!.avatarUrl;
-    if (_avatarUrl != null) {
-      return NetworkImage(_avatarUrl!); // Using NetworkImage for _avatarUrl
-    }
-    return null; // Return null if both are unavailable
   }
 
   @override
@@ -89,12 +69,14 @@ class HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              color: const Color(0xFFC8D4D6),
-              width: double.infinity,
-              height: 220,
+                color: const Color(0xFFC8D4D6),
+                width: double.infinity,
+                height: 220,
                 child: Consumer<UserProfileProvider>(
                     builder: (context, profileProvider, child) {
-                  Profile? userProfile = profileProvider.userProfile;
+                  final Profile? userProfile = profileProvider.userProfile;
+                  final avatarImg = userProfile?.getAvatarImage();
+
                   return Stack(
                     children: [
                       Positioned(
@@ -102,16 +84,16 @@ class HomeScreenState extends State<HomeScreen> {
                         left: 30,
                         child: CircleAvatar(
                           radius: 30,
-                          backgroundImage: getAvatarImage(),
-                          backgroundColor: _avatarUrl == null
+                          backgroundImage: avatarImg,
+                          backgroundColor: avatarImg == null
                               ? const Color(0xFF497077)
                               : null,
-                          child: _avatarUrl == null
+                          child: avatarImg == null
                               ? const Icon(
                                   Icons.person,
-                            size: 15,
-                            color: Colors.white,
-                          )
+                                  size: 40,
+                                  color: Colors.white,
+                                )
                               : null,
                         ),
                       ),
