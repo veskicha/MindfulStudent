@@ -144,7 +144,6 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   void _setImage(XFile? image) async {
     if (image != null) {
-      // Convert XFile to File
       File imageFile = File(image.path);
 
       // Upload the image to Supabase Storage
@@ -158,11 +157,9 @@ class EditProfilePageState extends State<EditProfilePage> {
             _avatarFile = imageFile; // Update the local UI to show the new image
           });
         } else {
-          // Handle the failure of profile update
           log("Failed to update user profile with new avatar URL.");
         }
       } else {
-        // Handle the failure of image upload
         log("Failed to upload image to Supabase.");
       }
     }

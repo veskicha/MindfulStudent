@@ -18,11 +18,11 @@ class BottomNavBar extends StatelessWidget {
         Container(
           height: 74,
           color: Colors.transparent,
-        ), // To ensure enough space is available for the bar
+        ),
         Positioned(
-          bottom: 15, // 5 units from the bottom
+          bottom: 15,
           child: Container(
-            width: MediaQuery.of(context).size.width * 0.96, // 80% of screen width
+            width: MediaQuery.of(context).size.width * 0.96,
             decoration: BoxDecoration(
               color: Colors.transparent,
               borderRadius: BorderRadius.circular(0), // Rounded corners
@@ -43,8 +43,7 @@ class BottomNavBar extends StatelessWidget {
                 unselectedItemColor: Colors.black,
                 currentIndex: selectedIndex,
                 onTap: (index) {
-                  onItemTapped(index); // Invoke the callback provided
-                  // Optionally handle navigation inside here
+                  onItemTapped(index);
                   switch (index) {
                     case 0:
                     // Navigate to Home

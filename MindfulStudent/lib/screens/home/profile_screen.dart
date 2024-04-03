@@ -6,12 +6,9 @@ import 'package:mindfulstudent/provider/user_profile_provider.dart';
 import 'package:mindfulstudent/screens/auth/login_screen.dart';
 import 'package:mindfulstudent/screens/home/profile_edit_screen.dart';
 import 'package:mindfulstudent/widgets/button.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:provider/provider.dart';
-import 'package:http/http.dart' as http;
 import '../../main.dart';
 import '../../widgets/bottom_nav_bar.dart';
-import 'dart:io';
 
 
 class ProfilePage extends StatefulWidget {

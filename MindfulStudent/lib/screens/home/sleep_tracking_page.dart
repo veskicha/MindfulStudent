@@ -35,7 +35,7 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
             Padding(
             padding: const EdgeInsets.only(top: 50.0, bottom: 30.0, left: 30.0),
             child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start, // Aligns text to the left
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   'Welcome Mike',
