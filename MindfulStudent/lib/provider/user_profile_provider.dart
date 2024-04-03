@@ -15,5 +15,4 @@ class UserProfileProvider with ChangeNotifier {
     final profile = await Auth.getProfile();
     setProfile(profile);
   }
-
 }

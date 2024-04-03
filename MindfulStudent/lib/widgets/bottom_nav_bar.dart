@@ -46,26 +46,27 @@ class BottomNavBar extends StatelessWidget {
                   onItemTapped(index);
                   switch (index) {
                     case 0:
-                    // Navigate to Home
+                      // Navigate to Home
                       Navigator.pushReplacementNamed(context, '/home');
                       break;
                     case 1:
-                    // Navigate to Sleep
+                      // Navigate to Sleep
                       Navigator.pushReplacementNamed(context, '/sleep');
                       break;
                     case 2:
-                    // Navigate to Chat
+                      // Navigate to Chat
                       Navigator.pushReplacementNamed(context, '/chat');
                       break;
                     case 3:
-                    // Navigate to Profile
+                      // Navigate to Profile
                       Navigator.pushReplacementNamed(context, '/profile');
                       break;
                   }
                 },
                 items: const [
                   BottomNavigationBarItem(
-                    icon: ImageIcon(AssetImage('assets/HomeIcon.png'), size: 24),
+                    icon:
+                        ImageIcon(AssetImage('assets/HomeIcon.png'), size: 24),
                     label: 'Home',
                   ),
                   BottomNavigationBarItem(

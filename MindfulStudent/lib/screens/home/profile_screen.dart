@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/provider/user_profile_provider.dart';
@@ -8,7 +7,6 @@ import 'package:mindfulstudent/widgets/button.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/bottom_nav_bar.dart';
-
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -57,7 +55,7 @@ class ProfilePageState extends State<ProfilePage> {
           ),
           const Spacer(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal:60, vertical: 0),
+            padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 0),
             child: Consumer<UserProfileProvider>(
               builder: (context, profileProvider, child) {
                 final Profile? userProfile = profileProvider.userProfile;
@@ -82,9 +80,9 @@ class ProfilePageState extends State<ProfilePage> {
                           child: avatarImg == null
                               ? const Icon(
                                   Icons.person,
-                            size: 80,
-                            color: Colors.white,
-                          )
+                                  size: 80,
+                                  color: Colors.white,
+                                )
                               : null,
                         ),
                       ),
