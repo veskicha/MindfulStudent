@@ -1,8 +1,11 @@
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
+import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/provider/user_profile_provider.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -53,13 +56,64 @@ class FeatureBlock extends StatelessWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-
+  String? _avatarUrl;
   final double _progress = 0.7;
+
+  @override
+  void initState() {
+    super.initState();
+    final profile = profileProvider.userProfile;
+    final user = Auth.user;
+    if (profile == null || user == null) return;
+    _avatarUrl = profile.avatarUrl;
+
+
+    final user = Auth.user;
+
+    if (user == null) return;
+
+
+    supabase.auth.onAuthStateChange.listen((event) async{
+      if(event.event == AuthChangeEvent.signedIn){
+        await FirebaseMessaging.instance.requestPermission();
+        await FirebaseMessaging.instance.getAPNSToken();
+        final fcmToken = await FirebaseMessaging.instance.getToken();
+        await supabase.from("profiles").update({"fcm_token": fcmToken}).eq("id", user.id);
+
+      }
+    });
+    FirebaseMessaging.instance.onTokenRefresh.listen((fcmToken) async{
+      await supabase.from("profiles").update({"fcm_token": fcmToken}).eq("id", user.id);
+    });
+
+    FirebaseMessaging.onMessage.listen((payload) {
+      final notification = payload.notification;
+      if(notification != null) {
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text (
+          '${notification.title} ${notification.body}'
+        )));
+      }
+    });
+  }
+
+
+
+
+
+
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  ImageProvider<Object>? getAvatarImage() {
+    _avatarUrl = profileProvider.userProfile!.avatarUrl;
+    if (_avatarUrl != null) {
+      return NetworkImage(_avatarUrl!); // Using NetworkImage for _avatarUrl
+    }
+    return null; // Return null if both are unavailable
   }
 
   @override
@@ -78,12 +132,22 @@ class HomeScreenState extends State<HomeScreen> {
                   Profile? userProfile = profileProvider.userProfile;
                   return Stack(
                     children: [
-                      const Positioned(
-                        top: 100,
-                        left: 40,
+                      Positioned(
+                        top: 88,
+                        left: 30,
                         child: CircleAvatar(
-                          radius: 20,
-                          backgroundImage: AssetImage('assets/Profile.png'),
+                          radius: 30,
+                          backgroundImage: getAvatarImage(),
+                          backgroundColor: _avatarUrl == null
+                              ? const Color(0xFF497077)
+                              : null,
+                          child: _avatarUrl == null
+                              ? const Icon(
+                                  Icons.person,
+                            size: 15,
+                            color: Colors.white,
+                          )
+                              : null,
                         ),
                       ),
                       Positioned(
