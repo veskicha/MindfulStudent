@@ -101,10 +101,12 @@ class HomeScreenState extends State<HomeScreen> {
                         child: CircleAvatar(
                           radius: 30,
                           backgroundImage: getAvatarImage(),
-                          backgroundColor: _avatarUrl == null ? Color(0xFF497077) : null,
+                          backgroundColor: _avatarUrl == null
+                              ? const Color(0xFF497077)
+                              : null,
                           child: _avatarUrl == null
-                              ? Icon(
-                            Icons.person,
+                              ? const Icon(
+                                  Icons.person,
                             size: 15,
                             color: Colors.white,
                           )

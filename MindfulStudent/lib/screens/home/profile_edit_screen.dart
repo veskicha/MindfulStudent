@@ -1,16 +1,14 @@
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/util.dart';
 import 'package:mindfulstudent/widgets/button.dart';
 import 'package:mindfulstudent/widgets/text_line_field.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
-import 'package:http/http.dart' as http;
 
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({super.key});
@@ -60,7 +58,7 @@ class EditProfilePageState extends State<EditProfilePage> {
     // Check if there is an avatar image to upload
     if (_avatarFile != null) {
       avatarUrl = await _uploadImageToSupabase(_avatarFile!);
-      if (avatarUrl == null) {
+      if (avatarUrl == null && context.mounted) {
         showError(context, "Error", description: "Failed to upload avatar image.");
         return false;
       }
@@ -108,7 +106,7 @@ class EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<void> _pickImage() async {
-    final ImagePicker _picker = ImagePicker();
+    final ImagePicker picker = ImagePicker();
 
     // Show options to the user
     await showModalBottomSheet(
@@ -118,19 +116,21 @@ class EditProfilePageState extends State<EditProfilePage> {
           child: Wrap(
             children: <Widget>[
               ListTile(
-                  leading: Icon(Icons.photo_camera),
-                  title: Text('Take a Picture'),
+                  leading: const Icon(Icons.photo_camera),
+                  title: const Text('Take a Picture'),
                   onTap: () async {
                     Navigator.of(context).pop();
-                    var image = await _picker.pickImage(source: ImageSource.camera);
+                    var image =
+                        await picker.pickImage(source: ImageSource.camera);
                     _setImage(image);
                   }),
               ListTile(
-                leading: Icon(Icons.photo_library),
-                title: Text('Choose from Gallery'),
+                leading: const Icon(Icons.photo_library),
+                title: const Text('Choose from Gallery'),
                 onTap: () async {
                   Navigator.of(context).pop();
-                  var image = await _picker.pickImage(source: ImageSource.gallery);
+                  var image =
+                      await picker.pickImage(source: ImageSource.gallery);
                   _setImage(image);
 
                 },
@@ -171,7 +171,7 @@ class EditProfilePageState extends State<EditProfilePage> {
 
       final imageBytes = await imageFile.readAsBytes();
       final userId = supabase.auth.currentUser!.id;
-      final imagePath = '/$userId/profile.${imageExtension}';
+      final imagePath = '/$userId/profile.$imageExtension';
       if (imageExtension == 'jpg') {
         imageExtension = 'jpeg';
       }
@@ -190,22 +190,16 @@ class EditProfilePageState extends State<EditProfilePage> {
       }).toString();
     } catch (e) {
       // Handle any errors during upload
-      print('Error uploading image: $e');
       return null;
     }
   }
 
   Future<bool> updateProfileWithNewAvatar(String userId, String avatarUrl) async {
-    final response = await Supabase.instance.client
+    await Supabase.instance.client
         .from('profiles')
         .update({'avatarUrl': avatarUrl})
         .eq('id', userId)
         .select();
-
-    if (response == null) {
-      showError(context, "Error", description: "Failed to upload avatar image.");
-      return false;
-    }
 
 
     return true;
@@ -245,10 +239,12 @@ class EditProfilePageState extends State<EditProfilePage> {
                 CircleAvatar(
                   radius: 50,
                   backgroundImage: getAvatarImage(),
-                  backgroundColor: _avatarFile == null && _avatarUrl == null ? Color(0xFFC8D4D6) : null,
-                  child: _avatarFile == null && _avatarUrl == null
-                      ? Icon(
-                    Icons.person,
+                    backgroundColor: _avatarFile == null && _avatarUrl == null
+                        ? const Color(0xFFC8D4D6)
+                        : null,
+                    child: _avatarFile == null && _avatarUrl == null
+                        ? const Icon(
+                            Icons.person,
                     size: 60,
                     color: Colors.white,
                   )
@@ -265,14 +261,14 @@ class EditProfilePageState extends State<EditProfilePage> {
                       color: Colors.white,
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Color(0xFFC8D4D6),
-                        width: 2,
+                          color: const Color(0xFFC8D4D6),
+                          width: 2,
                       ),
                     ),
                     child: IconButton(
-                      icon: Icon(Icons.edit),
-                      color: Color(0xFF497077),
-                      iconSize: 15,
+                        icon: const Icon(Icons.edit),
+                        color: const Color(0xFF497077),
+                        iconSize: 15,
                       onPressed: () {
                         _pickImage();
                       },
