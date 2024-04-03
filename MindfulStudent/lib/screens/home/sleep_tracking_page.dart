@@ -32,8 +32,8 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-            Padding(
-            padding: const EdgeInsets.only(top: 50.0, bottom: 30.0, left: 30.0),
+          const Padding(
+            padding: EdgeInsets.only(top: 50.0, bottom: 30.0, left: 30.0),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -55,12 +55,12 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
               ],
             ),
           ),
-          Container(
+          SizedBox(
             width: 400,  // Set your desired width
             height: 300, // Set your desired height
             child: SfCartesianChart(
               backgroundColor: Colors.white, // Optional: You can set a background color
-              primaryXAxis: DateTimeAxis(
+              primaryXAxis: const DateTimeAxis(
                 edgeLabelPlacement: EdgeLabelPlacement.shift,
                 intervalType: DateTimeIntervalType.auto,
                 majorGridLines: MajorGridLines(width: 0),
@@ -69,9 +69,9 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
               ),
               primaryYAxis: NumericAxis(
                 labelFormat: '{value}h',
-                axisLine: AxisLine(color: Color(0xFF497077)),
-                majorTickLines: MajorTickLines(color: Color(0xFF497077)),
-                labelStyle: TextStyle(color: Color(0xFF497077)),
+                axisLine: const AxisLine(color: Color(0xFF497077)),
+                majorTickLines: const MajorTickLines(color: Color(0xFF497077)),
+                labelStyle: const TextStyle(color: Color(0xFF497077)),
                 majorGridLines: MajorGridLines(color: Colors.grey[200]), // Light gridlines
               ),
               series: <CartesianSeries<SleepData, DateTime>>[
@@ -79,8 +79,9 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
                   dataSource: chartData,
                   xValueMapper: (SleepData data, _) => data.date,
                   yValueMapper: (SleepData data, _) => data.hours,
-                  color: Color(0xFF497077), // Primary color for the line
-                  markerSettings: MarkerSettings(
+                  color: const Color(0xFF497077),
+                  // Primary color for the line
+                  markerSettings: const MarkerSettings(
                       isVisible: true,
                       color: Color(0xFF497077),
                       borderColor: Colors.white,
@@ -91,8 +92,7 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
               tooltipBehavior: TooltipBehavior(enable: true), // Enable tooltip
             ),
           ),
-          Padding(
-              padding: EdgeInsets.only(top: 30)
+          const Padding(padding: EdgeInsets.only(top: 30)
           ),
           Center(
             child: FractionallySizedBox(
@@ -126,7 +126,7 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
                         onTap: () {
                           // Handle daily tips and suggestions action
                         },
-                        child: Text.rich(
+                        child: const Text.rich(
                           TextSpan(
                             text: 'Daily tips and suggestions →',
                             style: TextStyle(

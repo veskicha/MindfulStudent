@@ -42,6 +42,8 @@ dependencies:
   supabase_flutter: ^2.3.4
   toastification: ^1.2.1
   syncfusion_flutter_charts: ^25.1.35
+  firebase_messaging: ^14.7.21
+  firebase_core: ^2.27.2
 
 dev_dependencies:
   flutter_test:

@@ -7,8 +7,9 @@ class Profile {
   final String id;
   String? name;
   String? avatarUrl;
+  String? fcm_token;
 
-  Profile({required this.id, required this.name, required this.avatarUrl});
+  Profile({required this.id, required this.name, required this.avatarUrl , required this.fcm_token});
 
   static Future<Profile?> get(String id) async {
     late final Map<String, dynamic> data;
@@ -22,7 +23,7 @@ class Profile {
     }
 
     return Profile(
-        id: data["id"], name: data["name"], avatarUrl: data["avatarUrl"]);
+        id: data["id"], name: data["name"], avatarUrl: data["avatarUrl"] , fcm_token: data["fcm_token"]);
   }
 }
 
@@ -79,11 +80,15 @@ class Auth {
 
   static Future<Profile?> updateProfile(Profile profile) async {
     final id = Auth.user?.id;
-    if (id == null) return null;
+    if (id == null) {
+      print("here here " + "ASd");
+      return null;
+    }
+
 
     await supabase.from("profiles").update({"name": profile.name}).eq("id", id);
-
     // This will also trigger the provider to update
     return await getProfile();
   }
+
 }

@@ -1,4 +1,3 @@
-import 'dart:developer';
 
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
@@ -7,6 +6,7 @@ import 'package:mindfulstudent/screens/auth/login_screen.dart';
 import 'package:mindfulstudent/screens/home/profile_edit_screen.dart';
 import 'package:mindfulstudent/widgets/button.dart';
 import 'package:provider/provider.dart';
+
 import '../../main.dart';
 import '../../widgets/bottom_nav_bar.dart';
 
@@ -84,20 +84,22 @@ class ProfilePageState extends State<ProfilePage> {
                 return Column(
                   children: [
                     Padding(
-                      padding: EdgeInsets.only(bottom: 30),
+                      padding: const EdgeInsets.only(bottom: 30),
                       child: Container(
                         padding: const EdgeInsets.all(2), // Border width
-                        decoration: BoxDecoration(
+                        decoration: const BoxDecoration(
                           shape: BoxShape.circle,
-                          color: const Color(0xFFC8D4D6), // Border color
+                          color: Color(0xFFC8D4D6), // Border color
                         ),
                         child: CircleAvatar(
                           radius: 100,
                           backgroundImage: _avatarUrl != null ? getAvatarImage() : null,
-                          backgroundColor: _avatarUrl == null ? Color(0xFF497077) : null,
+                          backgroundColor: _avatarUrl == null
+                              ? const Color(0xFF497077)
+                              : null,
                           child: _avatarUrl == null
-                              ? Icon(
-                            Icons.person,
+                              ? const Icon(
+                                  Icons.person,
                             size: 80,
                             color: Colors.white,
                           )
@@ -115,7 +117,7 @@ class ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     const SizedBox(height: 40),
-                    Padding(
+                    const Padding(
                       padding: EdgeInsets.only(bottom: 40),
                     ),
                     Button('Edit profile', onPressed: () async {

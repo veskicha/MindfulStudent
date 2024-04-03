@@ -14,4 +14,5 @@ class UserProfileProvider with ChangeNotifier {
     _userProfile = newProfile;
     notifyListeners(); // Notify listeners of the change
   }
+
 }
