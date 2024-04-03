@@ -9,9 +9,13 @@ class Profile {
   final String id;
   String? name;
   String? avatarUrl;
-  String? fcm_token;
+  String? fcmToken;
 
-  Profile({required this.id, required this.name, required this.avatarUrl , required this.fcm_token});
+  Profile(
+      {required this.id,
+      required this.name,
+      required this.avatarUrl,
+      required this.fcmToken});
 
   static Future<Profile?> get(String id) async {
     late final Map<String, dynamic> data;
@@ -25,7 +29,10 @@ class Profile {
     }
 
     return Profile(
-        id: data["id"], name: data["name"], avatarUrl: data["avatarUrl"] , fcm_token: data["fcm_token"]);
+        id: data["id"],
+        name: data["name"],
+        avatarUrl: data["avatarUrl"],
+        fcmToken: data["fcm_token"]);
   }
 }
 

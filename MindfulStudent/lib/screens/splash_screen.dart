@@ -1,9 +1,7 @@
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/screens/home/home_screen.dart';
 
-import '../main.dart';
 import 'auth/login_screen.dart';
 
 class SplashScreen extends StatefulWidget {

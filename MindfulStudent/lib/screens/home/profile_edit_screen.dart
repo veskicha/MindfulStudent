@@ -74,8 +74,7 @@ class EditProfilePageState extends State<EditProfilePage> {
           id: curProfile.id,
           name: name,
           avatarUrl: avatarUrl,
-          fcm_token: curProfile.fcm_token
-      );
+          fcmToken: curProfile.fcmToken);
       await Auth.updateProfile(newProfile);
     }
 
