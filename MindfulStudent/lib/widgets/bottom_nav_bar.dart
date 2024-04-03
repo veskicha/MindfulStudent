@@ -12,60 +12,80 @@ class BottomNavBar extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BottomNavigationBar(
-      backgroundColor: const Color(0xFF5C7F85),
-      selectedItemColor: const Color(0xFF5C7F85),
-      unselectedItemColor: Colors.black,
-      currentIndex: selectedIndex,
-      onTap: (index) {
-        // Call the onItemTapped function provided by the parent widget
-        onItemTapped(index);
-        // Navigate to the respective page based on the index
-        switch (index) {
-          case 0:
-            Navigator.pushReplacementNamed(context, '/home');
-            break;
-          case 1:
-            Navigator.pushReplacementNamed(context, '/sleep');
-            break;
-          case 2:
-            Navigator.pushReplacementNamed(context, '/chat');
-            break;
-          case 3:
-            Navigator.pushReplacementNamed(context, '/profile');
-            break;
-          default:
-            break;
-        }
-      },
-      items: const [
-        BottomNavigationBarItem(
-          icon: ImageIcon(
-            AssetImage('assets/HomeIcon.png'),
-            size: 24,
-          ),
-          label: 'Home',
+    return Stack(
+      alignment: Alignment.bottomCenter,
+      children: [
+        Container(
+          height: 74,
+          color: Colors.transparent,
         ),
-        BottomNavigationBarItem(
-          icon: ImageIcon(
-            AssetImage('assets/Sleep.png'),
-            size: 24,
+        Positioned(
+          bottom: 15,
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.96,
+            decoration: BoxDecoration(
+              color: Colors.transparent,
+              borderRadius: BorderRadius.circular(0), // Rounded corners
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.1),
+                  spreadRadius: 2,
+                  blurRadius: 15,
+                  offset: Offset(0, 3),
+                ),
+              ],
+            ),
+            child: ClipRRect(
+              borderRadius: BorderRadius.circular(20),
+              child: BottomNavigationBar(
+                backgroundColor: const Color(0xFF5C7F85),
+                selectedItemColor: const Color(0xFF5C7F85),
+                unselectedItemColor: Colors.black,
+                currentIndex: selectedIndex,
+                onTap: (index) {
+                  onItemTapped(index);
+                  switch (index) {
+                    case 0:
+                    // Navigate to Home
+                      Navigator.pushReplacementNamed(context, '/home');
+                      break;
+                    case 1:
+                    // Navigate to Sleep
+                      Navigator.pushReplacementNamed(context, '/sleep');
+                      break;
+                    case 2:
+                    // Navigate to Chat
+                      Navigator.pushReplacementNamed(context, '/chat');
+                      break;
+                    case 3:
+                    // Navigate to Profile
+                      Navigator.pushReplacementNamed(context, '/profile');
+                      break;
+                  }
+                },
+                items: const [
+                  BottomNavigationBarItem(
+                    icon: ImageIcon(AssetImage('assets/HomeIcon.png'), size: 24),
+                    label: 'Home',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: ImageIcon(AssetImage('assets/Sleep.png'), size: 24),
+                    label: 'Sleep',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: ImageIcon(AssetImage('assets/Chat.png'), size: 24),
+                    label: 'Chat',
+                  ),
+                  BottomNavigationBarItem(
+                    icon: ImageIcon(AssetImage('assets/Profile.png'), size: 24),
+                    label: 'Profile',
+                  ),
+                ],
+                showSelectedLabels: false,
+                showUnselectedLabels: false,
+              ),
+            ),
           ),
-          label: 'Sleep',
-        ),
-        BottomNavigationBarItem(
-          icon: ImageIcon(
-            AssetImage('assets/Chat.png'),
-            size: 24,
-          ),
-          label: 'Chat',
-        ),
-        BottomNavigationBarItem(
-          icon: ImageIcon(
-            AssetImage('assets/Profile.png'),
-            size: 24,
-          ),
-          label: 'Profile',
         ),
       ],
     );

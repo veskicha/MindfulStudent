@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
+import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/provider/user_profile_provider.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
@@ -53,13 +54,29 @@ class FeatureBlock extends StatelessWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-
+  String? _avatarUrl;
   final double _progress = 0.7;
 
+  @override
+  void initState() {
+    super.initState();
+    final profile = profileProvider.userProfile;
+    final user = Auth.user;
+    if (profile == null || user == null) return;
+    _avatarUrl = profile.avatarUrl;
+  }
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
+  }
+
+  ImageProvider<Object>? getAvatarImage() {
+    _avatarUrl = profileProvider.userProfile!.avatarUrl;
+    if (_avatarUrl != null) {
+      return NetworkImage(_avatarUrl!); // Using NetworkImage for _avatarUrl
+    }
+    return null; // Return null if both are unavailable
   }
 
   @override
@@ -78,12 +95,20 @@ class HomeScreenState extends State<HomeScreen> {
                   Profile? userProfile = profileProvider.userProfile;
                   return Stack(
                     children: [
-                      const Positioned(
-                        top: 100,
-                        left: 40,
+                      Positioned(
+                        top: 88,
+                        left: 30,
                         child: CircleAvatar(
-                          radius: 20,
-                          backgroundImage: AssetImage('assets/Profile.png'),
+                          radius: 30,
+                          backgroundImage: getAvatarImage(),
+                          backgroundColor: _avatarUrl == null ? Color(0xFF497077) : null,
+                          child: _avatarUrl == null
+                              ? Icon(
+                            Icons.person,
+                            size: 15,
+                            color: Colors.white,
+                          )
+                              : null,
                         ),
                       ),
                       Positioned(
