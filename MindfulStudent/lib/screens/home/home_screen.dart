@@ -70,9 +70,9 @@ class HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
-              color: const Color(0xFFC8D4D6),
-              width: double.infinity,
-              height: 220,
+                color: const Color(0xFFC8D4D6),
+                width: double.infinity,
+                height: 220,
                 child: Consumer<UserProfileProvider>(
                     builder: (context, profileProvider, child) {
                   Profile? userProfile = profileProvider.userProfile;
@@ -204,6 +204,13 @@ class HomeScreenState extends State<HomeScreen> {
                         imagePath: 'assets/Journal.png',
                         onTap: () {
                           // Handle navigation to Books page
+                        },
+                      ),
+                      FeatureBlock(
+                        title: 'My Tasks',
+                        imagePath: 'assets/Goals.png',
+                        onTap: () {
+                          Navigator.pushReplacementNamed(context, '/tasks');
                         },
                       ),
                       FeatureBlock(
