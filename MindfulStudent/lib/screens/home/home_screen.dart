@@ -67,12 +67,6 @@ class HomeScreenState extends State<HomeScreen> {
     if (profile == null || user == null) return;
     _avatarUrl = profile.avatarUrl;
 
-
-    final user = Auth.user;
-
-    if (user == null) return;
-
-
     supabase.auth.onAuthStateChange.listen((event) async{
       if(event.event == AuthChangeEvent.signedIn){
         await FirebaseMessaging.instance.requestPermission();

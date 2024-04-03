@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
+import 'package:mindfulstudent/widgets/header_bar.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -22,26 +23,10 @@ class ChatPageState extends State<ChatPage> {
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80.0),
-        child: AppBar(
-          backgroundColor: const Color(0xFF497077),
-          title: const Padding(
-            padding: EdgeInsets.only(top: 20.0),
-            child: Text(
-              'Chats',
-              style: TextStyle(
-                fontSize: 30,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
-          ),
-          actions: [
-            IconButton(
-              icon: const Icon(Icons.search),
-              onPressed: () {
-                // Handle search action
-              },
-            ),
-          ],
+        child: HeaderBar(
+          'Chats',
+          actionIcon: const Icon(Icons.search),
+          onActionPressed: () {},
         ),
       ),
       body: Column(
