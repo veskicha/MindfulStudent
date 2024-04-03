@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:mindfulstudent/backend/firebase.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 import '../constants.dart' as constants;
@@ -47,7 +48,8 @@ class Auth {
         case (AuthChangeEvent.initialSession):
         case (AuthChangeEvent.signedIn):
           if (isLoggedIn) {
-            profileProvider.updateProfile();
+            // init firebase *after* profile data is fetched
+            profileProvider.updateProfile().then((_) => Firebase.init());
             sleepDataProvider.updateData();
           }
           break;
