@@ -20,6 +20,8 @@ class Profile {
       required this.fcmToken});
 
   static Future<Profile?> get(String id) async {
+    log("Getting profile for $id");
+
     late final Map<String, dynamic> data;
     try {
       final rows = await supabase.from("profiles").select().eq("id", id);
@@ -38,8 +40,8 @@ class Profile {
   }
 
   NetworkImage? getAvatarImage() {
-    final url = profileProvider.userProfile?.avatarUrl;
-    if (url == null) return null;
+    final url = avatarUrl;
+    if (url == null || url.isEmpty) return null;
     return NetworkImage(url);
   }
 }
@@ -55,8 +57,11 @@ class Auth {
         case (AuthChangeEvent.initialSession):
         case (AuthChangeEvent.signedIn):
           if (isLoggedIn) {
-            // init firebase *after* profile data is fetched
-            profileProvider.updateProfile().then((_) => Firebase.init());
+            // init profile-dependent providers *after* profile data is fetched
+            profileProvider.updateProfile().then((_) {
+              Firebase.init();
+              connectionProvider.fetch();
+            });
             sleepDataProvider.updateData();
           }
           break;

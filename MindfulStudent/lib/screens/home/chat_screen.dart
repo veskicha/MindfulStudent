@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/backend/auth.dart';
+import 'package:mindfulstudent/main.dart';
+import 'package:mindfulstudent/provider/chat_provider.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:mindfulstudent/widgets/header_bar.dart';
+import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -45,30 +49,24 @@ class ChatPageState extends State<ChatPage> {
             ),
           ),
           // Recent Chats List
-          Expanded(
-            child: ListView.builder(
-              itemCount: 10, // Replace with actual number of chats
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: Colors.grey, // Placeholder color
-                    child: Icon(Icons.person),
-                  ),
-                  title: Text('Contact Name $index'),
-                  subtitle: Text('Last message from contact $index'),
-                  onTap: () {
-                    // Handle chat item tap
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ChatScreen(),
-                      ),
-                    );
-                  },
-                );
-              },
-            ),
-          ),
+          Expanded(child: Consumer<ConnectionProvider>(
+              builder: (context, connectionProvider, child) {
+            // TODO: show some kind of loading page if not logged in yet
+            final me = profileProvider.userProfile;
+            if (me == null) return const SizedBox.shrink();
+
+            final connections =
+                connectionProvider.connections.where((conn) => conn.confirmed);
+            return ListView(
+              children: connections.map((conn) {
+                if (conn.from.id == me.id) {
+                  return ProfileCard(conn.to);
+                } else {
+                  return ProfileCard(conn.from);
+                }
+              }).toList(),
+            );
+          })),
         ],
       ),
       bottomNavigationBar: BottomNavBar(
@@ -79,15 +77,53 @@ class ChatPageState extends State<ChatPage> {
   }
 }
 
+class ProfileCard extends StatelessWidget {
+  final Profile profile;
+
+  const ProfileCard(this.profile, {super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final avatarImg = profile.getAvatarImage();
+
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundImage: avatarImg,
+        backgroundColor: avatarImg == null ? const Color(0xFF497077) : null,
+        child: avatarImg == null
+            ? const Icon(
+                Icons.person,
+                color: Colors.white,
+              )
+            : null,
+      ),
+      title: Text(profile.name ?? "Unknown"),
+      subtitle: const Text("blablabla chocoladevla"),
+      onTap: () {
+        // Handle chat item tap
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatScreen(profile),
+          ),
+        );
+      },
+    );
+  }
+}
+
 class ChatScreen extends StatelessWidget {
-  const ChatScreen({super.key});
+  final Profile profile;
+
+  const ChatScreen(this.profile, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF497077),
-        title: const Text('Contact Name'),
+        foregroundColor: Colors.white,
+        title: Text(profile.name ?? "Unknown"),
       ),
       body: Column(
         children: [

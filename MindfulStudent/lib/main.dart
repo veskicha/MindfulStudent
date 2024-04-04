@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/provider/chat_provider.dart';
 import 'package:mindfulstudent/screens/home/task_tracking.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -33,6 +34,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(value: profileProvider),
         ChangeNotifierProvider.value(value: sleepDataProvider),
+        ChangeNotifierProvider.value(value: connectionProvider)
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
@@ -55,3 +57,4 @@ final supabase = Supabase.instance.client;
 
 final profileProvider = UserProfileProvider();
 final sleepDataProvider = SleepDataProvider();
+final connectionProvider = ConnectionProvider();
