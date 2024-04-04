@@ -218,6 +218,13 @@ class HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                       FeatureBlock(
+                        title: 'My Tasks',
+                        imagePath: 'assets/Goals.png',
+                        onTap: () {
+                          Navigator.pushReplacementNamed(context, '/tasks');
+                        },
+                      ),
+                      FeatureBlock(
                         title: 'Emergency Contact',
                         imagePath: 'assets/Chat.png',
                         onTap: () {
