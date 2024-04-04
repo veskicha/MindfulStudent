@@ -29,19 +29,55 @@ class FeatureBlock extends StatelessWidget {
       onTap: onTap,
       child: Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFC8D4D6),
-          borderRadius: BorderRadius.circular(10),
+          color: Color(0xB35C7F85),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.2), // Shadow color with some opacity
+              offset: Offset(0, 3), // Horizontal and vertical offset of shadow
+              blurRadius: 5, // Blur effect
+              spreadRadius: 2, // Spread effect
+            ),
+          ],
+          borderRadius: BorderRadius.circular(20),
         ),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Stack(
+          alignment: Alignment.topLeft,
           children: [
-            Image.asset(imagePath),
-            const SizedBox(height: 8),
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold,
+            Positioned(
+              left: 10,
+              top: 10,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: EdgeInsets.only(top: 5.0, left: 0.0, right: 0.0, bottom: 0.0),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(17),
+                    ),
+                    child: Image.asset(
+                      imagePath,
+                      height: 50,
+                      width: 50,
+                      color: Color(0xFF497077),
+                      filterQuality: FilterQuality.high,
+                    ),
+                  ),
+                  Padding(
+                      padding: EdgeInsets.only(top: 6.0, left: 0.0, right: 0.0, bottom: 0.0),
+                  ),
+                  Text(
+                    title,
+                    style: TextStyle(
+                      color: Colors.white, // Text color
+                      fontWeight: FontWeight.bold, // Bold text
+                      fontSize: 25,
+                    ),
+                  ),
+
+                ],
               ),
             ),
           ],
@@ -69,7 +105,13 @@ class HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Container(
+              decoration: BoxDecoration(
                 color: const Color(0xFFC8D4D6),
+                borderRadius: BorderRadius.only(
+                  bottomLeft: Radius.circular(20),
+                  bottomRight: Radius.circular(20),
+                ),
+              ),
                 width: double.infinity,
                 height: 220,
                 child: Consumer<UserProfileProvider>(
@@ -80,10 +122,10 @@ class HomeScreenState extends State<HomeScreen> {
                   return Stack(
                     children: [
                       Positioned(
-                        top: 88,
+                        top: 82,
                         left: 30,
                         child: CircleAvatar(
-                          radius: 30,
+                          radius: 40,
                           backgroundImage: avatarImg,
                           backgroundColor: avatarImg == null
                               ? const Color(0xFF497077)
@@ -98,8 +140,8 @@ class HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                       Positioned(
-                        top: 100,
-                        left: 100,
+                        top: 105,
+                        left: 120,
                         child: Text(
                           userProfile == null
                               ? 'Welcome!'
@@ -116,61 +158,86 @@ class HomeScreenState extends State<HomeScreen> {
                   );
                 })),
             Padding(
-              padding: const EdgeInsets.all(20.0),
+              padding: const EdgeInsets.all(25.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text(
-                    'Daily Progress',
-                    style: TextStyle(
-                      color: Color(0xFF497077),
-                      fontSize: 20,
-                      fontWeight: FontWeight.bold,
+                  const Padding(
+                    padding: EdgeInsets.only(top: 15.0, left: 8.0, right: 8.0, bottom: 10.0),
+                    child: Text(
+                      'Daily Task Progress',
+                      style: TextStyle(
+                        color: Color(0xFF497077),
+                        fontSize: 18, // Text size
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 10),
-                  Stack(
-                    alignment: Alignment.center,
-                    children: [
-                      SizedBox(
-                        height: 20,
-                        child: LinearProgressIndicator(
-                          backgroundColor: const Color(0xFFE5E5E5),
-                          valueColor: const AlwaysStoppedAnimation<Color>(
-                              Color(0xFF5C7F85)),
-                          value: _progress,
+                  Container(
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5),
+                          spreadRadius: 2,
+                          blurRadius: 4,
+                          offset: Offset(0, 3),
                         ),
-                      ),
-                      Positioned.fill(
-                        child: Padding(
-                          padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                '${(_progress * 100).toInt()}%',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const Icon(
-                                Icons.arrow_forward_ios,
-                                color: Colors.white,
-                                size: 16,
-                              ),
-                            ],
+                      ],
+                      color: const Color(0xFFE5E5E5),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: Stack(
+                        alignment: Alignment.center,
+                        children: [
+                          SizedBox(
+                            height: 20,
+                            child: LinearProgressIndicator(
+                              backgroundColor: Colors.transparent,
+                              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF5C7F85)),
+                              value: _progress,
+                            ),
                           ),
-                        ),
+                          Positioned.fill(
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    '${(_progress * 100).toInt()}%',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  const Icon(
+                                    Icons.arrow_forward_ios,
+                                    color: Colors.white,
+                                    size: 16,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                  const SizedBox(height: 20),
+                  Padding(
+                      padding: EdgeInsets.only(top: 0.0, left: 0.0, right: 0.0, bottom: 50.0),
+                  ),
+                  Container(
+                    width: double.infinity,
+                    height: 1.0,
+                    color: Colors.grey[300],
+                  ),
                   const SizedBox(height: 20),
                   GridView.count(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-                    // Disable GridView scrolling
+
                     crossAxisCount: 2,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
@@ -204,7 +271,7 @@ class HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                       FeatureBlock(
-                        title: 'Breathing Exercise',
+                        title: 'Breathing\nExercise',
                         imagePath: 'assets/Goals.png',
                         onTap: () {
                           // Handle navigation to Breathing excercise page
@@ -218,7 +285,7 @@ class HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                       FeatureBlock(
-                        title: 'Emergency Contact',
+                        title: 'Emergency\nContact',
                         imagePath: 'assets/Chat.png',
                         onTap: () {
                           // Handle navigation to Emergency Contact page
