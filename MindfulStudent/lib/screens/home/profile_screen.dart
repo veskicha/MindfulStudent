@@ -40,11 +40,11 @@ class ProfilePageState extends State<ProfilePage> {
                   fit: BoxFit.cover,
                 ),
                 const Positioned(
-                  top: 60,
+                  top: 40,
                   child: Text(
                     'Profile',
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Colors.white,
                     ),
@@ -55,19 +55,36 @@ class ProfilePageState extends State<ProfilePage> {
           ),
           const Spacer(),
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 0),
+            padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 0),
             child: Consumer<UserProfileProvider>(
               builder: (context, profileProvider, child) {
-                Profile? userProfile = profileProvider.userProfile;
+                final Profile? userProfile = profileProvider.userProfile;
+                final avatarImg = userProfile?.getAvatarImage();
+
                 return Column(
                   children: [
-                    const CircleAvatar(
-                      radius: 60,
-                      backgroundColor: Color(0xFF497077),
-                      child: Icon(
-                        Icons.person,
-                        size: 80,
-                        color: Colors.white,
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 30),
+                      child: Container(
+                        padding: const EdgeInsets.all(2), // Border width
+                        decoration: const BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Color(0xFFC8D4D6), // Border color
+                        ),
+                        child: CircleAvatar(
+                          radius: 100,
+                          backgroundImage: avatarImg,
+                          backgroundColor: avatarImg == null
+                              ? const Color(0xFF497077)
+                              : null,
+                          child: avatarImg == null
+                              ? const Icon(
+                                  Icons.person,
+                                  size: 80,
+                                  color: Colors.white,
+                                )
+                              : null,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 20),
@@ -80,6 +97,9 @@ class ProfilePageState extends State<ProfilePage> {
                       ),
                     ),
                     const SizedBox(height: 40),
+                    const Padding(
+                      padding: EdgeInsets.only(bottom: 40),
+                    ),
                     Button('Edit profile', onPressed: () async {
                       // Navigate to EditProfilePage
                       Navigator.push(

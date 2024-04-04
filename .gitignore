@@ -33,3 +33,5 @@ google-services.json
 *.hprof
 
 .env
+.idea
+service-account.json

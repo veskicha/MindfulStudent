@@ -53,7 +53,6 @@ class FeatureBlock extends StatelessWidget {
 
 class HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-
   final double _progress = 0.7;
 
   void _onItemTapped(int index) {
@@ -75,15 +74,27 @@ class HomeScreenState extends State<HomeScreen> {
                 height: 220,
                 child: Consumer<UserProfileProvider>(
                     builder: (context, profileProvider, child) {
-                  Profile? userProfile = profileProvider.userProfile;
+                  final Profile? userProfile = profileProvider.userProfile;
+                  final avatarImg = userProfile?.getAvatarImage();
+
                   return Stack(
                     children: [
-                      const Positioned(
-                        top: 100,
-                        left: 40,
+                      Positioned(
+                        top: 88,
+                        left: 30,
                         child: CircleAvatar(
-                          radius: 20,
-                          backgroundImage: AssetImage('assets/Profile.png'),
+                          radius: 30,
+                          backgroundImage: avatarImg,
+                          backgroundColor: avatarImg == null
+                              ? const Color(0xFF497077)
+                              : null,
+                          child: avatarImg == null
+                              ? const Icon(
+                                  Icons.person,
+                                  size: 40,
+                                  color: Colors.white,
+                                )
+                              : null,
                         ),
                       ),
                       Positioned(
