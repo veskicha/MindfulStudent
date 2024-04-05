@@ -1,8 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/provider/user_profile_provider.dart';
+import 'package:mindfulstudent/screens/home/journal_screen.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
+
+import 'chat_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -246,14 +249,77 @@ class HomeScreenState extends State<HomeScreen> {
                         title: 'Chat',
                         imagePath: 'assets/Chat.png',
                         onTap: () {
-                          Navigator.pushReplacementNamed(context, '/chat');
+                          Navigator.push(context, PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) => ChatScreen(),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              var screenWidth = MediaQuery.of(context).size.width;
+                              var screenHeight = MediaQuery.of(context).size.height;
+
+                              // Example coordinates (x, y)
+                              var x = 100.0; // Replace with your X coordinate
+                              var y = 500.0; // Replace with your Y coordinate
+
+                              // Calculate alignment based on x and y
+                              var alignmentX = (x - screenWidth / 2) / (screenWidth / 2);
+                              var alignmentY = (y - screenHeight / 2) / (screenHeight / 2);
+                              var customAlignment = Alignment(alignmentX, alignmentY);
+
+                              var scaleTween = Tween<double>(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeInOut));
+
+                              return AnimatedBuilder(
+                                animation: animation,
+                                builder: (context, child) {
+                                  return Transform.scale(
+                                    scale: scaleTween.evaluate(animation),
+                                    alignment: customAlignment, // Custom alignment based on x, y
+                                    child: child,
+                                  );
+                                },
+                                child: child,
+                              );
+                            },
+                            transitionDuration: Duration(milliseconds: 500),
+                          ));
                         },
                       ),
+
+
+
                       FeatureBlock(
                         title: 'Journal',
                         imagePath: 'assets/Journal.png',
                         onTap: () {
-                          // Handle navigation to feature Journal page
+                          Navigator.push(context, PageRouteBuilder(
+                            pageBuilder: (context, animation, secondaryAnimation) => JournalScreen(),
+                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                              var screenWidth = MediaQuery.of(context).size.width;
+                              var screenHeight = MediaQuery.of(context).size.height;
+
+                              // Example coordinates (x, y)
+                              var x = 300.0; // Replace with your X coordinate
+                              var y = 500.0; // Replace with your Y coordinate
+
+                              // Calculate alignment based on x and y
+                              var alignmentX = (x - screenWidth / 2) / (screenWidth / 2);
+                              var alignmentY = (y - screenHeight / 2) / (screenHeight / 2);
+                              var customAlignment = Alignment(alignmentX, alignmentY);
+
+                              var scaleTween = Tween<double>(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeInOut));
+
+                              return AnimatedBuilder(
+                                animation: animation,
+                                builder: (context, child) {
+                                  return Transform.scale(
+                                    scale: scaleTween.evaluate(animation),
+                                    alignment: customAlignment, // Custom alignment based on x, y
+                                    child: child,
+                                  );
+                                },
+                                child: child,
+                              );
+                            },
+                            transitionDuration: Duration(milliseconds: 500),
+                          ));
                         },
                       ),
                       FeatureBlock(

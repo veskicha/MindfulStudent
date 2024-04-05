@@ -53,7 +53,7 @@ class EditProfilePageState extends State<EditProfilePage> {
     }
 
     String? avatarUrl;
-    // Check if there is an avatar image to upload
+
     if (_avatarFile != null) {
       avatarUrl = await _uploadImageToSupabase(_avatarFile!);
       if (avatarUrl == null && context.mounted) {
@@ -63,7 +63,7 @@ class EditProfilePageState extends State<EditProfilePage> {
       }
     }
 
-    // Update profile data if necessary (name, avatarUrl)
+
     final curProfile = profileProvider.userProfile;
     if (curProfile != null &&
         (name != curProfile.name || avatarUrl != curProfile.avatarUrl)) {
