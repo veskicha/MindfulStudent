@@ -36,6 +36,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
+        scaffoldMessengerKey: scaffoldMessengerKey,
         home: const SplashScreen(),
         routes: {
           '/home': (context) => const HomeScreen(),
@@ -50,6 +51,8 @@ class MyApp extends StatelessWidget {
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 final supabase = Supabase.instance.client;
 
