@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/material.dart';
 import 'package:mindfulstudent/main.dart';
 
 class Firebase {
@@ -12,6 +13,12 @@ class Firebase {
     FirebaseMessaging.onMessage.listen((payload) {
       final notification = payload.notification;
       log("Message received: ${notification?.title}");
+
+      scaffoldMessengerKey.currentState?.showSnackBar(
+        SnackBar(
+          content: Text('${notification?.title} ${notification?.body}'),
+        ),
+      );
     });
 
     await FirebaseMessaging.instance.requestPermission();
