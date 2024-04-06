@@ -13,6 +13,8 @@ class Profile {
   String? avatarUrl;
   String? fcmToken;
 
+  static final Map<String, Profile> _cache = {};
+
   Profile(
       {required this.id,
       required this.name,
@@ -40,7 +42,10 @@ class Profile {
   }
 
   static Future<Profile?> get(String id) async {
-    log("Getting profile for $id");
+    final cached = _cache[id];
+    if (cached != null) return cached;
+
+    log("Fetching profile for $id");
 
     late final List<Map<String, dynamic>> data;
     try {
@@ -51,7 +56,9 @@ class Profile {
     }
 
     final row = data.firstOrNull;
-    return row == null ? null : Profile.fromRowData(row);
+    final profile = row == null ? null : Profile.fromRowData(row);
+    if (profile != null) _cache[profile.id] = profile;
+    return profile;
   }
 
   static Future<List<Profile>> find(String name) async {
