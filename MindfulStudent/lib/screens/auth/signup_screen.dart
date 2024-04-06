@@ -4,7 +4,6 @@ import 'package:mindfulstudent/screens/auth/login_screen.dart';
 import 'package:mindfulstudent/screens/home/home_screen.dart';
 import 'package:mindfulstudent/util.dart';
 import 'package:mindfulstudent/widgets/button.dart';
-import 'package:mindfulstudent/widgets/text_line_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:toastification/toastification.dart';
 
@@ -15,19 +14,70 @@ class SignupScreen extends StatefulWidget {
   SignupScreenState createState() => SignupScreenState();
 }
 
+class TextLineField extends StatelessWidget {
+  final String hintText;
+  final bool obscureText;
+  final TextEditingController controller;
+  final double? widthFactor;
+  final double borderRadius;
+
+  const TextLineField(
+      this.hintText, {super.key,
+        this.obscureText = false,
+        required this.controller,
+        this.widthFactor,
+        this.borderRadius = 20.0,
+      });
+
+  @override
+  Widget build(BuildContext context) {
+    return FractionallySizedBox(
+      widthFactor: widthFactor ?? 1.0,
+      child: TextField(
+        controller: controller,
+        obscureText: obscureText,
+        cursorColor: const Color(0xFF497077),
+        style: const TextStyle(
+          color: Color(0xFF497077),
+        ),
+        decoration: InputDecoration(
+          labelText: hintText,
+          labelStyle: TextStyle(color: Colors.grey[500]),
+          contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: const BorderSide(color: Color(0xFFC8D4D6)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(borderRadius),
+            borderSide: const BorderSide(color: Color(0xFFC8D4D6)),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
 class SignupScreenState extends State<SignupScreen> {
-  final TextLineField nameField = TextLineField("Your name");
-  final TextLineField emailField = TextLineField("Your email");
-  final TextLineField passwordField =
-      TextLineField("Your password", obscureText: true);
-  final TextLineField passwordConfirmField =
-      TextLineField("Confirm password", obscureText: true);
+  final TextEditingController nameController = TextEditingController();
+  final TextEditingController emailController = TextEditingController();
+  final TextEditingController passwordController = TextEditingController();
+  final TextEditingController passwordConfirmController = TextEditingController();
+
+  @override
+  void dispose() {
+    nameController.dispose();
+    emailController.dispose();
+    passwordController.dispose();
+    passwordConfirmController.dispose();
+    super.dispose();
+  }
 
   Future<void> signup() async {
-    final name = nameField.getText();
-    final email = emailField.getText();
-    final password = passwordField.getText();
-    final passwordConfirm = passwordConfirmField.getText();
+    final name = nameController.text;
+    final email = emailController.text;
+    final password = passwordController.text;
+    final passwordConfirm = passwordConfirmController.text;
 
     if (password != passwordConfirm) {
       showError(context, "Passwords do not match!");
@@ -59,29 +109,54 @@ class SignupScreenState extends State<SignupScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final nameField = TextLineField(
+      "Your name",
+      controller: nameController,
+      widthFactor: 0.8,
+      borderRadius: 20.0,
+    );
+    final emailField = TextLineField(
+      "Your email",
+      controller: emailController,
+      widthFactor: 0.8,
+      borderRadius: 20.0,
+    );
+    final passwordField = TextLineField(
+      "Your password",
+      obscureText: true,
+      controller: passwordController,
+      widthFactor: 0.8,
+      borderRadius: 20.0,
+    );
+    final passwordConfirmField = TextLineField(
+      "Confirm password",
+      obscureText: true,
+      controller: passwordConfirmController,
+      widthFactor: 0.8,
+      borderRadius: 20.0,
+    );
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
+            SizedBox(
               width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height * 0.4,
-              color: const Color(0x4C497077),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
+                  const SizedBox(height: 100),
                   Image.asset(
                     'assets/Logophotoroom1.png', // Path to your image in assets
-                    width: MediaQuery.of(context).size.width * 0.5,
-                    height: MediaQuery.of(context).size.width * 0.5,
+                    width: MediaQuery.of(context).size.width * 0.3,
+                    height: MediaQuery.of(context).size.width * 0.3,
                   ),
                   const SizedBox(height: 20),
                   const Text(
                     'Sign Up',
                     style: TextStyle(
                       color: Color(0xFF497077),
-                      fontSize: 24,
+                      fontSize: 26,
                       fontFamily: 'Poppins',
                       fontWeight: FontWeight.w700,
                     ),
@@ -89,7 +164,7 @@ class SignupScreenState extends State<SignupScreen> {
                 ],
               ),
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 60),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
               child: Column(
@@ -101,9 +176,20 @@ class SignupScreenState extends State<SignupScreen> {
                   passwordField,
                   const SizedBox(height: 20),
                   passwordConfirmField,
-                  const SizedBox(height: 20),
-                  Button('Sign Up', onPressed: signup),
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 60),
+                  FractionallySizedBox(
+                    widthFactor: 0.8, // Button width is 80% of screen width
+                    child: Button('Sign Up', onPressed: signup),
+                  ),
+                  const SizedBox(height: 40),
+                  Center(
+                    child: Container(
+                      width: MediaQuery.of(context).size.width * 0.8, // Line width is 80% of screen width
+                      height: 1, // Line thickness
+                      color: Colors.grey[300], // Line color
+                    ),
+                  ),
+                  const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -125,8 +211,7 @@ class SignupScreenState extends State<SignupScreen> {
                           style: TextStyle(
                             color: Color(0xFF497077),
                             fontFamily: 'Poppins',
-                            fontWeight: FontWeight.w600,
-                            decoration: TextDecoration.underline,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
                       ),
