@@ -217,21 +217,26 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment:
-          message.isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4.0),
-        padding: const EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          color:
-              message.isSentByMe ? const Color(0xFF497077) : Colors.grey[300],
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: Text(
-          message.content,
-          style: TextStyle(
-            color: message.isSentByMe ? Colors.white : Colors.black,
+    return Container(
+      padding: message.isSentByMe
+          ? const EdgeInsets.only(left: 40.0)
+          : const EdgeInsets.only(right: 40.0),
+      child: Align(
+        alignment:
+            message.isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 4.0),
+          padding: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            color:
+                message.isSentByMe ? const Color(0xFF497077) : Colors.grey[300],
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Text(
+            message.content,
+            style: TextStyle(
+              color: message.isSentByMe ? Colors.white : Colors.black,
+            ),
           ),
         ),
       ),
