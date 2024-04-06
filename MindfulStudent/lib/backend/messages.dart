@@ -4,17 +4,17 @@ import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/main.dart';
 
 class Connection {
-  final Profile from;
-  final Profile to;
+  final String fromId;
+  final String toId;
   bool confirmed;
 
-  Connection(this.from, this.to, this.confirmed);
+  Connection(this.fromId, this.toId, this.confirmed);
 
   Future<void> accept() async {
     final Profile? me = profileProvider.userProfile;
     if (me == null) throw Exception("Not logged in yet!");
 
-    if (me.id != to.id) {
+    if (me.id != toId) {
       throw Exception("Cannot accept outgoing connection request");
     }
 
@@ -24,8 +24,8 @@ class Connection {
     await supabase
         .from("connections")
         .update({"isMutual": true})
-        .eq("from", from.id)
-        .eq("to", to.id);
+        .eq("from", fromId)
+        .eq("to", toId);
 
     confirmed = true;
     return;
@@ -44,10 +44,8 @@ class Connection {
 
     final List<Connection> connections = [];
     for (final connData in res) {
-      final from = await Profile.get(connData["source"]);
-      final to = await Profile.get(connData["target"]);
-
-      if (from == null || to == null) continue;
+      final from = connData["source"];
+      final to = connData["target"];
 
       connections.add(Connection(from, to, connData["isMutual"]));
     }
@@ -57,45 +55,65 @@ class Connection {
 
 class Message {
   final String id;
-  final Profile? author;
-  final Profile? recipient;
+  final String authorId;
+  final String recipientId;
   final DateTime sentAt;
   final String content;
 
-  const Message(
-      this.id, this.author, this.recipient, this.sentAt, this.content);
+  const Message(this.id, this.authorId, this.recipientId, this.sentAt,
+      this.content);
 
-  static Future<Message> fromRowData(Map<String, dynamic> row) async {
+  static Message fromRowData(Map<String, dynamic> row) {
     final String id = row["id"];
-    final Profile? from = await Profile.get(row["from"]);
-    final Profile? to = await Profile.get(row["to"]);
-    final DateTime sentAt =
-        DateTime.fromMillisecondsSinceEpoch(row["createdAt"]);
+    final String from = row["from"];
+    final String to = row["to"];
+    final DateTime sentAt = DateTime.parse(row["created_at"]);
     final String content = row["text"];
 
     return Message(id, from, to, sentAt, content);
   }
+
+  bool get isSentByMe {
+    final me = profileProvider.userProfile;
+    if (me == null) return false;
+    return authorId == me.id;
+  }
 }
 
 class Chat {
-  final Profile me;
-  final Profile other;
-  final Map<String, Message> messages = {};
+  final String otherId;
+  final Map<String, Message> _messages = {};
 
-  Chat(this.me, this.other);
+  Chat(this.otherId);
+
+  Future<Profile?> getProfile() async {
+    return await Profile.get(otherId);
+  }
+
+  List<Message> get messages {
+    return _messages.values.toList()
+      ..sort((Message a, Message b) => a.sentAt.compareTo(b.sentAt));
+  }
 
   void addMessage(Message message) {
-    messages[message.id] = message;
+    _messages[message.id] = message;
+  }
+
+  void removeMessage(String messageId) {
+    _messages.remove(messageId);
   }
 
   Future<Message?> sendMessage(String content) async {
+    final me = profileProvider.userProfile;
+    if (me == null) return null;
+
     final res = await supabase
         .from("messages")
-        .insert({"from": me.id, "to": other.id, "text": content}).select();
+        .insert({"from": me.id, "to": otherId, "text": content}).select();
 
     if (res.isEmpty) return null;
 
-    final msg = await Message.fromRowData(res[0]);
+    final msg = Message.fromRowData(res[0]);
     addMessage(msg);
     return msg;
   }

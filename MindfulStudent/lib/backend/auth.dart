@@ -57,10 +57,10 @@ class Auth {
         case (AuthChangeEvent.initialSession):
         case (AuthChangeEvent.signedIn):
           if (isLoggedIn) {
-            // init profile-dependent providers *after* profile data is fetched
+            // note the order of initialization here
             profileProvider.updateProfile().then((_) {
               Firebase.init();
-              connectionProvider.fetch();
+              chatProvider.init();
             });
             sleepDataProvider.updateData();
           }

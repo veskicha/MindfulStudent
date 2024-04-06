@@ -34,7 +34,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(value: profileProvider),
         ChangeNotifierProvider.value(value: sleepDataProvider),
-        ChangeNotifierProvider.value(value: connectionProvider)
+        ChangeNotifierProvider.value(value: chatProvider)
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
@@ -60,4 +60,4 @@ final supabase = Supabase.instance.client;
 
 final profileProvider = UserProfileProvider();
 final sleepDataProvider = SleepDataProvider();
-final connectionProvider = ConnectionProvider();
+final chatProvider = ChatProvider();

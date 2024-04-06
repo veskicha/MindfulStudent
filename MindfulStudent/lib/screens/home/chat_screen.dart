@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
-import 'package:mindfulstudent/main.dart';
+import 'package:mindfulstudent/backend/messages.dart';
 import 'package:mindfulstudent/provider/chat_provider.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:mindfulstudent/widgets/header_bar.dart';
@@ -49,24 +49,17 @@ class ChatPageState extends State<ChatPage> {
             ),
           ),
           // Recent Chats List
-          Expanded(child: Consumer<ConnectionProvider>(
-              builder: (context, connectionProvider, child) {
-            // TODO: show some kind of loading page if not logged in yet
-            final me = profileProvider.userProfile;
-            if (me == null) return const SizedBox.shrink();
-
-            final connections =
-                connectionProvider.connections.where((conn) => conn.confirmed);
-            return ListView(
-              children: connections.map((conn) {
-                if (conn.from.id == me.id) {
-                  return ProfileCard(conn.to);
-                } else {
-                  return ProfileCard(conn.from);
-                }
-              }).toList(),
-            );
-          })),
+          Expanded(
+            child: Consumer<ChatProvider>(
+              builder: (context, chatProvider, child) {
+                return ListView(
+                  children: chatProvider.chats
+                      .map((chat) => ProfileCard(profileFut: chat.getProfile()))
+                      .toList(),
+                );
+              },
+            ),
+          ),
         ],
       ),
       bottomNavigationBar: BottomNavBar(
@@ -77,14 +70,34 @@ class ChatPageState extends State<ChatPage> {
   }
 }
 
-class ProfileCard extends StatelessWidget {
-  final Profile profile;
+class ProfileCard extends StatefulWidget {
+  final Future<Profile?> profileFut;
 
-  const ProfileCard(this.profile, {super.key});
+  const ProfileCard({required this.profileFut, super.key});
+
+  @override
+  State<StatefulWidget> createState() => ProfileCardState();
+}
+
+class ProfileCardState extends State<ProfileCard> {
+  Profile? profile;
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget.profileFut.then((p) {
+      setState(() {
+        profile = p;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
-    final avatarImg = profile.getAvatarImage();
+    final profileCopy = profile;
+
+    final avatarImg = profileCopy?.getAvatarImage();
 
     return ListTile(
       leading: CircleAvatar(
@@ -97,17 +110,18 @@ class ProfileCard extends StatelessWidget {
               )
             : null,
       ),
-      title: Text(profile.name ?? "Unknown"),
+      title: Text(profileCopy?.name ?? "Unknown"),
       subtitle: const Text("blablabla chocoladevla"),
-      onTap: () {
-        // Handle chat item tap
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => ChatScreen(profile),
-          ),
-        );
-      },
+      onTap: profileCopy == null
+          ? null
+          : () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatScreen(profileCopy),
+                ),
+              );
+            },
     );
   }
 }
@@ -131,12 +145,14 @@ class ChatScreen extends StatelessWidget {
           Expanded(
             child: Padding(
               padding: const EdgeInsets.all(8.0),
-              child: ListView(
-                children: const [
-                  // Replace with actual chat messages
-                  ChatBubble(message: 'Hello', isMe: true),
-                  ChatBubble(message: 'Hi there!', isMe: false),
-                ],
+              child: Consumer<ChatProvider>(
+                builder: (context, chatProvider, child) {
+                  final chat = chatProvider.getChatWith(profile.id);
+                  return ListView(
+                    children:
+                        chat.messages.map((msg) => ChatBubble(msg)).toList(),
+                  );
+                },
               ),
             ),
           ),
@@ -179,30 +195,27 @@ class ChatScreen extends StatelessWidget {
 }
 
 class ChatBubble extends StatelessWidget {
-  final String message;
-  final bool isMe;
+  final Message message;
 
-  const ChatBubble({
-    super.key,
-    required this.message,
-    required this.isMe,
-  });
+  const ChatBubble(this.message, {super.key});
 
   @override
   Widget build(BuildContext context) {
     return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
+      alignment:
+          message.isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
       child: Container(
         margin: const EdgeInsets.symmetric(vertical: 4.0),
         padding: const EdgeInsets.all(8.0),
         decoration: BoxDecoration(
-          color: isMe ? const Color(0xFF497077) : Colors.grey[300],
+          color:
+              message.isSentByMe ? const Color(0xFF497077) : Colors.grey[300],
           borderRadius: BorderRadius.circular(12.0),
         ),
         child: Text(
-          message,
+          message.content,
           style: TextStyle(
-            color: isMe ? Colors.white : Colors.black,
+            color: message.isSentByMe ? Colors.white : Colors.black,
           ),
         ),
       ),
