@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_spinkit/flutter_spinkit.dart';
 import 'package:mindfulstudent/backend/auth.dart';
+import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/provider/user_profile_provider.dart';
 import 'package:mindfulstudent/screens/home/journal_screen.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
-import 'package:flutter_spinkit/flutter_spinkit.dart';
 
 import 'chat_screen.dart';
 
@@ -99,7 +100,21 @@ class HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+
+    // If already loaded we shouldn't register a listener
+    if (profileProvider.userProfile != null) {
+      _onProfileLoaded();
+      return;
+    }
+
+    profileProvider.addListener(_onProfileLoaded);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    profileProvider.removeListener(_onProfileLoaded);
   }
 
   void _onItemTapped(int index) {
@@ -108,10 +123,13 @@ class HomeScreenState extends State<HomeScreen> {
     });
   }
 
-  void _loadData() async {
-    await Future.delayed(const Duration(seconds: 2));
-    setState(() {
-      isLoading = false;
+  void _onProfileLoaded() {
+    if (profileProvider.userProfile == null) return;
+
+    Future.delayed(const Duration(seconds: 1)).then((_) {
+      setState(() {
+        isLoading = false;
+      });
     });
   }
 
