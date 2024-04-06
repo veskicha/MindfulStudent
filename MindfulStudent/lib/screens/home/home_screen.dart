@@ -101,9 +101,11 @@ class HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
 
-    // If already loaded we shouldn't register a listener
+    // If already loaded we should just skip all of this
     if (profileProvider.userProfile != null) {
-      _onProfileLoaded();
+      setState(() {
+        isLoading = false;
+      });
       return;
     }
 
