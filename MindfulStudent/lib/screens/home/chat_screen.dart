@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/backend/messages.dart';
 import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/provider/chat_provider.dart';
+import 'package:mindfulstudent/util.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:mindfulstudent/widgets/header_bar.dart';
 import 'package:provider/provider.dart';
@@ -142,10 +145,72 @@ class ProfileCardState extends State<ProfileCard> {
   }
 }
 
-class ChatScreen extends StatelessWidget {
+class ChatScreen extends StatefulWidget {
   final Profile profile;
 
   const ChatScreen(this.profile, {super.key});
+
+  @override
+  ChatScreenState createState() => ChatScreenState();
+}
+
+class ChatScreenState extends State<ChatScreen> {
+  final inputController = TextEditingController();
+
+  bool isSending = false;
+  bool canSend = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    inputController.addListener(_onTextUpdate);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    inputController.dispose();
+
+    inputController.removeListener(_onTextUpdate);
+  }
+
+  Chat get chat {
+    return chatProvider.getChatWith(widget.profile.id);
+  }
+
+  void _onTextUpdate() {
+    final sendAllowed = inputController.text.isNotEmpty;
+
+    if (sendAllowed != canSend) {
+      setState(() {
+        canSend = sendAllowed;
+      });
+    }
+  }
+
+  void _onSendPressed() {
+    setState(() {
+      isSending = true;
+    });
+
+    final text = inputController.text;
+    inputController.clear();
+
+    chat.sendMessage(text).then((_) {
+      setState(() {
+        isSending = false;
+      });
+    }).catchError((e) {
+      log(e.toString());
+      showError(context, "Send error", description: e.toString());
+
+      setState(() {
+        isSending = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -153,26 +218,23 @@ class ChatScreen extends StatelessWidget {
       appBar: AppBar(
         backgroundColor: const Color(0xFF497077),
         foregroundColor: Colors.white,
-        title: Text(profile.name ?? "Unknown"),
+        title: Text(widget.profile.name ?? "Unknown"),
       ),
       body: Column(
         children: [
-          // Chat Messages
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: Consumer<ChatProvider>(
-                builder: (context, chatProvider, child) {
-                  final chat = chatProvider.getChatWith(profile.id);
-                  return ListView(
-                    children:
-                        chat.messages.map((msg) => ChatBubble(msg)).toList(),
-                  );
-                },
-              ),
+            child: Consumer<ChatProvider>(
+              builder: (context, chatProvider, child) {
+                return ListView(
+                  padding: const EdgeInsets.all(8.0),
+                  reverse: true,
+                  children: chat.messages.reversed
+                      .map((msg) => ChatBubble(msg))
+                      .toList(),
+                );
+              },
             ),
           ),
-          // Message Input
           Container(
             padding: const EdgeInsets.all(8.0),
             color: const Color(0xFFC8D4D6),
@@ -180,6 +242,7 @@ class ChatScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextField(
+                    controller: inputController,
                     decoration: InputDecoration(
                       hintText: 'Type a message...',
                       border: OutlineInputBorder(
@@ -190,16 +253,8 @@ class ChatScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 8.0),
                 IconButton(
-                  icon: const Icon(Icons.attach_file),
-                  onPressed: () {
-                    // Handle attachment button tap
-                  },
-                ),
-                IconButton(
                   icon: const Icon(Icons.send),
-                  onPressed: () {
-                    // Handle send button tap
-                  },
+                  onPressed: (!canSend || isSending) ? null : _onSendPressed,
                 ),
               ],
             ),
