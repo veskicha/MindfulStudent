@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/backend/messages.dart';
+import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/provider/chat_provider.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:mindfulstudent/widgets/header_bar.dart';
@@ -97,7 +98,17 @@ class ProfileCardState extends State<ProfileCard> {
   Widget build(BuildContext context) {
     final profileCopy = profile;
 
+    final profileName = profileCopy?.name ?? "Unknown";
     final avatarImg = profileCopy?.getAvatarImage();
+    final lastMsg = (profileCopy == null)
+        ? null
+        : chatProvider.getChatWith(profileCopy.id).messages.lastOrNull;
+
+    String lastMsgSenderStr = "";
+    if (lastMsg != null && lastMsg.isSentByMe) {
+      lastMsgSenderStr =
+          "${lastMsg.isSentByMe ? "You" : profileName}: ${lastMsg.content}";
+    }
 
     return ListTile(
       leading: CircleAvatar(
@@ -110,8 +121,13 @@ class ProfileCardState extends State<ProfileCard> {
               )
             : null,
       ),
-      title: Text(profileCopy?.name ?? "Unknown"),
-      subtitle: const Text("blablabla chocoladevla"),
+      title: Text(profileName),
+      subtitle: Text(
+        lastMsgSenderStr,
+        maxLines: 1,
+        overflow: TextOverflow.fade,
+        softWrap: false,
+      ),
       onTap: profileCopy == null
           ? null
           : () {
