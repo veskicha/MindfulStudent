@@ -410,6 +410,7 @@ class HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+      extendBody: true,
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
