@@ -11,18 +11,16 @@ class Profile {
   final String id;
   String? name;
   String? avatarUrl;
-  String? fcmToken;
 
-  Profile(
-      {required this.id,
-      required this.name,
-      required this.avatarUrl,
-      required this.fcmToken});
+  Profile({required this.id, required this.name, required this.avatarUrl});
 
   static Future<Profile?> get(String id) async {
     late final Map<String, dynamic> data;
     try {
-      final rows = await supabase.from("profiles").select().eq("id", id);
+      final rows = await supabase
+          .from("profiles")
+          .select("id, name, avatarUrl, role")
+          .eq("id", id);
       if (rows.isEmpty) return null;
       data = rows[0];
     } catch (e) {
@@ -31,10 +29,10 @@ class Profile {
     }
 
     return Profile(
-        id: data["id"],
-        name: data["name"],
-        avatarUrl: data["avatarUrl"],
-        fcmToken: data["fcm_token"]);
+      id: data["id"],
+      name: data["name"],
+      avatarUrl: data["avatarUrl"],
+    );
   }
 
   NetworkImage? getAvatarImage() {

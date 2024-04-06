@@ -70,9 +70,7 @@ class EditProfilePageState extends State<EditProfilePage> {
       log("Updating user profile");
       final newProfile = Profile(
           id: curProfile.id,
-          name: name,
-          avatarUrl: avatarUrl,
-          fcmToken: curProfile.fcmToken);
+          name: name, avatarUrl: avatarUrl);
       await Auth.updateProfile(newProfile);
     }
 
