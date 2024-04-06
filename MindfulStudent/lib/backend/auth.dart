@@ -96,6 +96,15 @@ class Auth {
     await supabase.auth.signOut();
   }
 
+  static Future<void> deleteAccount() async {
+    await supabase.functions.invoke("account-delete");
+    try {
+      await Auth.signOut();
+    } on AuthException {
+      // will error, ignore
+    }
+  }
+
   static Future<bool> updateUser(UserAttributes attrs) async {
     await supabase.auth.updateUser(attrs);
     return true;

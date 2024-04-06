@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 
 enum ButtonTheme {
-  regular(0xFF497077);
+  regular(0xFF497077),
+  danger(0xFFA32222);
 
   final int _colorValue;
 
