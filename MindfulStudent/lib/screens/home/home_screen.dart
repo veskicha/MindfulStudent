@@ -296,8 +296,10 @@ class HomeScreenState extends State<HomeScreen> {
                         imagePath: 'assets/Chat.png',
                         onTap: () {
                           Navigator.push(context, PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) => const ChatScreen(),
-                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const ChatPage(),
+                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
                               var screenWidth = MediaQuery.of(context).size.width;
                               var screenHeight = MediaQuery.of(context).size.height;
 
