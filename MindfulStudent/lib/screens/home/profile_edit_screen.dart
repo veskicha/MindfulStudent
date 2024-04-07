@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/main.dart';
+import 'package:mindfulstudent/screens/auth/login_screen.dart';
 import 'package:mindfulstudent/util.dart';
-import 'package:mindfulstudent/widgets/button.dart';
+import 'package:mindfulstudent/widgets/button.dart' as button;
 import 'package:mindfulstudent/widgets/text_line_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -39,6 +40,44 @@ class EditProfilePageState extends State<EditProfilePage> {
     _emailField.setText(user.email ?? "");
   }
 
+  _showDeleteConfirmDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Delete account?"),
+          content: const Text(
+            "Are you sure you wish to delete your MindfulStudent account?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Auth.deleteAccount().then((_) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    (_) => false,
+                  );
+                  showSuccess(
+                    context,
+                    "Account deleted",
+                    description: "Your account has been deleted.",
+                  );
+                });
+              },
+              child: const Text("Yes, delete my account"),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   Future<bool> _updateProfile(BuildContext context) async {
     final name = _nameField.getText();
     final email = _emailField.getText();
@@ -68,11 +107,8 @@ class EditProfilePageState extends State<EditProfilePage> {
     if (curProfile != null &&
         (name != curProfile.name || avatarUrl != curProfile.avatarUrl)) {
       log("Updating user profile");
-      final newProfile = Profile(
-          id: curProfile.id,
-          name: name,
-          avatarUrl: avatarUrl,
-          fcmToken: curProfile.fcmToken);
+      final newProfile =
+          Profile(id: curProfile.id, name: name, avatarUrl: avatarUrl);
       await Auth.updateProfile(newProfile);
     }
 
@@ -297,10 +333,15 @@ class EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 16),
               _passwordConfirmField,
               const SizedBox(height: 24),
-              Button('Save Changes', onPressed: () async {
+              button.Button('Save Changes', onPressed: () async {
                 final ok = await _updateProfile(context);
                 if (ok && context.mounted) Navigator.of(context).pop();
-              })
+              }),
+              const SizedBox(height: 48),
+              button.Button('Delete account', theme: button.ButtonTheme.danger,
+                  onPressed: () async {
+                _showDeleteConfirmDialog();
+              }),
             ],
           ),
         ),

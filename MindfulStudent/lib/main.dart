@@ -13,6 +13,7 @@ import 'screens/home/chat_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/home/profile_screen.dart';
 import 'screens/home/sleep_tracking_screen.dart';
+import 'screens/home/emergency_contact.dart';
 import 'screens/splash_screen.dart';
 
 Future<void> main() async {
@@ -37,6 +38,7 @@ class MyApp extends StatelessWidget {
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
+        scaffoldMessengerKey: scaffoldMessengerKey,
         home: const SplashScreen(),
         routes: {
           '/home': (context) => const HomeScreen(),
@@ -45,6 +47,7 @@ class MyApp extends StatelessWidget {
           '/profile': (context) => const ProfilePage(),
           '/tasks': (context) => const TaskTrackingPage(),
           '/breath' : (context) => const CircularTimerPage(),
+          '/emergency': (context) => const EmergencyContactPage()
         },
       ),
     );
@@ -52,6 +55,8 @@ class MyApp extends StatelessWidget {
 }
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+final GlobalKey<ScaffoldMessengerState> scaffoldMessengerKey =
+    GlobalKey<ScaffoldMessengerState>();
 
 final supabase = Supabase.instance.client;
 
