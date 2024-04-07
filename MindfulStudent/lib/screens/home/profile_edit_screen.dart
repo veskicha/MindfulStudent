@@ -8,6 +8,7 @@ import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/screens/auth/login_screen.dart';
 import 'package:mindfulstudent/util.dart';
 import 'package:mindfulstudent/widgets/button.dart' as button;
+import 'package:mindfulstudent/widgets/text_line_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -17,96 +18,18 @@ class EditProfilePage extends StatefulWidget {
   EditProfilePageState createState() => EditProfilePageState();
 }
 
-class TextLineField extends StatelessWidget {
-  final String hintText;
-  final bool obscureText;
-  final TextEditingController controller;
-  final double borderRadius;
-  final Color borderColor;
-
-  const TextLineField(
-    this.hintText, {
-    super.key,
-    this.obscureText = false,
-    required this.controller,
-    this.borderRadius = 20.0,
-    this.borderColor = const Color(0xFFC8D4D6),
-  });
-
-  String getText() {
-    return controller.text;
-  }
-
-  void setText(String text) {
-    controller.text = text;
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return TextField(
-      controller: controller,
-      obscureText: obscureText,
-      cursorColor: const Color(0xFF497077),
-      style: const TextStyle(
-        color: Color(0xFF497077),
-      ),
-      decoration: InputDecoration(
-        labelText: hintText,
-        labelStyle: TextStyle(color: Colors.grey[500]),
-        contentPadding:
-            const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
-          borderSide: BorderSide(color: borderColor),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
-          borderSide: BorderSide(color: borderColor),
-        ),
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(borderRadius),
-          borderSide: BorderSide(color: borderColor),
-        ),
-      ),
-    );
-  }
-}
-
 class EditProfilePageState extends State<EditProfilePage> {
   File? _avatarFile;
-  late String? _avatarUrl;
 
-  final TextEditingController _nameController = TextEditingController();
-  final TextEditingController _emailController = TextEditingController();
-  final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _passwordConfirmController =
-      TextEditingController();
-
-  late final TextLineField _nameField = TextLineField(
-    "Your name",
-    controller: _nameController,
-    borderRadius: 20.0,
-    borderColor: const Color(0xFFC8D4D6),
-  );
-  late final TextLineField _emailField = TextLineField(
-    "Your email address",
-    controller: _emailController,
-    borderRadius: 20.0,
-    borderColor: const Color(0xFFC8D4D6),
-  );
+  late final TextLineField _nameField = TextLineField("Your name");
+  late final TextLineField _emailField = TextLineField("Your email address");
   late final TextLineField _passwordField = TextLineField(
     "New password",
-    controller: _passwordController,
     obscureText: true,
-    borderRadius: 20.0,
-    borderColor: const Color(0xFFC8D4D6),
   );
   late final TextLineField _passwordConfirmField = TextLineField(
     "Confirm new password",
-    controller: _passwordConfirmController,
     obscureText: true,
-    borderRadius: 20.0,
-    borderColor: const Color(0xFFC8D4D6),
   );
 
   @override
@@ -117,16 +40,8 @@ class EditProfilePageState extends State<EditProfilePage> {
     final user = Auth.user;
     if (profile == null || user == null) return;
 
-    _emailController.text = user.email ?? "";
-  }
-
-  @override
-  void dispose() {
-    _nameController.dispose();
-    _emailController.dispose();
-    _passwordController.dispose();
-    _passwordConfirmController.dispose();
-    super.dispose();
+    _nameField.setText(profile.name ?? "");
+    _emailField.setText(user.email ?? "");
   }
 
   _showDeleteConfirmDialog() {
@@ -168,10 +83,10 @@ class EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<bool> _updateProfile(BuildContext context) async {
-    final name = _nameController.text;
-    final email = _emailController.text;
-    final password = _passwordController.text;
-    final passwordConfirm = _passwordConfirmController.text;
+    final name = _nameField.getText();
+    final email = _emailField.getText();
+    final password = _passwordField.getText();
+    final passwordConfirm = _passwordConfirmField.getText();
     final doUpdatePassword = password.isNotEmpty || passwordConfirm.isNotEmpty;
 
     if (doUpdatePassword && password != passwordConfirm) {
@@ -329,10 +244,9 @@ class EditProfilePageState extends State<EditProfilePage> {
   ImageProvider<Object>? getAvatarImage() {
     if (_avatarFile != null) {
       return FileImage(_avatarFile!);
-    } else if (_avatarUrl != null) {
-      return NetworkImage(_avatarUrl!);
     }
-    return null;
+
+    return profileProvider.userProfile?.getAvatarImage();
   }
 
   @override

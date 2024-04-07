@@ -36,16 +36,26 @@ class TextLineFieldState extends State<TextLineField> {
     return TextField(
       controller: widget.getController(),
       obscureText: widget.obscureText,
+      cursorColor: const Color(0xFF497077),
+      style: const TextStyle(
+        color: Color(0xFF497077),
+      ),
       decoration: InputDecoration(
-        hintText: widget.hintText,
-        hintStyle: const TextStyle(color: Color(0xFFAAAAAA)),
+        labelText: widget.hintText,
+        labelStyle: TextStyle(color: Colors.grey[500]),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF497077)),
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: const BorderSide(color: Color(0xFFC8D4D6)),
         ),
         focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: Color(0xFF497077)),
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: const BorderSide(color: Color(0xFFC8D4D6)),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(20.0),
+          borderSide: const BorderSide(color: Color(0xFFC8D4D6)),
         ),
       ),
     );

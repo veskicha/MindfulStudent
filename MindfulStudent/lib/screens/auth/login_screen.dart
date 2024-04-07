@@ -1,13 +1,12 @@
-
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
+import 'package:mindfulstudent/screens/auth/signup_screen.dart';
+import 'package:mindfulstudent/screens/home/home_screen.dart';
 import 'package:mindfulstudent/util.dart';
 import 'package:mindfulstudent/widgets/button.dart';
+import 'package:mindfulstudent/widgets/text_line_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-
-import '../home/home_screen.dart';
-import 'signup_screen.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -16,67 +15,16 @@ class LoginScreen extends StatefulWidget {
   LoginScreenState createState() => LoginScreenState();
 }
 
-class TextLineField extends StatelessWidget {
-  final String hintText;
-  final bool obscureText;
-  final TextEditingController controller;
-  final double? widthFactor;
-  final double borderRadius;
-
-  const TextLineField(
-      this.hintText, {
-        super.key,
-        this.obscureText = false,
-        required this.controller,
-        this.widthFactor,
-        this.borderRadius = 20.0,
-      });
-
-  @override
-  Widget build(BuildContext context) {
-    return FractionallySizedBox(
-      widthFactor: widthFactor ?? 1.0,
-      child: TextField(
-        controller: controller,
-        obscureText: obscureText,
-        cursorColor: const Color(0xFF497077),
-        style: const TextStyle(
-          color: Color(0xFF497077),
-        ),
-        decoration: InputDecoration(
-          labelText: hintText,
-          labelStyle: TextStyle(color: Colors.grey[500]),
-          contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
-          enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
-            borderSide: const BorderSide(color: Color(0xFFC8D4D6)),
-          ),
-          focusedBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(borderRadius),
-            borderSide: const BorderSide(color: Color(0xFFC8D4D6)),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-
-
 class LoginScreenState extends State<LoginScreen> {
-  final TextEditingController emailController = TextEditingController();
-  final TextEditingController passwordController = TextEditingController();
-
-  @override
-  void dispose() {
-    emailController.dispose();
-    passwordController.dispose();
-    super.dispose();
-  }
+  final TextLineField _emailField = TextLineField("Email address");
+  final TextLineField _passwordField = TextLineField(
+    "Password",
+    obscureText: true,
+  );
 
   Future<void> login() {
-    final email = emailController.text;
-    final password = passwordController.text;
+    final email = _emailField.getText();
+    final password = _passwordField.getText();
 
     return Auth.login(email, password).then((_) {
       Navigator.of(context).pushReplacement(
@@ -92,20 +40,6 @@ class LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final emailField = TextLineField(
-      "Email address",
-      controller: emailController,
-      widthFactor: 0.8,
-      borderRadius: 20.0,
-    );
-
-    final passwordField = TextLineField(
-      "Password",
-      obscureText: true,
-      controller: passwordController,
-      widthFactor: 0.8,
-      borderRadius: 20.0,
-    );
     return Scaffold(
       body: SingleChildScrollView(
         child: Container(
@@ -142,9 +76,9 @@ class LoginScreenState extends State<LoginScreen> {
                 ),
               ),
               const SizedBox(height: 80),
-              emailField,
+              FractionallySizedBox(widthFactor: 0.8, child: _emailField),
               const SizedBox(height: 20),
-              passwordField,
+              FractionallySizedBox(widthFactor: 0.8, child: _passwordField),
               const SizedBox(height: 10),
               GestureDetector(
                 onTap: () {
@@ -165,7 +99,8 @@ class LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 40), // Space between button and line
               Center(
                 child: Container(
-                  width: MediaQuery.of(context).size.width * 0.8, // Line width is 80% of screen width
+                  width: MediaQuery.of(context).size.width *
+                      0.8, // Line width is 80% of screen width
                   height: 1, // Line thickness
                   color: Colors.grey[300], // Line color
                 ),
@@ -184,8 +119,7 @@ class LoginScreenState extends State<LoginScreen> {
                       text: 'Sign Up',
                       style: const TextStyle(
                           color: Color(0xFF497077),
-                          fontWeight: FontWeight.bold
-                      ),
+                          fontWeight: FontWeight.bold),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
                           // Navigate to the sign-up screen
