@@ -1,6 +1,14 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/backend/auth.dart';
+import 'package:mindfulstudent/backend/messages.dart';
+import 'package:mindfulstudent/main.dart';
+import 'package:mindfulstudent/provider/chat_provider.dart';
+import 'package:mindfulstudent/util.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:mindfulstudent/widgets/header_bar.dart';
+import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({super.key});
@@ -46,25 +54,12 @@ class ChatPageState extends State<ChatPage> {
           ),
           // Recent Chats List
           Expanded(
-            child: ListView.builder(
-              itemCount: 10, // Replace with actual number of chats
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: const CircleAvatar(
-                    backgroundColor: Colors.grey, // Placeholder color
-                    child: Icon(Icons.person),
-                  ),
-                  title: Text('Contact Name $index'),
-                  subtitle: Text('Last message from contact $index'),
-                  onTap: () {
-                    // Handle chat item tap
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const ChatScreen(),
-                      ),
-                    );
-                  },
+            child: Consumer<ChatProvider>(
+              builder: (context, chatProvider, child) {
+                return ListView(
+                  children: chatProvider.chats
+                      .map((chat) => ProfileCard(profileFut: chat.getProfile()))
+                      .toList(),
                 );
               },
             ),
@@ -79,32 +74,167 @@ class ChatPageState extends State<ChatPage> {
   }
 }
 
-class ChatScreen extends StatelessWidget {
-  const ChatScreen({super.key});
+class ProfileCard extends StatefulWidget {
+  final Future<Profile?> profileFut;
+
+  const ProfileCard({required this.profileFut, super.key});
+
+  @override
+  State<StatefulWidget> createState() => ProfileCardState();
+}
+
+class ProfileCardState extends State<ProfileCard> {
+  Profile? profile;
+
+  @override
+  void initState() {
+    super.initState();
+
+    widget.profileFut.then((p) {
+      setState(() {
+        profile = p;
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final profileCopy = profile;
+
+    final profileName = profileCopy?.name ?? "Unknown";
+    final avatarImg = profileCopy?.getAvatarImage();
+    final lastMsg = (profileCopy == null)
+        ? null
+        : chatProvider.getChatWith(profileCopy.id).messages.lastOrNull;
+
+    String lastMsgSenderStr = "";
+    if (lastMsg != null && lastMsg.isSentByMe) {
+      lastMsgSenderStr =
+          "${lastMsg.isSentByMe ? "You" : profileName}: ${lastMsg.content}";
+    }
+
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundImage: avatarImg,
+        backgroundColor: avatarImg == null ? const Color(0xFF497077) : null,
+        child: avatarImg == null
+            ? const Icon(
+                Icons.person,
+                color: Colors.white,
+              )
+            : null,
+      ),
+      title: Text(profileName),
+      subtitle: Text(
+        lastMsgSenderStr,
+        maxLines: 1,
+        overflow: TextOverflow.fade,
+        softWrap: false,
+      ),
+      onTap: profileCopy == null
+          ? null
+          : () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => ChatScreen(profileCopy),
+                ),
+              );
+            },
+    );
+  }
+}
+
+class ChatScreen extends StatefulWidget {
+  final Profile profile;
+
+  const ChatScreen(this.profile, {super.key});
+
+  @override
+  ChatScreenState createState() => ChatScreenState();
+}
+
+class ChatScreenState extends State<ChatScreen> {
+  final inputController = TextEditingController();
+
+  bool isSending = false;
+  bool canSend = true;
+
+  @override
+  void initState() {
+    super.initState();
+
+    inputController.addListener(_onTextUpdate);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    inputController.dispose();
+
+    inputController.removeListener(_onTextUpdate);
+  }
+
+  Chat get chat {
+    return chatProvider.getChatWith(widget.profile.id);
+  }
+
+  void _onTextUpdate() {
+    final sendAllowed = inputController.text.isNotEmpty;
+
+    if (sendAllowed != canSend) {
+      setState(() {
+        canSend = sendAllowed;
+      });
+    }
+  }
+
+  void _onSendPressed() {
+    setState(() {
+      isSending = true;
+    });
+
+    final text = inputController.text;
+    inputController.clear();
+
+    chat.sendMessage(text).then((_) {
+      setState(() {
+        isSending = false;
+      });
+    }).catchError((e) {
+      log(e.toString());
+      showError(context, "Send error", description: e.toString());
+
+      setState(() {
+        isSending = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF497077),
-        title: const Text('Contact Name'),
+        foregroundColor: Colors.white,
+        title: Text(widget.profile.name ?? "Unknown"),
       ),
       body: Column(
         children: [
-          // Chat Messages
           Expanded(
-            child: Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ListView(
-                children: const [
-                  // Replace with actual chat messages
-                  ChatBubble(message: 'Hello', isMe: true),
-                  ChatBubble(message: 'Hi there!', isMe: false),
-                ],
-              ),
+            child: Consumer<ChatProvider>(
+              builder: (context, chatProvider, child) {
+                return ListView(
+                  padding: const EdgeInsets.all(8.0),
+                  reverse: true,
+                  children: chat.messages.reversed
+                      .map((msg) => ChatBubble(msg))
+                      .toList(),
+                );
+              },
             ),
           ),
-          // Message Input
           Container(
             padding: const EdgeInsets.all(8.0),
             color: const Color(0xFFC8D4D6),
@@ -112,6 +242,7 @@ class ChatScreen extends StatelessWidget {
               children: [
                 Expanded(
                   child: TextField(
+                    controller: inputController,
                     decoration: InputDecoration(
                       hintText: 'Type a message...',
                       border: OutlineInputBorder(
@@ -122,16 +253,8 @@ class ChatScreen extends StatelessWidget {
                 ),
                 const SizedBox(width: 8.0),
                 IconButton(
-                  icon: const Icon(Icons.attach_file),
-                  onPressed: () {
-                    // Handle attachment button tap
-                  },
-                ),
-                IconButton(
                   icon: const Icon(Icons.send),
-                  onPressed: () {
-                    // Handle send button tap
-                  },
+                  onPressed: (!canSend || isSending) ? null : _onSendPressed,
                 ),
               ],
             ),
@@ -143,30 +266,32 @@ class ChatScreen extends StatelessWidget {
 }
 
 class ChatBubble extends StatelessWidget {
-  final String message;
-  final bool isMe;
+  final Message message;
 
-  const ChatBubble({
-    super.key,
-    required this.message,
-    required this.isMe,
-  });
+  const ChatBubble(this.message, {super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Align(
-      alignment: isMe ? Alignment.centerRight : Alignment.centerLeft,
-      child: Container(
-        margin: const EdgeInsets.symmetric(vertical: 4.0),
-        padding: const EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          color: isMe ? const Color(0xFF497077) : Colors.grey[300],
-          borderRadius: BorderRadius.circular(12.0),
-        ),
-        child: Text(
-          message,
-          style: TextStyle(
-            color: isMe ? Colors.white : Colors.black,
+    return Container(
+      padding: message.isSentByMe
+          ? const EdgeInsets.only(left: 40.0)
+          : const EdgeInsets.only(right: 40.0),
+      child: Align(
+        alignment:
+            message.isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
+        child: Container(
+          margin: const EdgeInsets.symmetric(vertical: 4.0),
+          padding: const EdgeInsets.all(8.0),
+          decoration: BoxDecoration(
+            color:
+                message.isSentByMe ? const Color(0xFF497077) : Colors.grey[300],
+            borderRadius: BorderRadius.circular(12.0),
+          ),
+          child: Text(
+            message.content,
+            style: TextStyle(
+              color: message.isSentByMe ? Colors.white : Colors.black,
+            ),
           ),
         ),
       ),

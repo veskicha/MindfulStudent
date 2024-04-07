@@ -12,33 +12,76 @@ class Profile {
   String? name;
   String? avatarUrl;
 
+  static final Map<String, Profile> _cache = {};
+
   Profile({required this.id, required this.name, required this.avatarUrl});
 
+  @override
+  String toString() {
+    return "Profile(name: '$name')";
+  }
+
+  NetworkImage? getAvatarImage() {
+    final url = avatarUrl;
+    if (url == null || url.isEmpty) return null;
+    return NetworkImage(url);
+  }
+
+  static Profile fromRowData(Map<String, dynamic> row) {
+    return Profile(
+        id: row["id"], name: row["name"], avatarUrl: row["avatarUrl"]);
+  }
+
   static Future<Profile?> get(String id) async {
-    late final Map<String, dynamic> data;
+    final cached = _cache[id];
+    if (cached != null) return cached;
+
+    log("Fetching profile for $id");
+
+    late final List<Map<String, dynamic>> data;
     try {
-      final rows = await supabase
+      data = await supabase
           .from("profiles")
           .select("id, name, avatarUrl, role")
           .eq("id", id);
-      if (rows.isEmpty) return null;
-      data = rows[0];
     } catch (e) {
       log(e.toString());
       return null;
     }
 
-    return Profile(
-      id: data["id"],
-      name: data["name"],
-      avatarUrl: data["avatarUrl"],
-    );
+    final row = data.firstOrNull;
+    final profile = row == null ? null : Profile.fromRowData(row);
+    if (profile != null) _cache[profile.id] = profile;
+    return profile;
   }
 
-  NetworkImage? getAvatarImage() {
-    final url = profileProvider.userProfile?.avatarUrl;
-    if (url == null || url.isEmpty) return null;
-    return NetworkImage(url);
+  static Future<List<Profile>> find(String name) async {
+    late final List<Map<String, dynamic>> data;
+    try {
+      data = await supabase
+          .from("profiles")
+          .select()
+          .neq("role", "HEALTH_EXPERT")
+          .ilike("name", "%$name%");
+    } catch (e) {
+      log(e.toString());
+      data = [];
+    }
+
+    return data.map((row) => Profile.fromRowData(row)).toList();
+  }
+
+  static Future<List<Profile>> getHealthExperts() async {
+    late final List<Map<String, dynamic>> data;
+    try {
+      data =
+          await supabase.from("profiles").select().eq("role", "HEALTH_EXPERT");
+    } catch (e) {
+      log(e.toString());
+      data = [];
+    }
+
+    return data.map((row) => Profile.fromRowData(row)).toList();
   }
 }
 
@@ -53,8 +96,11 @@ class Auth {
         case (AuthChangeEvent.initialSession):
         case (AuthChangeEvent.signedIn):
           if (isLoggedIn) {
-            // init firebase *after* profile data is fetched
-            profileProvider.updateProfile().then((_) => Firebase.init());
+            // note the order of initialization here
+            profileProvider.updateProfile().then((_) {
+              Firebase.init();
+              chatProvider.init();
+            });
             sleepDataProvider.updateData();
           }
           break;
