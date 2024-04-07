@@ -11,6 +11,11 @@ import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:mindfulstudent/widgets/button.dart';
 import 'package:provider/provider.dart';
 
+String fmtTimeOfDay(TimeOfDay? time) => time == null
+    ? "Unknown"
+    : "${time.hour.toString().padLeft(2, '0')}"
+        ":${time.minute.toString().padLeft(2, '0')}";
+
 class SleepChart extends StatelessWidget {
   static const double _accuracy = 30 * 60 * 1000; // 30 min
 
@@ -123,7 +128,6 @@ class SleepChart extends StatelessWidget {
       topTitles: const AxisTitles(
         sideTitles: SideTitles(showTitles: false),
       ),
-
     );
   }
 
@@ -277,6 +281,15 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
 
   Widget buildDataContent(BuildContext context) {
     final optimalBedtime = sleepDataProvider.sleepData?.optimalBedtime;
+    final lastNightSession = sleepDataProvider.sleepData?.sessions.lastOrNull;
+
+    final lastNight = lastNightSession == null
+        ? null
+        : (
+            TimeOfDay.fromDateTime(lastNightSession.startTime),
+            TimeOfDay.fromDateTime(lastNightSession.endTime)
+          );
+    final thisWeek = sleepDataProvider.sleepData?.avgWeekSleepSession;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -296,7 +309,7 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
           child: FractionallySizedBox(
             widthFactor: 0.9,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(20), 
+              borderRadius: BorderRadius.circular(20),
               child: Container(
                 color: const Color(0xFF497077),
                 padding: const EdgeInsets.all(16.0),
@@ -346,87 +359,101 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
           padding: const EdgeInsets.symmetric(horizontal: 16.0),
           child: Row(
             children: [
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-
-                  child: Container(
-                    padding: const EdgeInsets.all(16.0),
-                    color: const Color(0xFF6292C7),
-
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Time asleep',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(height: 2),
-                        Text(
-                          '8h 12m',
-                          style: TextStyle(
-                            fontSize: 34,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          '10:46 pm - 7:08 am',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              TimeRangeBox(
+                  header: "Last night",
+                  startTime: lastNight?.$1,
+                  endTime: lastNight?.$2,
+                  color: const Color(0xFF6292C7)),
               const SizedBox(width: 14),
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(20),
-
-                  child: Container(
-                    padding: const EdgeInsets.all(16.0),
-                    color: const Color(0xFFC8CC5F),
-
-                    child: const Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Last Week',
-                          style: TextStyle(
-                            fontSize: 16,
-                            color: Colors.white,
-                          ),
-                        ),
-                        SizedBox(height: 2),
-                        Text(
-                          '7h 34m',
-                          style: TextStyle(
-                            fontSize: 34,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
-                        ),
-                        Text(
-                          '10:46 pm - 7:08 am',
-                          style: TextStyle(
-                            color: Colors.white,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+              TimeRangeBox(
+                  header: "This week",
+                  startTime: thisWeek?.$1,
+                  endTime: thisWeek?.$2,
+                  color: const Color(0xFFC8CC5F))
             ],
           ),
         ),
       ],
+    );
+  }
+}
+
+class TimeRangeBox extends StatelessWidget {
+  final String header;
+  final TimeOfDay? startTime;
+  final TimeOfDay? endTime;
+  final Color color;
+
+  const TimeRangeBox({
+    required this.header,
+    required this.startTime,
+    required this.endTime,
+    required this.color,
+    super.key,
+  });
+
+  Duration? get duration {
+    if (startTime == null || endTime == null) return null;
+
+    int hourDiff = endTime!.hour - startTime!.hour;
+    if (hourDiff < 0) hourDiff += 24;
+
+    int minuteDiff = endTime!.minute - startTime!.minute;
+    if (minuteDiff < 0) {
+      hourDiff -= 1;
+      minuteDiff += 60;
+    }
+
+    return Duration(hours: hourDiff, minutes: minuteDiff);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final timeDiff = duration;
+
+    final cols = [
+      Text(
+        header,
+        style: const TextStyle(
+          fontSize: 16,
+          color: Colors.white, // Changed text color to white
+        ),
+      ),
+      const SizedBox(height: 2),
+      Text(
+        timeDiff == null
+            ? "Unknown"
+            : "${timeDiff.inHours}h ${timeDiff.inMinutes % 60}m",
+        style: const TextStyle(
+          fontSize: 34,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
+        ),
+      ),
+    ];
+    if (startTime != null && endTime != null) {
+      cols.add(Text(
+        '${fmtTimeOfDay(startTime)} - ${fmtTimeOfDay(endTime)}',
+        style: const TextStyle(
+          color: Colors.white,
+        ),
+      ));
+    }
+
+    return Expanded(
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(20),
+        // Applying a border radius of 20
+        child: Container(
+          padding: const EdgeInsets.all(16.0),
+          color: color,
+          // Updated background color
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: cols,
+          ),
+        ),
+      ),
     );
   }
 

@@ -5,8 +5,9 @@ import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/main.dart';
+import 'package:mindfulstudent/screens/auth/login_screen.dart';
 import 'package:mindfulstudent/util.dart';
-import 'package:mindfulstudent/widgets/button.dart';
+import 'package:mindfulstudent/widgets/button.dart' as button;
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -24,13 +25,13 @@ class TextLineField extends StatelessWidget {
   final Color borderColor;
 
   const TextLineField(
-      this.hintText, {
-        super.key,
-        this.obscureText = false,
-        required this.controller,
-        this.borderRadius = 20.0,
-        this.borderColor = const Color(0xFFC8D4D6),
-      });
+    this.hintText, {
+    super.key,
+    this.obscureText = false,
+    required this.controller,
+    this.borderRadius = 20.0,
+    this.borderColor = const Color(0xFFC8D4D6),
+  });
 
   String getText() {
     return controller.text;
@@ -52,7 +53,8 @@ class TextLineField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: hintText,
         labelStyle: TextStyle(color: Colors.grey[500]),
-        contentPadding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(borderRadius),
           borderSide: BorderSide(color: borderColor),
@@ -70,9 +72,6 @@ class TextLineField extends StatelessWidget {
   }
 }
 
-
-
-
 class EditProfilePageState extends State<EditProfilePage> {
   File? _avatarFile;
   late String? _avatarUrl;
@@ -80,7 +79,8 @@ class EditProfilePageState extends State<EditProfilePage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _passwordController = TextEditingController();
-  final TextEditingController _passwordConfirmController = TextEditingController();
+  final TextEditingController _passwordConfirmController =
+      TextEditingController();
 
   late final TextLineField _nameField = TextLineField(
     "Your name",
@@ -109,20 +109,15 @@ class EditProfilePageState extends State<EditProfilePage> {
     borderColor: const Color(0xFFC8D4D6),
   );
 
-
-
   @override
   void initState() {
     super.initState();
 
     final profile = profileProvider.userProfile;
     final user = Auth.user;
-    _avatarUrl = profile!.avatarUrl!;
-    _nameController.text = profile.name ?? "";
+    if (profile == null || user == null) return;
 
-      if (user != null) {
-      _emailController.text = user.email ?? "";
-    }
+    _emailController.text = user.email ?? "";
   }
 
   @override
@@ -132,6 +127,44 @@ class EditProfilePageState extends State<EditProfilePage> {
     _passwordController.dispose();
     _passwordConfirmController.dispose();
     super.dispose();
+  }
+
+  _showDeleteConfirmDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Delete account?"),
+          content: const Text(
+            "Are you sure you wish to delete your MindfulStudent account?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                Auth.deleteAccount().then((_) {
+                  Navigator.of(context).pushAndRemoveUntil(
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
+                    (_) => false,
+                  );
+                  showSuccess(
+                    context,
+                    "Account deleted",
+                    description: "Your account has been deleted.",
+                  );
+                });
+              },
+              child: const Text("Yes, delete my account"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   Future<bool> _updateProfile(BuildContext context) async {
@@ -158,16 +191,12 @@ class EditProfilePageState extends State<EditProfilePage> {
       }
     }
 
-
     final curProfile = profileProvider.userProfile;
     if (curProfile != null &&
         (name != curProfile.name || avatarUrl != curProfile.avatarUrl)) {
       log("Updating user profile");
-      final newProfile = Profile(
-          id: curProfile.id,
-          name: name,
-          avatarUrl: avatarUrl,
-          fcmToken: curProfile.fcmToken);
+      final newProfile =
+          Profile(id: curProfile.id, name: name, avatarUrl: avatarUrl);
       await Auth.updateProfile(newProfile);
     }
 
@@ -199,6 +228,7 @@ class EditProfilePageState extends State<EditProfilePage> {
   Future<void> _pickImage() async {
     final ImagePicker picker = ImagePicker();
 
+    // Show options to the user
     await showModalBottomSheet(
       context: context,
       builder: (BuildContext context) {
@@ -305,13 +335,11 @@ class EditProfilePageState extends State<EditProfilePage> {
     return null;
   }
 
-
   @override
   Widget build(BuildContext context) {
     final avatarUrl = profileProvider.userProfile?.getAvatarImage();
 
     return Scaffold(
-
       appBar: PreferredSize(
         preferredSize: const Size.fromHeight(80),
         child: ClipRRect(
@@ -439,7 +467,7 @@ class EditProfilePageState extends State<EditProfilePage> {
               const SizedBox(height: 60),
               FractionallySizedBox(
                 widthFactor: 0.8,
-                child: Button(
+                child: button.Button(
                   'Save Changes',
                   onPressed: () async {
                     final ok = await _updateProfile(context);
@@ -448,8 +476,14 @@ class EditProfilePageState extends State<EditProfilePage> {
                     }
                   },
                 ),
+              ),
+              FractionallySizedBox(
+                widthFactor: 0.8,
+                child: button.Button('Delete account',
+                    theme: button.ButtonTheme.danger, onPressed: () async {
+                  _showDeleteConfirmDialog();
+                }),
               )
-
             ],
           ),
         ),

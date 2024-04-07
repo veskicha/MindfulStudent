@@ -386,6 +386,7 @@ class HomeScreenState extends State<HomeScreen> {
                         title: 'Breathing\nExercise',
                         imagePath: 'assets/Goals.png',
                         onTap: () {
+                          Navigator.pushReplacementNamed(context, '/breath');
                           // Handle navigation to Breathing excercise page
                         },
                       ),
@@ -397,10 +398,17 @@ class HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                       FeatureBlock(
+                        title: 'My Tasks',
+                        imagePath: 'assets/Goals.png',
+                        onTap: () {
+                          Navigator.pushReplacementNamed(context, '/tasks');
+                        },
+                      ),
+                      FeatureBlock(
                         title: 'Emergency\nContact',
                         imagePath: 'assets/Chat.png',
                         onTap: () {
-                          // Handle navigation to Emergency Contact page
+                          Navigator.pushReplacementNamed(context, '/emergency');
                         },
                       ),
                     ],
