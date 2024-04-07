@@ -105,14 +105,18 @@ class ProfilePageState extends State<ProfilePage> {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const EditProfilePage()),
+                          builder: (context) => const EditProfilePage(),
+                        ),
                       );
                     }),
                     const SizedBox(height: 10),
                     Button('Sign out', onPressed: () async {
                       return Auth.signOut().then((_) {
-                        Navigator.of(context).pushReplacement(MaterialPageRoute(
-                            builder: (context) => const LoginScreen()));
+                        Navigator.of(context).pushAndRemoveUntil(
+                          MaterialPageRoute(
+                              builder: (_) => const LoginScreen()),
+                          (_) => false,
+                        );
                       });
                     })
                   ],

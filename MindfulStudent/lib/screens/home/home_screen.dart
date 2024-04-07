@@ -207,6 +207,7 @@ class HomeScreenState extends State<HomeScreen> {
                         title: 'Breathing Exercise',
                         imagePath: 'assets/Goals.png',
                         onTap: () {
+                          Navigator.pushReplacementNamed(context, '/breath');
                           // Handle navigation to Breathing excercise page
                         },
                       ),
@@ -228,7 +229,7 @@ class HomeScreenState extends State<HomeScreen> {
                         title: 'Emergency Contact',
                         imagePath: 'assets/Chat.png',
                         onTap: () {
-                          // Handle navigation to Emergency Contact page
+                          Navigator.pushReplacementNamed(context, '/emergency');
                         },
                       ),
                     ],

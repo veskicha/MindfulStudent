@@ -11,15 +11,10 @@ class Profile {
   final String id;
   String? name;
   String? avatarUrl;
-  String? fcmToken;
 
   static final Map<String, Profile> _cache = {};
 
-  Profile(
-      {required this.id,
-      required this.name,
-      required this.avatarUrl,
-      required this.fcmToken});
+  Profile({required this.id, required this.name, required this.avatarUrl});
 
   @override
   String toString() {
@@ -34,11 +29,7 @@ class Profile {
 
   static Profile fromRowData(Map<String, dynamic> row) {
     return Profile(
-      id: row["id"],
-      name: row["name"],
-      avatarUrl: row["avatarUrl"],
-      fcmToken: row["fcm_token"],
-    );
+        id: row["id"], name: row["name"], avatarUrl: row["avatarUrl"]);
   }
 
   static Future<Profile?> get(String id) async {
@@ -49,7 +40,10 @@ class Profile {
 
     late final List<Map<String, dynamic>> data;
     try {
-      data = await supabase.from("profiles").select().eq("id", id);
+      data = await supabase
+          .from("profiles")
+          .select("id, name, avatarUrl, role")
+          .eq("id", id);
     } catch (e) {
       log(e.toString());
       return null;
@@ -146,6 +140,15 @@ class Auth {
 
   static Future<void> signOut() async {
     await supabase.auth.signOut();
+  }
+
+  static Future<void> deleteAccount() async {
+    await supabase.functions.invoke("account-delete");
+    try {
+      await Auth.signOut();
+    } on AuthException {
+      // will error, ignore
+    }
   }
 
   static Future<bool> updateUser(UserAttributes attrs) async {

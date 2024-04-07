@@ -5,6 +5,15 @@ import 'package:mindfulstudent/constants.dart';
 import 'package:mindfulstudent/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
+DateTime avgTime(Iterable<DateTime> dts) {
+  final epoch = dts
+          .map((s) =>
+              s.copyWith(year: 1970, month: 1, day: 1).millisecondsSinceEpoch)
+          .fold(0, (a, b) => a + b) ~/
+      dts.length;
+  return DateTime.fromMillisecondsSinceEpoch(epoch);
+}
+
 class SleepSession {
   final DateTime startTime;
   final DateTime endTime;
@@ -30,12 +39,9 @@ class SleepData {
   }
 
   (TimeOfDay, TimeOfDay) get optimalBedtime {
-    final avgWakeEpoch = sessions
-            .map((s) => s.endTime
-                .copyWith(year: 1970, month: 1, day: 1)
-                .millisecondsSinceEpoch)
-            .fold(0, (a, b) => a + b) ~/
-        sessions.length;
+    final avgWakeEpoch = avgTime(
+      sessions.map((session) => session.endTime),
+    ).millisecondsSinceEpoch;
 
     // Round to next `accuracy`
     final targetEpochUpper = DateTime.fromMillisecondsSinceEpoch(
@@ -46,6 +52,33 @@ class SleepData {
     return (
       TimeOfDay.fromDateTime(targetEpochLower),
       TimeOfDay.fromDateTime(targetEpochUpper)
+    );
+  }
+
+  (TimeOfDay, TimeOfDay) get avgWeekSleepSession {
+    final today = DateTime.now().copyWith(
+      hour: 0,
+      minute: 0,
+      second: 0,
+      millisecond: 0,
+      microsecond: 0,
+    );
+    final monday = today.subtract(Duration(days: today.weekday - 1));
+    final weekSessions = _sessions.where(
+      (session) => session.startTime.isAfter(monday),
+    );
+
+    log(weekSessions.toString());
+
+    final avgStartDt = avgTime(
+      weekSessions.map((session) => session.startTime),
+    );
+    final avgEndDt = avgTime(
+      weekSessions.map((session) => session.endTime),
+    );
+    return (
+      TimeOfDay.fromDateTime(avgStartDt),
+      TimeOfDay.fromDateTime(avgEndDt)
     );
   }
 }
