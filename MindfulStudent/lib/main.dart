@@ -12,6 +12,7 @@ import 'screens/home/chat_screen.dart';
 import 'screens/home/home_screen.dart';
 import 'screens/home/profile_screen.dart';
 import 'screens/home/sleep_tracking_screen.dart';
+import 'screens/home/emergency_contact.dart';
 import 'screens/splash_screen.dart';
 
 Future<void> main() async {
@@ -44,6 +45,7 @@ class MyApp extends StatelessWidget {
           '/sleep': (context) => const SleepTrackingPage(),
           '/profile': (context) => const ProfilePage(),
           '/tasks': (context) => const TaskTrackingPage(),
+          '/emergency': (context) => const EmergencyContactPage()
         },
       ),
     );

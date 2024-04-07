@@ -82,6 +82,7 @@ flutter:
     - assets/background.jpg
     - assets/tasks.png
     - assets/tasks.jpg
+    - assets/ContactImage.png
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/assets-and-images/#resolution-aware

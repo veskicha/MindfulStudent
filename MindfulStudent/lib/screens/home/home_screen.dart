@@ -228,7 +228,7 @@ class HomeScreenState extends State<HomeScreen> {
                         title: 'Emergency Contact',
                         imagePath: 'assets/Chat.png',
                         onTap: () {
-                          // Handle navigation to Emergency Contact page
+                          Navigator.pushReplacementNamed(context, '/emergency');
                         },
                       ),
                     ],
