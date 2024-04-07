@@ -1,15 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/provider/user_profile_provider.dart';
-import 'package:mindfulstudent/screens/auth/login_screen.dart';
-import 'package:mindfulstudent/screens/home/profile_edit_screen.dart';
-import 'package:mindfulstudent/widgets/button.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/bottom_nav_bar.dart';
 
 class EmergencyContactPage extends StatefulWidget {
-  const EmergencyContactPage({Key? key}) : super(key: key);
+  const EmergencyContactPage({super.key});
 
   @override
   EmergencyContactPageState createState() => EmergencyContactPageState();
@@ -85,7 +82,6 @@ class EmergencyContactPageState extends State<EmergencyContactPage> {
             child: Consumer<UserProfileProvider>(
               builder: (context, profileProvider, child) {
                 final Profile? userProfile = profileProvider.userProfile;
-                final avatarImg = userProfile?.getAvatarImage();
 
                 return Column(
                   children: [
@@ -112,7 +108,8 @@ class EmergencyContactPageState extends State<EmergencyContactPage> {
                           _selectedFruit != null
                               ? _emergencyNumbers[_selectedFruit!] ?? ''
                               : '',
-                          style: TextStyle(color: Colors.black, fontSize: 25),
+                          style: const TextStyle(
+                              color: Colors.black, fontSize: 25),
                         ),
                       ),
                     ),

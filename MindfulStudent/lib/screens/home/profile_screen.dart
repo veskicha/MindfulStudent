@@ -30,29 +30,35 @@ class ProfilePageState extends State<ProfilePage> {
       body: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Expanded(
+          SizedBox(
+            height: 180,
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Image.asset(
-                  'assets/background.jpg',
-                  width: MediaQuery.of(context).size.width,
-                  fit: BoxFit.cover,
+                Container(
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFC8D4D6),
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(20),
+                      bottomRight: Radius.circular(20),
+                    ),
+                  ),
                 ),
                 const Positioned(
-                  top: 40,
+                  top: 80,
                   child: Text(
                     'Profile',
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Color(0xFF497077),
                     ),
                   ),
                 ),
               ],
             ),
           ),
+
           const Spacer(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 0),

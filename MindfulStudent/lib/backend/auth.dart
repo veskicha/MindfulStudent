@@ -37,7 +37,7 @@ class Profile {
 
   NetworkImage? getAvatarImage() {
     final url = profileProvider.userProfile?.avatarUrl;
-    if (url == null) return null;
+    if (url == null || url.isEmpty) return null;
     return NetworkImage(url);
   }
 }
