@@ -16,7 +16,7 @@ class Firebase {
 
       scaffoldMessengerKey.currentState?.showSnackBar(
         SnackBar(
-          content: Text('${notification?.title} ${notification?.body}'),
+          content: Text('${notification?.title}: ${notification?.body}'),
         ),
       );
     });
