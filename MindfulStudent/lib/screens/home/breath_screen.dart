@@ -1,17 +1,17 @@
+import 'package:audioplayers/audioplayers.dart';
 import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
-import 'package:audioplayers/audioplayers.dart';
 
 
 class CircularTimerPage extends StatefulWidget {
-  const CircularTimerPage({Key? key}) : super(key: key);
+  const CircularTimerPage({super.key});
 
   @override
-  _CircularTimerPageState createState() => _CircularTimerPageState();
+  CircularTimerPageState createState() => CircularTimerPageState();
 }
 
-class _CircularTimerPageState extends State<CircularTimerPage> {
+class CircularTimerPageState extends State<CircularTimerPage> {
   int _selectedIndex = 0;
   final int _duration = 24;
   int _counter = 0;
@@ -198,9 +198,7 @@ class _CircularTimerPageState extends State<CircularTimerPage> {
         child: Text(
 
           title,
-
-          style: const TextStyle(color: const Color(0xFFC8D4D6)),
-
+          style: const TextStyle(color: Color(0xFFC8D4D6)),
         ),
 
       ),

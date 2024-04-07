@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 
 class TaskTrackingPage extends StatefulWidget {
-  const TaskTrackingPage({Key? key}) : super(key: key);
+  const TaskTrackingPage({super.key});
 
   @override
-  _TaskTrackingPageState createState() => _TaskTrackingPageState();
+  TaskTrackingPageState createState() => TaskTrackingPageState();
 }
 
-class _TaskTrackingPageState extends State<TaskTrackingPage> {
+class TaskTrackingPageState extends State<TaskTrackingPage> {
   int _selectedIndex = 0;
-  List<Map<String, dynamic>> _pendingTasks = [];
-  List<Map<String, dynamic>> _completedTasks = [];
+  final List<Map<String, dynamic>> _pendingTasks = [];
+  final List<Map<String, dynamic>> _completedTasks = [];
   final TextEditingController _taskController = TextEditingController();
 
   @override
@@ -20,7 +20,7 @@ class _TaskTrackingPageState extends State<TaskTrackingPage> {
       body: Stack(
         children: [
           Container(
-            decoration: BoxDecoration(
+            decoration: const BoxDecoration(
               gradient: LinearGradient(
                 begin: Alignment.topCenter,
                 end: Alignment.bottomCenter,
@@ -35,8 +35,8 @@ class _TaskTrackingPageState extends State<TaskTrackingPage> {
             children: [
               Container(
                 alignment: Alignment.topCenter,
-                padding: EdgeInsets.only(top: 64, bottom: 32),
-                child: Text(
+                padding: const EdgeInsets.only(top: 64, bottom: 32),
+                child: const Text(
                   'My Tasks',
                   style: TextStyle(
                     fontSize: 32,
@@ -60,12 +60,12 @@ class _TaskTrackingPageState extends State<TaskTrackingPage> {
                             padding: const EdgeInsets.all(16),
                             child: Row(
                               children: [
-                                Icon(Icons.add, color: Color(0xFF497077)),
-                                SizedBox(width: 16),
+                                const Icon(Icons.add, color: Color(0xFF497077)),
+                                const SizedBox(width: 16),
                                 Expanded(
                                   child: TextField(
                                     controller: _taskController,
-                                    decoration: InputDecoration(
+                                    decoration: const InputDecoration(
                                       hintText: 'Add a new task',
                                       border: InputBorder.none,
                                     ),
@@ -77,14 +77,14 @@ class _TaskTrackingPageState extends State<TaskTrackingPage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       if (_pendingTasks.isNotEmpty)
                         _buildTasksSection(
                           'Pending Tasks:',
                           _pendingTasks,
                           false,
                         ),
-                      SizedBox(height: 16),
+                      const SizedBox(height: 16),
                       if (_completedTasks.isNotEmpty)
                         _buildTasksSection(
                           'Completed Tasks:',
@@ -118,7 +118,7 @@ class _TaskTrackingPageState extends State<TaskTrackingPage> {
             padding: const EdgeInsets.symmetric(horizontal: 16),
             child: Text(
               title,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
                 color: Color(0xFF497077),
@@ -128,7 +128,7 @@ class _TaskTrackingPageState extends State<TaskTrackingPage> {
         ),
         ListView.builder(
           shrinkWrap: true,
-          physics: NeverScrollableScrollPhysics(),
+          physics: const NeverScrollableScrollPhysics(),
           itemCount: tasks.length,
           itemBuilder: (context, index) {
             final task = tasks[index];
@@ -146,11 +146,12 @@ class _TaskTrackingPageState extends State<TaskTrackingPage> {
                       task['completed']
                           ? Icons.check_circle
                           : Icons.radio_button_unchecked,
-                      color:
-                          task['completed'] ? Color(0xFF497077) : Colors.grey,
+                      color: task['completed']
+                          ? const Color(0xFF497077)
+                          : Colors.grey,
                     ),
                   ),
-                  SizedBox(width: 16),
+                  const SizedBox(width: 16),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -160,7 +161,7 @@ class _TaskTrackingPageState extends State<TaskTrackingPage> {
                           style: TextStyle(
                             fontSize: 16,
                             color: task['completed']
-                                ? Color(0xFF497077)
+                                ? const Color(0xFF497077)
                                 : Colors.black,
                             decoration: task['completed']
                                 ? TextDecoration.lineThrough
@@ -184,7 +185,8 @@ class _TaskTrackingPageState extends State<TaskTrackingPage> {
                               value: value,
                               child: Text(
                                 value,
-                                style: TextStyle(color: Color(0xFF497077)),
+                                style:
+                                    const TextStyle(color: Color(0xFF497077)),
                               ),
                             );
                           }).toList(),
@@ -193,7 +195,7 @@ class _TaskTrackingPageState extends State<TaskTrackingPage> {
                     ),
                   ),
                   IconButton(
-                    icon: Icon(Icons.delete),
+                    icon: const Icon(Icons.delete),
                     onPressed: () => _deleteTask(index, task['completed']),
                   ),
                 ],

@@ -8,7 +8,6 @@ import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/screens/auth/login_screen.dart';
 import 'package:mindfulstudent/util.dart';
 import 'package:mindfulstudent/widgets/button.dart' as button;
-import 'package:mindfulstudent/widgets/text_line_field.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class EditProfilePage extends StatefulWidget {
@@ -18,15 +17,97 @@ class EditProfilePage extends StatefulWidget {
   EditProfilePageState createState() => EditProfilePageState();
 }
 
+class TextLineField extends StatelessWidget {
+  final String hintText;
+  final bool obscureText;
+  final TextEditingController controller;
+  final double borderRadius;
+  final Color borderColor;
+
+  const TextLineField(
+    this.hintText, {
+    super.key,
+    this.obscureText = false,
+    required this.controller,
+    this.borderRadius = 20.0,
+    this.borderColor = const Color(0xFFC8D4D6),
+  });
+
+  String getText() {
+    return controller.text;
+  }
+
+  void setText(String text) {
+    controller.text = text;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return TextField(
+      controller: controller,
+      obscureText: obscureText,
+      cursorColor: const Color(0xFF497077),
+      style: const TextStyle(
+        color: Color(0xFF497077),
+      ),
+      decoration: InputDecoration(
+        labelText: hintText,
+        labelStyle: TextStyle(color: Colors.grey[500]),
+        contentPadding:
+            const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: borderColor),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: borderColor),
+        ),
+        enabledBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(borderRadius),
+          borderSide: BorderSide(color: borderColor),
+        ),
+      ),
+    );
+  }
+}
+
 class EditProfilePageState extends State<EditProfilePage> {
   File? _avatarFile;
+  late String? _avatarUrl;
 
-  final TextLineField _nameField = TextLineField("Your name");
-  final TextLineField _emailField = TextLineField("Your email address");
-  final TextLineField _passwordField =
-      TextLineField("New password", obscureText: true);
-  final TextLineField _passwordConfirmField =
-      TextLineField("Confirm new password", obscureText: true);
+  final TextEditingController _nameController = TextEditingController();
+  final TextEditingController _emailController = TextEditingController();
+  final TextEditingController _passwordController = TextEditingController();
+  final TextEditingController _passwordConfirmController =
+      TextEditingController();
+
+  late final TextLineField _nameField = TextLineField(
+    "Your name",
+    controller: _nameController,
+    borderRadius: 20.0,
+    borderColor: const Color(0xFFC8D4D6),
+  );
+  late final TextLineField _emailField = TextLineField(
+    "Your email address",
+    controller: _emailController,
+    borderRadius: 20.0,
+    borderColor: const Color(0xFFC8D4D6),
+  );
+  late final TextLineField _passwordField = TextLineField(
+    "New password",
+    controller: _passwordController,
+    obscureText: true,
+    borderRadius: 20.0,
+    borderColor: const Color(0xFFC8D4D6),
+  );
+  late final TextLineField _passwordConfirmField = TextLineField(
+    "Confirm new password",
+    controller: _passwordConfirmController,
+    obscureText: true,
+    borderRadius: 20.0,
+    borderColor: const Color(0xFFC8D4D6),
+  );
 
   @override
   void initState() {
@@ -36,8 +117,16 @@ class EditProfilePageState extends State<EditProfilePage> {
     final user = Auth.user;
     if (profile == null || user == null) return;
 
-    _nameField.setText(profile.name ?? "");
-    _emailField.setText(user.email ?? "");
+    _emailController.text = user.email ?? "";
+  }
+
+  @override
+  void dispose() {
+    _nameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _passwordConfirmController.dispose();
+    super.dispose();
   }
 
   _showDeleteConfirmDialog() {
@@ -79,10 +168,10 @@ class EditProfilePageState extends State<EditProfilePage> {
   }
 
   Future<bool> _updateProfile(BuildContext context) async {
-    final name = _nameField.getText();
-    final email = _emailField.getText();
-    final password = _passwordField.getText();
-    final passwordConfirm = _passwordConfirmField.getText();
+    final name = _nameController.text;
+    final email = _emailController.text;
+    final password = _passwordController.text;
+    final passwordConfirm = _passwordConfirmController.text;
     final doUpdatePassword = password.isNotEmpty || passwordConfirm.isNotEmpty;
 
     if (doUpdatePassword && password != passwordConfirm) {
@@ -92,7 +181,7 @@ class EditProfilePageState extends State<EditProfilePage> {
     }
 
     String? avatarUrl;
-    // Check if there is an avatar image to upload
+
     if (_avatarFile != null) {
       avatarUrl = await _uploadImageToSupabase(_avatarFile!);
       if (avatarUrl == null && context.mounted) {
@@ -102,7 +191,6 @@ class EditProfilePageState extends State<EditProfilePage> {
       }
     }
 
-    // Update profile data if necessary (name, avatarUrl)
     final curProfile = profileProvider.userProfile;
     if (curProfile != null &&
         (name != curProfile.name || avatarUrl != curProfile.avatarUrl)) {
@@ -238,31 +326,75 @@ class EditProfilePageState extends State<EditProfilePage> {
     return true;
   }
 
+  ImageProvider<Object>? getAvatarImage() {
+    if (_avatarFile != null) {
+      return FileImage(_avatarFile!);
+    } else if (_avatarUrl != null) {
+      return NetworkImage(_avatarUrl!);
+    }
+    return null;
+  }
+
   @override
   Widget build(BuildContext context) {
     final avatarUrl = profileProvider.userProfile?.getAvatarImage();
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF497077),
-        foregroundColor: Colors.white,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(80),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+          child: AppBar(
+            backgroundColor: const Color(0xFFC8D4D6),
+            elevation: 0,
+            title: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                const SizedBox(height: 10),
+                const Text(
+                  'Edit Profile',
+                  style: TextStyle(
+                    color: Color(0xFF497077),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'Customize your profile',
+                  style: TextStyle(
+                    color: Colors.grey[500],
+                    fontSize: 14,
+                  ),
+                ),
+              ],
+            ),
+            centerTitle: true,
+            foregroundColor: const Color(0xFF497077),
+            leading: Transform.translate(
+              offset: const Offset(0, 5),
+              child: IconButton(
+                icon: const Icon(Icons.arrow_back),
+                onPressed: () => Navigator.pop(context),
+              ),
+            ),
+          ),
         ),
-        title: const Text('Edit Profile'),
       ),
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             children: [
+              const SizedBox(height: 30),
               Stack(
                 alignment: Alignment.center,
                 children: [
                   CircleAvatar(
                     radius: 50,
-                    backgroundImage: avatarUrl,
+                    backgroundImage: getAvatarImage(),
                     backgroundColor: _avatarFile == null && avatarUrl == null
                         ? const Color(0xFFC8D4D6)
                         : null,
@@ -300,7 +432,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 16),
+              const SizedBox(height: 70),
               const Text(
                 'Name',
                 style: TextStyle(
@@ -310,7 +442,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                 ),
               ),
               _nameField,
-              const SizedBox(height: 12),
+              const SizedBox(height: 20),
               const Text(
                 'Email',
                 style: TextStyle(
@@ -320,7 +452,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                 ),
               ),
               _emailField,
-              const SizedBox(height: 16),
+              const SizedBox(height: 30),
               const Text(
                 'Password',
                 style: TextStyle(
@@ -332,16 +464,26 @@ class EditProfilePageState extends State<EditProfilePage> {
               _passwordField,
               const SizedBox(height: 16),
               _passwordConfirmField,
-              const SizedBox(height: 24),
-              button.Button('Save Changes', onPressed: () async {
-                final ok = await _updateProfile(context);
-                if (ok && context.mounted) Navigator.of(context).pop();
-              }),
-              const SizedBox(height: 48),
-              button.Button('Delete account', theme: button.ButtonTheme.danger,
+              const SizedBox(height: 60),
+              FractionallySizedBox(
+                widthFactor: 0.8,
+                child: button.Button(
+                  'Save Changes',
                   onPressed: () async {
-                _showDeleteConfirmDialog();
-              }),
+                    final ok = await _updateProfile(context);
+                    if (ok && context.mounted) {
+                      Navigator.of(context).pop();
+                    }
+                  },
+                ),
+              ),
+              FractionallySizedBox(
+                widthFactor: 0.8,
+                child: button.Button('Delete account',
+                    theme: button.ButtonTheme.danger, onPressed: () async {
+                  _showDeleteConfirmDialog();
+                }),
+              )
             ],
           ),
         ),

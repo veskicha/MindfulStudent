@@ -9,7 +9,6 @@ import 'package:mindfulstudent/provider/sleep_data_provider.dart';
 import 'package:mindfulstudent/screens/home/sleep_tracking_login_screen.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:mindfulstudent/widgets/button.dart';
-import 'package:mindfulstudent/widgets/header_bar.dart';
 import 'package:provider/provider.dart';
 
 String fmtTimeOfDay(TimeOfDay? time) => time == null
@@ -30,7 +29,7 @@ class SleepChart extends StatelessWidget {
 
     return SizedBox(
       width: bars.length * 100 + 50,
-      height: MediaQuery.of(context).size.height * 0.4,
+      height: MediaQuery.of(context).size.height * 0.35,
       child: Padding(
         padding: const EdgeInsets.all(20),
         child: BarChart(
@@ -40,6 +39,13 @@ class SleepChart extends StatelessWidget {
             minY: minVal ~/ _accuracy * _accuracy,
             maxY: (maxVal ~/ _accuracy + 1) * _accuracy,
             gridData: const FlGridData(show: false),
+            borderData: FlBorderData(
+              show: true,
+              border: Border.all(
+                color: const Color(0xFFC8D4D6),
+                width: 1,
+              ),
+            ),
             barTouchData: BarTouchData(enabled: false),
           ),
         ),
@@ -60,7 +66,8 @@ class SleepChart extends StatelessWidget {
           BarChartRodData(
             fromY: startOffset.inMilliseconds.toDouble(),
             toY: endOffset.inMilliseconds.toDouble(),
-            width: 30,
+            width: 20,
+            color: const Color(0xFF497077),
           ),
         ],
       );
@@ -68,6 +75,8 @@ class SleepChart extends StatelessWidget {
   }
 
   FlTitlesData get titlesData {
+    var relevantHours = getRelevantHours(barGroups);
+
     return FlTitlesData(
       show: true,
       bottomTitles: AxisTitles(
@@ -79,9 +88,9 @@ class SleepChart extends StatelessWidget {
             child: Text(
               formatEpoch(value),
               style: const TextStyle(
-                color: Colors.black,
+                color: Color(0xFF497077),
                 fontWeight: FontWeight.bold,
-                fontSize: 14,
+                fontSize: 12,
               ),
             ),
           ),
@@ -91,18 +100,26 @@ class SleepChart extends StatelessWidget {
         sideTitles: SideTitles(
           showTitles: true,
           reservedSize: 50,
-          interval: _accuracy * 2,
-          getTitlesWidget: (double value, TitleMeta meta) => SideTitleWidget(
-            axisSide: meta.axisSide,
-            child: Text(
-              formatRelTime(value),
-              style: const TextStyle(
-                color: Colors.black,
-                fontWeight: FontWeight.bold,
-                fontSize: 14,
-              ),
-            ),
-          ),
+          getTitlesWidget: (double value, TitleMeta meta) {
+            var hourDateTime = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+            var formattedHour = DateFormat('h a').format(hourDateTime);
+
+            if (relevantHours.contains(hourDateTime.hour)) {
+              return SideTitleWidget(
+                axisSide: meta.axisSide,
+                child: Text(
+                  formattedHour,
+                  style: const TextStyle(
+                    color: Color(0xFF497077),
+                    fontWeight: FontWeight.bold,
+                    fontSize: 12,
+                  ),
+                ),
+              );
+            } else {
+              return const SizedBox.shrink();
+            }
+          },
         ),
       ),
       rightTitles: const AxisTitles(
@@ -142,6 +159,19 @@ class SleepChart extends StatelessWidget {
         DateTime.fromMillisecondsSinceEpoch(value.toInt(), isUtc: true);
     return fmt.format(time);
   }
+
+  Set<int> getRelevantHours(List<BarChartGroupData> barGroups) {
+    var hours = <int>{};
+    for (var group in barGroups) {
+      var barRod = group.barRods[0];
+      var fromHour = DateTime.fromMillisecondsSinceEpoch(barRod.fromY.toInt()).hour;
+      var toHour = DateTime.fromMillisecondsSinceEpoch(barRod.toY.toInt()).hour;
+      for (var hour = fromHour; hour <= toHour; hour++) {
+        hours.add(hour);
+      }
+    }
+    return hours;
+  }
 }
 
 class SleepTrackingPage extends StatefulWidget {
@@ -166,9 +196,27 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: const PreferredSize(
-        preferredSize: Size.fromHeight(80.0),
-        child: HeaderBar('Sleep Tracking'),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(100.0),
+        child: Container(
+          decoration: const BoxDecoration(
+            color: Color(0xFFC8D4D6),
+            borderRadius: BorderRadius.only(
+              bottomLeft: Radius.circular(20),
+              bottomRight: Radius.circular(20),
+            ),
+          ),
+          child: const Center(
+            child: Text(
+              'Sleep Tracking',
+              style: TextStyle(
+                color: Color(0xFF497077),
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+        ),
       ),
       body: RefreshIndicator(
         key: refreshIndicatorKey,
@@ -247,18 +295,27 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SleepChart(),
+        const SizedBox(height: 10),
+        Center(
+          child: Container(
+            width: MediaQuery.of(context).size.width * 0.85,
+            height: 1,
+            color: const Color(0xFFC8D4D6),
+          ),
+        ),
+        const SizedBox(height: 20),
         const Padding(padding: EdgeInsets.only(top: 20)),
         Center(
           child: FractionallySizedBox(
-            widthFactor: 0.9, // 90% of screen width
+            widthFactor: 0.9,
             child: ClipRRect(
-              borderRadius: BorderRadius.circular(20), // Border radius of 20
+              borderRadius: BorderRadius.circular(20),
               child: Container(
                 color: const Color(0xFF497077),
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
-                  // Center align the texts
+
                   children: [
                     const Text(
                       'Your optimal bedtime',
@@ -267,16 +324,16 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 4), // Adjusted padding
+                    const SizedBox(height: 4),
                     Text(
                       "${fmtTimeOfDay(optimalBedtime?.$1)} - ${fmtTimeOfDay(optimalBedtime?.$2)}",
                       style: const TextStyle(
-                        fontSize: 28, // Increased font size
+                        fontSize: 28,
                         fontWeight: FontWeight.bold,
                         color: Colors.white,
                       ),
                     ),
-                    const SizedBox(height: 4), // Same padding as above
+                    const SizedBox(height: 4),
                     GestureDetector(
                       onTap: () {
                         // Handle daily tips and suggestions action
@@ -285,8 +342,8 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
                         TextSpan(
                           text: 'Daily tips and suggestions →',
                           style: TextStyle(
-                            fontSize: 14, // Font size
-                            color: Colors.white, // Text color
+                            fontSize: 14,
+                            color: Colors.white,
                           ),
                         ),
                       ),
@@ -399,4 +456,11 @@ class TimeRangeBox extends StatelessWidget {
       ),
     );
   }
+
+  String fmtTimeOfDay(TimeOfDay? time) => time == null
+      ? "Unknown"
+      : "${time.hour.toString().padLeft(2, '0')}"
+          ":${time.minute.toString().padLeft(2, '0')}";
+
+
 }
