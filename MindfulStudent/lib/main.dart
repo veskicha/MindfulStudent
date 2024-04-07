@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/screens/home/breath_screen.dart';
 import 'package:mindfulstudent/screens/home/task_tracking.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -45,6 +46,7 @@ class MyApp extends StatelessWidget {
           '/sleep': (context) => const SleepTrackingPage(),
           '/profile': (context) => const ProfilePage(),
           '/tasks': (context) => const TaskTrackingPage(),
+          '/breath' : (context) => const CircularTimerPage(),
           '/emergency': (context) => const EmergencyContactPage()
         },
       ),

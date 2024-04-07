@@ -207,6 +207,7 @@ class HomeScreenState extends State<HomeScreen> {
                         title: 'Breathing Exercise',
                         imagePath: 'assets/Goals.png',
                         onTap: () {
+                          Navigator.pushReplacementNamed(context, '/breath');
                           // Handle navigation to Breathing excercise page
                         },
                       ),
