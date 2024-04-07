@@ -5,6 +5,7 @@ import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/provider/user_profile_provider.dart';
 import 'package:mindfulstudent/screens/home/journal_screen.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
+import 'package:mindfulstudent/widgets/profile_img.dart';
 import 'package:provider/provider.dart';
 
 import 'chat_screen.dart';
@@ -37,9 +38,12 @@ class FeatureBlock extends StatelessWidget {
           color: const Color(0xB35C7F85),
           boxShadow: [
             BoxShadow(
-              color: Colors.black.withOpacity(0.2), // Shadow color with some opacity
-              offset: const Offset(0, 3), // Horizontal and vertical offset of shadow
-              blurRadius: 5, // Blur effect
+              color: Colors.black.withOpacity(0.2),
+              // Shadow color with some opacity
+              offset: const Offset(0, 3),
+              // Horizontal and vertical offset of shadow
+              blurRadius: 5,
+              // Blur effect
               spreadRadius: 2, // Spread effect
             ),
           ],
@@ -55,7 +59,8 @@ class FeatureBlock extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Padding(
-                    padding: EdgeInsets.only(top: 5.0, left: 0.0, right: 0.0, bottom: 0.0),
+                    padding: EdgeInsets.only(
+                        top: 5.0, left: 0.0, right: 0.0, bottom: 0.0),
                   ),
                   Container(
                     decoration: BoxDecoration(
@@ -71,7 +76,8 @@ class FeatureBlock extends StatelessWidget {
                     ),
                   ),
                   const Padding(
-                      padding: EdgeInsets.only(top: 6.0, left: 0.0, right: 0.0, bottom: 0.0),
+                    padding: EdgeInsets.only(
+                        top: 6.0, left: 0.0, right: 0.0, bottom: 0.0),
                   ),
                   Text(
                     title,
@@ -81,7 +87,6 @@ class FeatureBlock extends StatelessWidget {
                       fontSize: 25,
                     ),
                   ),
-
                 ],
               ),
             ),
@@ -160,32 +165,20 @@ class HomeScreenState extends State<HomeScreen> {
                   bottomRight: Radius.circular(20),
                 ),
               ),
-                width: double.infinity,
-                height: 220,
-                child: Consumer<UserProfileProvider>(
-                    builder: (context, profileProvider, child) {
+              width: double.infinity,
+              height: 220,
+              child: Consumer<UserProfileProvider>(
+                builder: (context, profileProvider, child) {
                   final Profile? userProfile = profileProvider.userProfile;
-                  final url = profileProvider.userProfile?.avatarUrl;
 
                   return Stack(
                     children: [
                       Positioned(
                         top: 82,
                         left: 30,
-                        child: CircleAvatar(
+                        child: ProfilePicture(
+                          profile: userProfile,
                           radius: 40,
-                          backgroundColor: Colors.transparent,
-                          child: ClipOval(
-                            child: FadeInImage.assetNetwork(
-                              placeholder: 'assets/load.gif',
-                              image: url ?? 'assets/load.gif',
-                              fit: BoxFit.cover,
-                              width: 80.0,  // Ensure this matches the radius of CircleAvatar
-                              height: 80.0, // Ensure this matches the radius of CircleAvatar
-                              fadeInDuration: const Duration(milliseconds: 300),
-                              fadeOutDuration: const Duration(milliseconds: 300),
-                            ),
-                          ),
                         ),
                       ),
                       Positioned(
@@ -205,14 +198,17 @@ class HomeScreenState extends State<HomeScreen> {
                       ),
                     ],
                   );
-                })),
+                },
+              ),
+            ),
             Padding(
               padding: const EdgeInsets.all(25.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   const Padding(
-                    padding: EdgeInsets.only(top: 15.0, left: 8.0, right: 8.0, bottom: 10.0),
+                    padding: EdgeInsets.only(
+                        top: 15.0, left: 8.0, right: 8.0, bottom: 10.0),
                     child: Text(
                       'Daily Task Progress',
                       style: TextStyle(
@@ -244,15 +240,18 @@ class HomeScreenState extends State<HomeScreen> {
                             height: 20,
                             child: LinearProgressIndicator(
                               backgroundColor: Colors.transparent,
-                              valueColor: const AlwaysStoppedAnimation<Color>(Color(0xFF5C7F85)),
+                              valueColor: const AlwaysStoppedAnimation<Color>(
+                                  Color(0xFF5C7F85)),
                               value: _progress,
                             ),
                           ),
                           Positioned.fill(
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                              padding:
+                                  const EdgeInsets.symmetric(horizontal: 16.0),
                               child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   Text(
                                     '${(_progress * 100).toInt()}%',
@@ -275,7 +274,8 @@ class HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                   const Padding(
-                      padding: EdgeInsets.only(top: 0.0, left: 0.0, right: 0.0, bottom: 50.0),
+                    padding: EdgeInsets.only(
+                        top: 0.0, left: 0.0, right: 0.0, bottom: 50.0),
                   ),
                   Container(
                     width: double.infinity,
@@ -286,7 +286,6 @@ class HomeScreenState extends State<HomeScreen> {
                   GridView.count(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
-
                     crossAxisCount: 2,
                     mainAxisSpacing: 10,
                     crossAxisSpacing: 10,
@@ -295,79 +294,106 @@ class HomeScreenState extends State<HomeScreen> {
                         title: 'Chat',
                         imagePath: 'assets/Chat.png',
                         onTap: () {
-                          Navigator.push(context, PageRouteBuilder(
+                          Navigator.push(
+                              context,
+                              PageRouteBuilder(
                                 pageBuilder:
                                     (context, animation, secondaryAnimation) =>
                                         const ChatPage(),
-                                transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                              var screenWidth = MediaQuery.of(context).size.width;
-                              var screenHeight = MediaQuery.of(context).size.height;
+                                transitionsBuilder: (context, animation,
+                                    secondaryAnimation, child) {
+                                  var screenWidth =
+                                      MediaQuery.of(context).size.width;
+                                  var screenHeight =
+                                      MediaQuery.of(context).size.height;
 
-                              // Example coordinates (x, y)
-                              var x = 100.0; // Replace with your X coordinate
-                              var y = 500.0; // Replace with your Y coordinate
+                                  // Example coordinates (x, y)
+                                  var x =
+                                      100.0; // Replace with your X coordinate
+                                  var y =
+                                      500.0; // Replace with your Y coordinate
 
-                              // Calculate alignment based on x and y
-                              var alignmentX = (x - screenWidth / 2) / (screenWidth / 2);
-                              var alignmentY = (y - screenHeight / 2) / (screenHeight / 2);
-                              var customAlignment = Alignment(alignmentX, alignmentY);
+                                  // Calculate alignment based on x and y
+                                  var alignmentX =
+                                      (x - screenWidth / 2) / (screenWidth / 2);
+                                  var alignmentY = (y - screenHeight / 2) /
+                                      (screenHeight / 2);
+                                  var customAlignment =
+                                      Alignment(alignmentX, alignmentY);
 
-                              var scaleTween = Tween<double>(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeInOut));
+                                  var scaleTween =
+                                      Tween<double>(begin: 0.0, end: 1.0).chain(
+                                          CurveTween(curve: Curves.easeInOut));
 
-                              return AnimatedBuilder(
-                                animation: animation,
-                                builder: (context, child) {
-                                  return Transform.scale(
-                                    scale: scaleTween.evaluate(animation),
-                                    alignment: customAlignment, // Custom alignment based on x, y
+                                  return AnimatedBuilder(
+                                    animation: animation,
+                                    builder: (context, child) {
+                                      return Transform.scale(
+                                        scale: scaleTween.evaluate(animation),
+                                        alignment: customAlignment,
+                                        // Custom alignment based on x, y
+                                        child: child,
+                                      );
+                                    },
                                     child: child,
                                   );
                                 },
-                                child: child,
-                              );
-                            },
-                            transitionDuration: const Duration(milliseconds: 500),
-                          ));
+                                transitionDuration:
+                                    const Duration(milliseconds: 500),
+                              ));
                         },
                       ),
-
-
-
                       FeatureBlock(
                         title: 'Journal',
                         imagePath: 'assets/Journal.png',
                         onTap: () {
-                          Navigator.push(context, PageRouteBuilder(
-                            pageBuilder: (context, animation, secondaryAnimation) => const JournalScreen(),
-                            transitionsBuilder: (context, animation, secondaryAnimation, child) {
-                              var screenWidth = MediaQuery.of(context).size.width;
-                              var screenHeight = MediaQuery.of(context).size.height;
+                          Navigator.push(
+                              context,
+                              PageRouteBuilder(
+                                pageBuilder:
+                                    (context, animation, secondaryAnimation) =>
+                                        const JournalScreen(),
+                                transitionsBuilder: (context, animation,
+                                    secondaryAnimation, child) {
+                                  var screenWidth =
+                                      MediaQuery.of(context).size.width;
+                                  var screenHeight =
+                                      MediaQuery.of(context).size.height;
 
-                              // Example coordinates (x, y)
-                              var x = 300.0; // Replace with your X coordinate
-                              var y = 500.0; // Replace with your Y coordinate
+                                  // Example coordinates (x, y)
+                                  var x =
+                                      300.0; // Replace with your X coordinate
+                                  var y =
+                                      500.0; // Replace with your Y coordinate
 
-                              // Calculate alignment based on x and y
-                              var alignmentX = (x - screenWidth / 2) / (screenWidth / 2);
-                              var alignmentY = (y - screenHeight / 2) / (screenHeight / 2);
-                              var customAlignment = Alignment(alignmentX, alignmentY);
+                                  // Calculate alignment based on x and y
+                                  var alignmentX =
+                                      (x - screenWidth / 2) / (screenWidth / 2);
+                                  var alignmentY = (y - screenHeight / 2) /
+                                      (screenHeight / 2);
+                                  var customAlignment =
+                                      Alignment(alignmentX, alignmentY);
 
-                              var scaleTween = Tween<double>(begin: 0.0, end: 1.0).chain(CurveTween(curve: Curves.easeInOut));
+                                  var scaleTween =
+                                      Tween<double>(begin: 0.0, end: 1.0).chain(
+                                          CurveTween(curve: Curves.easeInOut));
 
-                              return AnimatedBuilder(
-                                animation: animation,
-                                builder: (context, child) {
-                                  return Transform.scale(
-                                    scale: scaleTween.evaluate(animation),
-                                    alignment: customAlignment, // Custom alignment based on x, y
+                                  return AnimatedBuilder(
+                                    animation: animation,
+                                    builder: (context, child) {
+                                      return Transform.scale(
+                                        scale: scaleTween.evaluate(animation),
+                                        alignment: customAlignment,
+                                        // Custom alignment based on x, y
+                                        child: child,
+                                      );
+                                    },
                                     child: child,
                                   );
                                 },
-                                child: child,
-                              );
-                            },
-                            transitionDuration: const Duration(milliseconds: 500),
-                          ));
+                                transitionDuration:
+                                    const Duration(milliseconds: 500),
+                              ));
                         },
                       ),
                       FeatureBlock(
