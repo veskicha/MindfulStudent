@@ -165,7 +165,7 @@ class HomeScreenState extends State<HomeScreen> {
                 child: Consumer<UserProfileProvider>(
                     builder: (context, profileProvider, child) {
                   final Profile? userProfile = profileProvider.userProfile;
-                  final avatarImg = userProfile?.getAvatarImage();
+                  final url = profileProvider.userProfile?.avatarUrl;
 
                   return Stack(
                     children: [
@@ -174,17 +174,18 @@ class HomeScreenState extends State<HomeScreen> {
                         left: 30,
                         child: CircleAvatar(
                           radius: 40,
-                          backgroundImage: avatarImg,
-                          backgroundColor: avatarImg == null
-                              ? const Color(0xFF497077)
-                              : null,
-                          child: avatarImg == null
-                              ? const Icon(
-                                  Icons.person,
-                                  size: 40,
-                                  color: Colors.white,
-                                )
-                              : null,
+                          backgroundColor: Colors.transparent,
+                          child: ClipOval(
+                            child: FadeInImage.assetNetwork(
+                              placeholder: 'assets/load.gif',
+                              image: url ?? 'assets/load.gif',
+                              fit: BoxFit.cover,
+                              width: 80.0,  // Ensure this matches the radius of CircleAvatar
+                              height: 80.0, // Ensure this matches the radius of CircleAvatar
+                              fadeInDuration: const Duration(milliseconds: 300),
+                              fadeOutDuration: const Duration(milliseconds: 300),
+                            ),
+                          ),
                         ),
                       ),
                       Positioned(
@@ -414,7 +415,7 @@ class HomeScreenState extends State<HomeScreen> {
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
         onItemTapped: _onItemTapped,
-      ), // Using the BottomNavBar widget
+      ),
     );
   }
 }

@@ -31,19 +31,18 @@ class ProfilePageState extends State<ProfilePage> {
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
           SizedBox(
-            height: 180, // Set the height of the SizedBox to 300
+            height: 180,
             child: Stack(
               alignment: Alignment.center,
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                    color: const Color(0xFFC8D4D6),
+                  decoration: const BoxDecoration(
+                    color: Color(0xFFC8D4D6),
                     borderRadius: BorderRadius.only(
                       bottomLeft: Radius.circular(20),
                       bottomRight: Radius.circular(20),
                     ),
                   ),
-                  // The Container will now take the height of its parent SizedBox
                 ),
                 const Positioned(
                   top: 80,

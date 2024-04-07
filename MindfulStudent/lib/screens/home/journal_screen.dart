@@ -521,13 +521,15 @@ class JournalScreenState extends State<JournalScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisAlignment: MainAxisAlignment.spaceBetween,
                           children: [
-                            Text(
-                              note.title,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Color(0xFF497077),
-                                fontSize: 20
-                              ),
+                            Flexible(
+                                child: Text(
+                                  note.title.length > 14 ? '${note.title.substring(0, 14)}...' : note.title,
+                                  style: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFF497077),
+                                      fontSize: 20
+                                  ),
+                                ),
                             ),
                             Flexible(
                               child: Text(
