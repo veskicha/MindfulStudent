@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/backend/messages.dart';
 import 'package:mindfulstudent/main.dart';
@@ -108,7 +109,7 @@ class ProfileCardState extends State<ProfileCard> {
         : chatProvider.getChatWith(profileCopy.id).messages.lastOrNull;
 
     String lastMsgSenderStr = "";
-    if (lastMsg != null && lastMsg.isSentByMe) {
+    if (lastMsg != null) {
       lastMsgSenderStr =
           "${lastMsg.isSentByMe ? "You" : profileName}: ${lastMsg.content}";
     }
@@ -211,7 +212,15 @@ class ChatScreenState extends State<ChatScreen> {
       appBar: AppBar(
         backgroundColor: const Color(0xFF497077),
         foregroundColor: Colors.white,
-        title: Text(widget.profile.name ?? "Unknown"),
+        title: Row(
+          children: [
+            ProfilePicture(profile: widget.profile),
+            const SizedBox(width: 10.0),
+            Expanded(
+              child: Text(widget.profile.name ?? "Unknown"),
+            )
+          ],
+        ),
       ),
       body: Column(
         children: [
@@ -265,30 +274,52 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: message.isSentByMe
-          ? const EdgeInsets.only(left: 40.0)
-          : const EdgeInsets.only(right: 40.0),
-      child: Align(
-        alignment:
-            message.isSentByMe ? Alignment.centerRight : Alignment.centerLeft,
-        child: Container(
-          margin: const EdgeInsets.symmetric(vertical: 4.0),
-          padding: const EdgeInsets.all(8.0),
-          decoration: BoxDecoration(
-            color:
-                message.isSentByMe ? const Color(0xFF497077) : Colors.grey[300],
-            borderRadius: BorderRadius.circular(12.0),
-          ),
-          child: Text(
-            message.content,
-            style: TextStyle(
-              color: message.isSentByMe ? Colors.white : Colors.black,
-            ),
-          ),
+    final bubble = Container(
+      margin: const EdgeInsets.symmetric(vertical: 4.0),
+      padding: const EdgeInsets.all(8.0),
+      decoration: BoxDecoration(
+        color: message.isSentByMe ? const Color(0xFF497077) : Colors.grey[300],
+        borderRadius: BorderRadius.circular(12.0),
+      ),
+      child: Text(
+        message.content,
+        style: TextStyle(
+          color: message.isSentByMe ? Colors.white : Colors.black,
         ),
       ),
     );
+
+    final timeStr = DateFormat("HH:mm").format(message.sentAt);
+
+    if (message.isSentByMe) {
+      // Align right
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          const SizedBox(width: 40.0),
+          Padding(
+            padding: const EdgeInsets.only(right: 5.0),
+            child: Text(timeStr),
+          ),
+          Flexible(child: bubble),
+        ],
+      );
+    } else {
+      // Align left
+      return Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: [
+          Flexible(child: bubble),
+          Padding(
+            padding: const EdgeInsets.only(left: 5.0),
+            child: Text(timeStr),
+          ),
+          const SizedBox(width: 40.0),
+        ],
+      );
+    }
   }
 }
 
