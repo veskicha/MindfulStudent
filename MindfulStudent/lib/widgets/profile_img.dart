@@ -15,24 +15,31 @@ class ProfilePicture extends StatelessWidget {
       return CircleAvatar(
         radius: radius,
         backgroundColor: Colors.transparent,
-        child: ClipOval(
-          child: FadeInImage(
-            placeholder: const AssetImage('assets/load.gif'),
-            image: img,
-            fit: BoxFit.cover,
-            width: radius == null ? null : radius! * 2,
-            height: radius == null ? null : radius! * 2,
-            fadeInDuration: const Duration(milliseconds: 300),
-            fadeOutDuration: const Duration(milliseconds: 300),
+        child: AspectRatio(
+          aspectRatio: 1 / 1,
+          child: ClipOval(
+            child: FadeInImage(
+              placeholder: const AssetImage('assets/load.gif'),
+              image: img,
+              fit: BoxFit.cover,
+              width: radius == null ? null : radius! * 2,
+              height: radius == null ? null : radius! * 2,
+              fadeInDuration: const Duration(milliseconds: 300),
+              fadeOutDuration: const Duration(milliseconds: 300),
+            ),
           ),
         ),
       );
+    } else {
+      return CircleAvatar(
+        radius: radius,
+        backgroundColor: const Color(0xFF497077),
+        child: Icon(
+          Icons.person,
+          color: Colors.white,
+          size: radius,
+        ),
+      );
     }
-
-    return CircleAvatar(
-      radius: radius,
-      backgroundColor: const Color(0xFF497077),
-      child: Icon(Icons.person, color: Colors.white, size: radius),
-    );
   }
 }

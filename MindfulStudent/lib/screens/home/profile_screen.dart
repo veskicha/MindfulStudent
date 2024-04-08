@@ -4,6 +4,7 @@ import 'package:mindfulstudent/provider/user_profile_provider.dart';
 import 'package:mindfulstudent/screens/auth/login_screen.dart';
 import 'package:mindfulstudent/screens/home/profile_edit_screen.dart';
 import 'package:mindfulstudent/widgets/button.dart';
+import 'package:mindfulstudent/widgets/profile_img.dart';
 import 'package:provider/provider.dart';
 
 import '../../widgets/bottom_nav_bar.dart';
@@ -58,42 +59,27 @@ class ProfilePageState extends State<ProfilePage> {
               ],
             ),
           ),
-
           const Spacer(),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 60, vertical: 0),
             child: Consumer<UserProfileProvider>(
               builder: (context, profileProvider, child) {
                 final Profile? userProfile = profileProvider.userProfile;
-                final avatarImg = userProfile?.getAvatarImage();
 
                 return Column(
                   children: [
-                    Padding(
-                      padding: const EdgeInsets.only(bottom: 30),
-                      child: Container(
-                        padding: const EdgeInsets.all(2), // Border width
-                        decoration: const BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Color(0xFFC8D4D6), // Border color
-                        ),
-                        child: CircleAvatar(
-                          radius: 100,
-                          backgroundImage: avatarImg,
-                          backgroundColor: avatarImg == null
-                              ? const Color(0xFF497077)
-                              : null,
-                          child: avatarImg == null
-                              ? const Icon(
-                                  Icons.person,
-                                  size: 80,
-                                  color: Colors.white,
-                                )
-                              : null,
-                        ),
+                    Container(
+                      padding: const EdgeInsets.all(2), // Border width
+                      decoration: const BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: Color(0xFFC8D4D6), // Border color
+                      ),
+                      child: ProfilePicture(
+                        profile: userProfile,
+                        radius: 100,
                       ),
                     ),
-                    const SizedBox(height: 20),
+                    const SizedBox(height: 50),
                     Text(
                       userProfile?.name ?? "Unknown User",
                       style: const TextStyle(

@@ -8,6 +8,7 @@ import 'package:mindfulstudent/provider/chat_provider.dart';
 import 'package:mindfulstudent/util.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:mindfulstudent/widgets/header_bar.dart';
+import 'package:mindfulstudent/widgets/profile_img.dart';
 import 'package:provider/provider.dart';
 
 class ChatPage extends StatefulWidget {
@@ -102,7 +103,6 @@ class ProfileCardState extends State<ProfileCard> {
     final profileCopy = profile;
 
     final profileName = profileCopy?.name ?? "Unknown";
-    final avatarImg = profileCopy?.getAvatarImage();
     final lastMsg = (profileCopy == null)
         ? null
         : chatProvider.getChatWith(profileCopy.id).messages.lastOrNull;
@@ -114,15 +114,8 @@ class ProfileCardState extends State<ProfileCard> {
     }
 
     return ListTile(
-      leading: CircleAvatar(
-        backgroundImage: avatarImg,
-        backgroundColor: avatarImg == null ? const Color(0xFF497077) : null,
-        child: avatarImg == null
-            ? const Icon(
-                Icons.person,
-                color: Colors.white,
-              )
-            : null,
+      leading: ProfilePicture(
+        profile: profileCopy,
       ),
       title: Text(profileName),
       subtitle: Text(
