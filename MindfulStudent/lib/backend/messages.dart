@@ -60,8 +60,8 @@ class Message {
   final DateTime sentAt;
   final String content;
 
-  const Message(this.id, this.authorId, this.recipientId, this.sentAt,
-      this.content);
+  const Message(
+      this.id, this.authorId, this.recipientId, this.sentAt, this.content);
 
   static Message fromRowData(Map<String, dynamic> row) {
     final String id = row["id"];
@@ -77,6 +77,10 @@ class Message {
     final me = profileProvider.userProfile;
     if (me == null) return false;
     return authorId == me.id;
+  }
+
+  Future<void> delete() async {
+    await supabase.from("messages").delete().eq("id", id);
   }
 }
 

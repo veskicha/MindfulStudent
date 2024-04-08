@@ -153,6 +153,7 @@ class ChatScreenState extends State<ChatScreen> {
 
   bool isSending = false;
   bool canSend = true;
+  List<Message> selectedMessages = [];
 
   @override
   void initState() {
@@ -206,6 +207,50 @@ class ChatScreenState extends State<ChatScreen> {
     });
   }
 
+  void _onMessageDeletePress() {
+    Future.wait(selectedMessages.map((msg) => msg.delete())).then((_) {
+      setState(() {
+        selectedMessages = [];
+      });
+    }).catchError((e) {
+      showError(
+        context,
+        "Delete error",
+        description: e.toString(),
+      );
+    });
+  }
+
+  void _onMessageTap(Message msg) {
+    // Message selected: deselect
+    if (selectedMessages.contains(msg)) {
+      setState(() {
+        selectedMessages = selectedMessages.toList()..remove(msg);
+      });
+      return;
+    }
+
+    // Not in selection mode: do nothing
+    if (selectedMessages.isEmpty) return;
+
+    // In selection mode and ot selected: add to selection
+    setState(() {
+      selectedMessages = selectedMessages..add(msg);
+    });
+  }
+
+  void _onMessageHold(Message msg) {
+    if (selectedMessages.contains(msg)) {
+      setState(() {
+        selectedMessages = selectedMessages..remove(msg);
+      });
+    } else {
+      setState(() {
+        selectedMessages = selectedMessages..add(msg);
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -221,6 +266,18 @@ class ChatScreenState extends State<ChatScreen> {
             )
           ],
         ),
+        actions: selectedMessages.isEmpty ||
+                selectedMessages.any((msg) => !msg.isSentByMe)
+            ? null
+            : [
+                Padding(
+                  padding: const EdgeInsets.only(top: 20.0),
+                  child: IconButton(
+                    icon: const Icon(Icons.delete_outline),
+                    onPressed: _onMessageDeletePress,
+                  ),
+                ),
+              ],
       ),
       body: Column(
         children: [
@@ -231,7 +288,12 @@ class ChatScreenState extends State<ChatScreen> {
                   padding: const EdgeInsets.all(8.0),
                   reverse: true,
                   children: chat.messages.reversed
-                      .map((msg) => ChatBubble(msg))
+                      .map((msg) => ChatBubble(
+                            msg,
+                            onTap: _onMessageTap,
+                            onHold: _onMessageHold,
+                            isSelected: selectedMessages.contains(msg),
+                          ))
                       .toList(),
                 );
               },
@@ -269,11 +331,22 @@ class ChatScreenState extends State<ChatScreen> {
 
 class ChatBubble extends StatelessWidget {
   final Message message;
+  final void Function(Message)? onTap;
+  final void Function(Message)? onHold;
+  final bool isSelected;
 
-  const ChatBubble(this.message, {super.key});
+  const ChatBubble(
+    this.message, {
+    this.onTap,
+    this.onHold,
+    this.isSelected = false,
+    super.key,
+  });
 
   @override
   Widget build(BuildContext context) {
+    // TODO: visually show isSelected property
+
     final bubble = Container(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       padding: const EdgeInsets.all(8.0),
@@ -289,11 +362,13 @@ class ChatBubble extends StatelessWidget {
       ),
     );
 
-    final timeStr = DateFormat("HH:mm").format(message.sentAt);
+    final timeStr =
+        DateFormat("HH:mm").format(message.sentAt) + isSelected.toString();
 
+    late final Row row;
     if (message.isSentByMe) {
       // Align right
-      return Row(
+      row = Row(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -307,7 +382,7 @@ class ChatBubble extends StatelessWidget {
       );
     } else {
       // Align left
-      return Row(
+      row = Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
@@ -320,6 +395,12 @@ class ChatBubble extends StatelessWidget {
         ],
       );
     }
+
+    return GestureDetector(
+      onTap: onTap == null ? null : () => onTap!(message),
+      onLongPress: onHold == null ? null : () => onHold!(message),
+      child: row,
+    );
   }
 }
 
