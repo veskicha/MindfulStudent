@@ -27,6 +27,10 @@ class Profile {
     return NetworkImage(url);
   }
 
+  static void clearFromCache(Profile profile) {
+    _cache.remove(profile.id);
+  }
+
   static Profile fromRowData(Map<String, dynamic> row) {
     return Profile(
         id: row["id"], name: row["name"], avatarUrl: row["avatarUrl"]);
@@ -168,7 +172,14 @@ class Auth {
     final id = Auth.user?.id;
     if (id == null) return null;
 
-    await supabase.from("profiles").update({"name": profile.name}).eq("id", id);
+    log("Uploading new profile for ${profile.name}");
+
+    await supabase.from("profiles").update({
+      "name": profile.name,
+      "avatarUrl": profile.avatarUrl,
+    }).eq("id", id);
+
+    Profile.clearFromCache(profile);
 
     final newProfile = await getProfile();
     profileProvider.setProfile(newProfile);

@@ -95,24 +95,35 @@ class EditProfilePageState extends State<EditProfilePage> {
       return false;
     }
 
-    String? avatarUrl;
-
-    if (_avatarFile != null) {
-      avatarUrl = await _uploadImageToSupabase(_avatarFile!);
-      if (avatarUrl == null && context.mounted) {
-        showError(context, "Error",
-            description: "Failed to upload avatar image.");
-        return false;
-      }
-    }
-
     final curProfile = profileProvider.userProfile;
-    if (curProfile != null &&
-        (name != curProfile.name || avatarUrl != curProfile.avatarUrl)) {
-      log("Updating user profile");
-      final newProfile =
-          Profile(id: curProfile.id, name: name, avatarUrl: avatarUrl);
-      await Auth.updateProfile(newProfile);
+    if (curProfile != null) {
+      bool doProfileUpdate = false;
+      final newProfile = Profile(
+        id: curProfile.id,
+        name: curProfile.name,
+        avatarUrl: curProfile.avatarUrl,
+      );
+
+      if (_avatarFile != null) {
+        log("Uploading new avatar image");
+        newProfile.avatarUrl = await _uploadImageToSupabase(_avatarFile!);
+        if (newProfile.avatarUrl == null && context.mounted) {
+          showError(context, "Error",
+              description: "Failed to upload avatar image.");
+          return false;
+        }
+        doProfileUpdate = true;
+      }
+
+      if (name != curProfile.name) {
+        newProfile.name = name;
+        doProfileUpdate = true;
+      }
+
+      if (doProfileUpdate) {
+        log("Updating user profile");
+        await Auth.updateProfile(newProfile);
+      }
     }
 
     // Update email / password if necessary
@@ -178,26 +189,10 @@ class EditProfilePageState extends State<EditProfilePage> {
 
   void _setImage(XFile? image) async {
     if (image != null) {
-      File imageFile = File(image.path);
-
-      // Upload the image to Supabase Storage
-      String? imageUrl = await _uploadImageToSupabase(imageFile);
-
-      if (imageUrl != null) {
-        // Update the user's profile with the new avatar URL
-        bool success =
-            await updateProfileWithNewAvatar(Auth.user!.id, imageUrl);
-        if (success) {
-          setState(() {
-            _avatarFile =
-                imageFile; // Update the local UI to show the new image
-          });
-        } else {
-          log("Failed to update user profile with new avatar URL.");
-        }
-      } else {
-        log("Failed to upload image to Supabase.");
-      }
+      setState(() {
+        _avatarFile =
+            File(image.path); // Update the local UI to show the new image
+      });
     }
   }
 
@@ -228,17 +223,6 @@ class EditProfilePageState extends State<EditProfilePage> {
       // Handle any errors during upload
       return null;
     }
-  }
-
-  Future<bool> updateProfileWithNewAvatar(
-      String userId, String avatarUrl) async {
-    await Supabase.instance.client
-        .from('profiles')
-        .update({'avatarUrl': avatarUrl})
-        .eq('id', userId)
-        .select();
-
-    return true;
   }
 
   ImageProvider<Object>? getAvatarImage() {
