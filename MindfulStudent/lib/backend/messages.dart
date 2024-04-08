@@ -10,6 +10,14 @@ class Connection {
 
   Connection(this.fromId, this.toId, this.confirmed);
 
+  static Connection fromRowData(Map<String, dynamic> row) {
+    final String fromId = row["source"];
+    final String toId = row["target"];
+    final bool isConfirmed = row["isMutual"] ?? false;
+
+    return Connection(fromId, toId, isConfirmed);
+  }
+
   Future<void> accept() async {
     final Profile? me = profileProvider.userProfile;
     if (me == null) throw Exception("Not logged in yet!");
@@ -42,14 +50,7 @@ class Connection {
     log("Fetching all user connections");
     final res = await supabase.from("connections").select();
 
-    final List<Connection> connections = [];
-    for (final connData in res) {
-      final from = connData["source"];
-      final to = connData["target"];
-
-      connections.add(Connection(from, to, connData["isMutual"]));
-    }
-    return connections;
+    return res.map((row) => Connection.fromRowData(row)).toList();
   }
 }
 

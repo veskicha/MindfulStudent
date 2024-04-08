@@ -14,6 +14,9 @@ class ChatProvider with ChangeNotifier {
   List<Connection> get connections => _connections;
 
   Future<void> init() async {
+    _connections.clear();
+    _chats.clear();
+
     for (final connection in await Connection.fetchAll()) {
       _addConnection(connection);
     }
@@ -25,8 +28,6 @@ class ChatProvider with ChangeNotifier {
             schema: 'public',
             table: 'messages',
             callback: (payload) {
-              log('DB change received: ${payload.toString()}');
-
               switch (payload.eventType) {
                 case PostgresChangeEvent.insert:
                 case PostgresChangeEvent.update:
@@ -34,6 +35,29 @@ class ChatProvider with ChangeNotifier {
                   break;
                 case PostgresChangeEvent.delete:
                   removeMessage(payload.oldRecord["id"]);
+                  break;
+                case PostgresChangeEvent.all:
+                  break;
+              }
+            })
+        .subscribe();
+
+    supabase
+        .channel('public:connections')
+        .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'connections',
+            callback: (payload) {
+              log(payload.toString());
+
+              switch (payload.eventType) {
+                case PostgresChangeEvent.insert:
+                case PostgresChangeEvent.update:
+                  _addConnection(Connection.fromRowData(payload.newRecord));
+                  break;
+                case PostgresChangeEvent.delete:
+                  _removeConnection(Connection.fromRowData(payload.oldRecord));
                   break;
                 case PostgresChangeEvent.all:
                   break;
@@ -64,9 +88,11 @@ class ChatProvider with ChangeNotifier {
       _connections.add(connection);
     }
 
-    final other =
-        (me.id == connection.fromId) ? connection.toId : connection.fromId;
-    getChatWith(other); // creates chat if not exists
+    if (connection.confirmed) {
+      final other =
+          (me.id == connection.fromId) ? connection.toId : connection.fromId;
+      getChatWith(other); // creates chat if not exists
+    }
 
     notifyListeners();
   }
@@ -77,9 +103,17 @@ class ChatProvider with ChangeNotifier {
         return conn.fromId == connection.fromId && conn.toId == connection.toId;
       });
       _connections.remove(oldConn);
+
+      final connChats = _chats.where((chat) =>
+          chat.otherId == connection.fromId || chat.otherId == connection.toId);
+      for (final chat in connChats) {
+        _chats.remove(chat);
+      }
     } on StateError {
-      return;
+      // Just ignore
     }
+
+    notifyListeners();
   }
 
   Chat getChatWith(String userId) {
@@ -106,8 +140,6 @@ class ChatProvider with ChangeNotifier {
   void addMessage(Message msg) {
     final chat = _getChatForMessage(msg);
     if (chat == null) return;
-
-    log("Adding message: $msg");
 
     chat.addMessage(msg);
     notifyListeners();
