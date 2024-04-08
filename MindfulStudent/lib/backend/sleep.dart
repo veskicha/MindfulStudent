@@ -55,7 +55,7 @@ class SleepData {
     );
   }
 
-  (TimeOfDay, TimeOfDay) get avgWeekSleepSession {
+  (TimeOfDay, TimeOfDay)? get avgWeekSleepSession {
     final today = DateTime.now().copyWith(
       hour: 0,
       minute: 0,
@@ -68,7 +68,7 @@ class SleepData {
       (session) => session.startTime.isAfter(monday),
     );
 
-    log(weekSessions.toString());
+    if (weekSessions.isEmpty) return null;
 
     final avgStartDt = avgTime(
       weekSessions.map((session) => session.startTime),

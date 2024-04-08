@@ -422,7 +422,7 @@ class TimeRangeBox extends StatelessWidget {
       const SizedBox(height: 2),
       Text(
         timeDiff == null
-            ? "Unknown"
+            ? "-"
             : "${timeDiff.inHours}h ${timeDiff.inMinutes % 60}m",
         style: const TextStyle(
           fontSize: 34,
