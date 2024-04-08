@@ -11,6 +11,8 @@ class ChatProvider with ChangeNotifier {
 
   List<Chat> get chats => _chats;
 
+  List<Connection> get connections => _connections;
+
   Future<void> init() async {
     for (final connection in await Connection.fetchAll()) {
       _addConnection(connection);

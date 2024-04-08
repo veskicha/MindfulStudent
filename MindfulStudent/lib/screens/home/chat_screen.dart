@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mindfulstudent/backend/auth.dart';
@@ -8,7 +9,6 @@ import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/provider/chat_provider.dart';
 import 'package:mindfulstudent/util.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
-import 'package:mindfulstudent/widgets/header_bar.dart';
 import 'package:mindfulstudent/widgets/profile_img.dart';
 import 'package:provider/provider.dart';
 
@@ -31,42 +31,45 @@ class ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80.0),
-        child: HeaderBar(
-          'Chats',
-          actionIcon: const Icon(Icons.search),
-          onActionPressed: () {},
-        ),
-      ),
-      body: Column(
-        children: [
-          // Search Bar
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              decoration: InputDecoration(
-                hintText: 'Search',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
-                ),
-              ),
-            ),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF497077),
+        foregroundColor: Colors.white,
+        title: const Text("Chats"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.psychology),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ExpertsPage()),
+              );
+            },
           ),
-          // Recent Chats List
-          Expanded(
-            child: Consumer<ChatProvider>(
-              builder: (context, chatProvider, child) {
-                return ListView(
-                  children: chatProvider.chats
-                      .map((chat) => ProfileCard(profileFut: chat.getProfile()))
-                      .toList(),
-                );
-              },
-            ),
+          IconButton(
+            icon: const Icon(Icons.link),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ConnectionsPage()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AddFriendsPage()),
+              );
+            },
           ),
         ],
+      ),
+      body: Consumer<ChatProvider>(
+        builder: (context, chatProvider, child) {
+          return ListView(
+            children: chatProvider.chats
+                .map((chat) => ProfileCard(profileFut: chat.getProfile()))
+                .toList(),
+          );
+        },
       ),
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
@@ -76,10 +79,136 @@ class ChatPageState extends State<ChatPage> {
   }
 }
 
-class ProfileCard extends StatefulWidget {
-  final Future<Profile?> profileFut;
+class ConnectionsPage extends StatelessWidget {
+  const ConnectionsPage({super.key});
 
-  const ProfileCard({required this.profileFut, super.key});
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+        appBar: AppBar(
+          backgroundColor: const Color(0xFF497077),
+          foregroundColor: Colors.white,
+          title: const Text("Pending Connections"),
+        ),
+        body: null);
+  }
+}
+
+class AddFriendsPage extends StatefulWidget {
+  const AddFriendsPage({super.key});
+
+  @override
+  State<AddFriendsPage> createState() => _AddFriendsPageState();
+}
+
+class _AddFriendsPageState extends State<AddFriendsPage> {
+  final TextEditingController _controller = TextEditingController();
+  CancelableOperation? _searchOp;
+
+  List<Profile> results = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller.addListener(_onSearchModify);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _controller.removeListener(_onSearchModify);
+    _controller.dispose();
+
+    _searchOp?.cancel();
+  }
+
+  void _onSearchModify() {
+    final text = _controller.text;
+
+    if (text.isEmpty) {
+      _searchOp?.cancel();
+      setState(() {
+        results = [];
+      });
+
+      return;
+    }
+
+    _searchOp?.cancel();
+    _searchOp = CancelableOperation.fromFuture(Profile.find(text));
+    _searchOp?.then((res) {
+      final Set<String> bannedIds = {profileProvider.userProfile?.id ?? ""};
+      for (final conn in chatProvider.connections) {
+        bannedIds.addAll([conn.fromId, conn.toId]);
+      }
+
+      log(res.map((p) => p.name).toList().toString());
+
+      setState(() {
+        results =
+            res.where((profile) => !bannedIds.contains(profile.id)).toList();
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF497077),
+        foregroundColor: Colors.white,
+        title: const Text("Add Friends"),
+      ),
+      body: Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: TextField(
+              controller: _controller,
+              decoration: InputDecoration(
+                hintText: 'Search by name',
+                prefixIcon: const Icon(Icons.search),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(20.0),
+                ),
+              ),
+            ),
+          ),
+          Expanded(
+            child: Column(
+              children:
+                  results.map((res) => ProfileCard(profile: res)).toList(),
+            ),
+          )
+        ],
+      ),
+    );
+  }
+}
+
+class ExpertsPage extends StatelessWidget {
+  const ExpertsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF497077),
+        foregroundColor: Colors.white,
+        title: const Text("Mental Health Experts"),
+      ),
+      body: null,
+    );
+  }
+}
+
+class ProfileCard extends StatefulWidget {
+  final Profile? profile;
+  final Future<Profile?>? profileFut;
+
+  const ProfileCard({this.profile, this.profileFut, super.key});
 
   @override
   State<StatefulWidget> createState() => ProfileCardState();
@@ -92,16 +221,19 @@ class ProfileCardState extends State<ProfileCard> {
   void initState() {
     super.initState();
 
-    widget.profileFut.then((p) {
-      setState(() {
-        profile = p;
+    final fut = widget.profileFut;
+    if (fut != null) {
+      fut.then((p) {
+        setState(() {
+          profile = p;
+        });
       });
-    });
+    }
   }
 
   @override
   Widget build(BuildContext context) {
-    final profileCopy = profile;
+    final profileCopy = profile ?? widget.profile;
 
     final profileName = profileCopy?.name ?? "Unknown";
     final lastMsg = (profileCopy == null)
@@ -270,12 +402,9 @@ class ChatScreenState extends State<ChatScreen> {
                 selectedMessages.any((msg) => !msg.isSentByMe)
             ? null
             : [
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: _onMessageDeletePress,
-                  ),
+                IconButton(
+                  icon: const Icon(Icons.delete_outline),
+                  onPressed: _onMessageDeletePress,
                 ),
               ],
       ),
