@@ -113,6 +113,7 @@ class ChatProvider with ChangeNotifier {
           chat.otherId == connection.fromId || chat.otherId == connection.toId);
       for (final chat in connChats) {
         _chats.remove(chat);
+        notifyListeners();
       }
     } on StateError {
       // Just ignore

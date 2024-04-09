@@ -484,11 +484,8 @@ class ProfileCardState extends State<ProfileCard> {
             ),
             TextButton(
               onPressed: () {
-                connection?.deny().then((_) {
-                  Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (_) => const ChatPage()),
-                  );
-                });
+                connection?.deny();
+                Navigator.of(context).pop();
               },
               child: const Text("Yes, disconnect"),
             ),
