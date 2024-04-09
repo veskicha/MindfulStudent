@@ -23,7 +23,7 @@ class Connection {
     if (me == null) throw Exception("Not logged in yet!");
 
     if (me.id != toId) {
-      throw Exception("Cannot accept outgoing connection request");
+      throw Exception("Cannot accept incoming connection request");
     }
 
     // Already done I guess?
@@ -32,18 +32,39 @@ class Connection {
     await supabase
         .from("connections")
         .update({"isMutual": true})
-        .eq("from", fromId)
-        .eq("to", toId);
+        .eq("source", fromId)
+        .eq("target", toId);
 
     confirmed = true;
     return;
   }
 
-  Future<void> request(Profile user) async {
+  Future<void> deny() async {
     final Profile? me = profileProvider.userProfile;
     if (me == null) throw Exception("Not logged in yet!");
 
-    await supabase.from("connections").insert({"from": me.id, "to": user.id});
+    // Already done I guess?
+    if (confirmed) return;
+
+    await supabase
+        .from("connections")
+        .delete()
+        .eq("source", fromId)
+        .eq("target", toId);
+
+    confirmed = true;
+    return;
+  }
+
+  static Future<void> request(Profile user) async {
+    final Profile? me = profileProvider.userProfile;
+    if (me == null) throw Exception("Not logged in yet!");
+
+    await supabase.from("connections").insert({
+      "source": me.id,
+      "target": user.id,
+      "isMutual": user.role == "HEALTH_EXPERT"
+    });
   }
 
   static Future<List<Connection>> fetchAll() async {

@@ -408,35 +408,41 @@ class ProfileCardState extends State<ProfileCard> {
     final List<Widget> buttons = [];
     if (isIncomingRequest) {
       // Accept & deny buttons
-      buttons.add(IconButton(
-        icon: const Icon(Icons.check),
+      buttons.add(ActionIconButton(
+        icon: Icons.check,
         color: Colors.green,
-        onPressed: () {},
+        onPressed: connection?.accept,
       ));
-      buttons.add(IconButton(
-        icon: const Icon(Icons.close),
+      buttons.add(ActionIconButton(
+        icon: Icons.close,
         color: Colors.red,
-        onPressed: () {},
+        onPressed: connection?.deny,
       ));
     } else if (isOutgoingRequest) {
       // Deny (cancel) button
-      buttons.add(IconButton(
-        icon: const Icon(Icons.close),
+      buttons.add(ActionIconButton(
+        icon: Icons.close,
         color: Colors.red,
-        onPressed: () {},
+        onPressed: connection?.deny,
       ));
     } else if (isHealthExpert && !isExistingChat) {
       // Accept immediate button
-      buttons.add(IconButton(
-        icon: const Icon(Icons.chat),
+      buttons.add(ActionIconButton(
+        icon: Icons.chat,
         color: Colors.blue,
-        onPressed: () {},
+        onPressed: () async {
+          if (profile == null) return;
+          await Connection.request(profile!);
+        },
       ));
     } else if (!isExistingChat) {
-      // Accept immediate button
-      buttons.add(IconButton(
-        icon: const Icon(Icons.add),
-        onPressed: () {},
+      // Request button
+      buttons.add(ActionIconButton(
+        icon: Icons.add,
+        onPressed: () async {
+          if (profile == null) return;
+          Connection.request(profile!);
+        },
       ));
     }
 
@@ -723,8 +729,52 @@ class ChatBubble extends StatelessWidget {
   }
 }
 
-void main() {
-  runApp(const MaterialApp(
-    home: ChatPage(),
-  ));
+class ActionIconButton extends StatefulWidget {
+  final IconData icon;
+
+  final Future<void> Function()? onPressed;
+  final Color? color;
+
+  const ActionIconButton({
+    required this.icon,
+    this.onPressed,
+    this.color,
+    super.key,
+  });
+
+  @override
+  State<ActionIconButton> createState() => _ActionIconButtonState();
+}
+
+class _ActionIconButtonState extends State<ActionIconButton> {
+  bool isActive = true;
+
+  void _onPress() {
+    final fun = widget.onPressed;
+    if (!isActive || fun == null) return;
+
+    setState(() {
+      isActive = false;
+    });
+
+    fun().then((_) {
+      setState(() {
+        isActive = true;
+      });
+    }).catchError((e) {
+      setState(() {
+        isActive = true;
+      });
+      throw e;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(widget.icon),
+      color: widget.color,
+      onPressed: isActive ? _onPress : null,
+    );
+  }
 }
