@@ -217,8 +217,11 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
           ),
           Expanded(
             child: Column(
-              children:
-                  results.map((res) => ProfileCard(profile: res)).toList(),
+              children: results
+                  .map(
+                    (res) => ProfileCard(profileFut: Future.value(res)),
+                  )
+                  .toList(),
             ),
           )
         ],
@@ -283,7 +286,7 @@ class _ExpertsPageState extends State<ExpertsPage> {
                     conn.confirmed,
               ),
             )
-            .map((profile) => ProfileCard(profile: profile))
+            .map((profile) => ProfileCard(profileFut: Future.value(profile)))
             .toList(),
       );
     }
@@ -300,34 +303,26 @@ class _ExpertsPageState extends State<ExpertsPage> {
 }
 
 class ProfileCard extends StatefulWidget {
-  final Profile? profile;
-  final Future<Profile?>? profileFut;
+  final Future<Profile?> profileFut;
 
-  const ProfileCard({this.profile, this.profileFut, super.key});
+  const ProfileCard({required this.profileFut, super.key});
 
   @override
   State<StatefulWidget> createState() => ProfileCardState();
 }
 
 class ProfileCardState extends State<ProfileCard> {
-  Profile? fetchedProfile;
+  Profile? profile;
 
   @override
   void initState() {
     super.initState();
 
-    final fut = widget.profileFut;
-    if (fut != null) {
-      fut.then((p) {
-        setState(() {
-          fetchedProfile = p;
-        });
+    widget.profileFut.then((p) {
+      setState(() {
+        profile = p;
       });
-    }
-  }
-
-  Profile? get profile {
-    return fetchedProfile ?? widget.profile;
+    });
   }
 
   Connection? get connection {
@@ -397,9 +392,7 @@ class ProfileCardState extends State<ProfileCard> {
     // On user long press action
     late final void Function() onHold;
     if (isExistingChat) {
-      onHold = () {
-        log("Delete connection");
-      };
+      onHold = _showDisconnectConfirmDialog;
     } else {
       onHold = () {};
     }
@@ -433,6 +426,11 @@ class ProfileCardState extends State<ProfileCard> {
         onPressed: () async {
           if (profile == null) return;
           await Connection.request(profile!);
+          if (!context.mounted) return;
+          Navigator.of(context).pop();
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => ChatScreen(profile!)),
+          );
         },
       ));
     } else if (!isExistingChat) {
@@ -441,7 +439,9 @@ class ProfileCardState extends State<ProfileCard> {
         icon: Icons.add,
         onPressed: () async {
           if (profile == null) return;
-          Connection.request(profile!);
+          await Connection.request(profile!);
+          if (!context.mounted) return;
+          Navigator.of(context).pop();
         },
       ));
     }
@@ -463,6 +463,38 @@ class ProfileCardState extends State<ProfileCard> {
       ),
       onTap: onTap,
       onLongPress: onHold,
+    );
+  }
+
+  _showDisconnectConfirmDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Delete account?"),
+          content: Text(
+            "Are you sure you wish to disconnect from ${profile?.name}?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                connection?.deny().then((_) {
+                  Navigator.of(context).pushReplacement(
+                    MaterialPageRoute(builder: (_) => const ChatPage()),
+                  );
+                });
+              },
+              child: const Text("Yes, disconnect"),
+            ),
+          ],
+        );
+      },
     );
   }
 }

@@ -1,6 +1,7 @@
 import 'dart:developer';
 
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/backend/messages.dart';
 import 'package:mindfulstudent/main.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -87,6 +88,10 @@ class ChatProvider with ChangeNotifier {
     } on StateError {
       _connections.add(connection);
     }
+
+    // Pre-cache profiles
+    Profile.get(connection.fromId);
+    Profile.get(connection.toId);
 
     if (connection.confirmed) {
       final other =

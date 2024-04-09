@@ -43,9 +43,6 @@ class Connection {
     final Profile? me = profileProvider.userProfile;
     if (me == null) throw Exception("Not logged in yet!");
 
-    // Already done I guess?
-    if (confirmed) return;
-
     await supabase
         .from("connections")
         .delete()
