@@ -66,6 +66,37 @@ class ChatProvider with ChangeNotifier {
             })
         .subscribe();
 
+    supabase
+        .channel('public:reactions')
+        .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: 'reactions',
+            callback: (payload) {
+              log(payload.toString());
+
+              switch (payload.eventType) {
+                case PostgresChangeEvent.insert:
+                case PostgresChangeEvent.update:
+                  _addReaction(
+                    payload.newRecord["messageId"],
+                    payload.newRecord["author"],
+                    payload.newRecord["reaction"],
+                  );
+                  break;
+                case PostgresChangeEvent.delete:
+                  _removeReaction(
+                    payload.oldRecord["messageId"],
+                    payload.oldRecord["author"],
+                    payload.oldRecord["reaction"],
+                  );
+                  break;
+                case PostgresChangeEvent.all:
+                  break;
+              }
+            })
+        .subscribe();
+
     log("Listening for message updates");
 
     backFill().catchError((e) {
@@ -160,6 +191,41 @@ class ChatProvider with ChangeNotifier {
     notifyListeners();
   }
 
+  void _addReaction(String messageId, String authorId, String reaction) {
+    Message? msg;
+    for (final chat in _chats) {
+      try {
+        msg = chat.messages.firstWhere((msg) => msg.id == messageId);
+      } on StateError {
+        // continue
+      }
+    }
+
+    if (msg == null) return;
+
+    msg.reactions.putIfAbsent(reaction, () => {});
+    msg.reactions[reaction]?.add(authorId);
+
+    notifyListeners();
+  }
+
+  void _removeReaction(String messageId, String authorId, String reaction) {
+    Message? msg;
+    for (final chat in _chats) {
+      try {
+        msg = chat.messages.firstWhere((msg) => msg.id == messageId);
+      } on StateError {
+        // continue
+      }
+    }
+
+    if (msg == null) return;
+
+    msg.reactions[reaction]?.remove(authorId);
+
+    notifyListeners();
+  }
+
   Future<void> backFill({List<Chat>? chats}) {
     chats ??= _chats;
 
@@ -170,8 +236,19 @@ class ChatProvider with ChangeNotifier {
             .select()
             .or("from.eq.${chat.otherId},to.eq.${chat.otherId}")
             .limit(50)
-            .then((data) =>
-                data.forEach((row) => addMessage(Message.fromRowData(row)))),
+            .then(
+          (data) {
+            for (final row in data) {
+              final msg = Message.fromRowData(row);
+              // TODO: this is incredibly wasteful, we do NOT want to make a new network request for each message.
+              // Solution: adjust query to fetch reactions as well.
+              msg.fetchReactions().then((_) {
+                notifyListeners();
+              });
+              addMessage(msg);
+            }
+          },
+        ),
       ),
     );
   }

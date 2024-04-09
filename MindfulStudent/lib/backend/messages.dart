@@ -79,8 +79,9 @@ class Message {
   final DateTime sentAt;
   final String content;
 
-  const Message(
-      this.id, this.authorId, this.recipientId, this.sentAt, this.content);
+  final Map<String, Set<String>> reactions = {};
+
+  Message(this.id, this.authorId, this.recipientId, this.sentAt, this.content);
 
   static Message fromRowData(Map<String, dynamic> row) {
     final String id = row["id"];
@@ -100,6 +101,44 @@ class Message {
 
   Future<void> delete() async {
     await supabase.from("messages").delete().eq("id", id);
+  }
+
+  Future<void> addReaction(String reaction) async {
+    final Profile? me = profileProvider.userProfile;
+    if (me == null) throw Exception("Not logged in yet!");
+
+    await supabase
+        .from("reactions")
+        .insert({"messageId": id, "author": me.id, "reaction": reaction});
+  }
+
+  Future<void> removeReaction(String reaction) async {
+    final Profile? me = profileProvider.userProfile;
+    if (me == null) throw Exception("Not logged in yet!");
+
+    await supabase
+        .from("reactions")
+        .delete()
+        .eq("messageId", id)
+        .eq("author", me.id)
+        .eq("reaction", reaction);
+  }
+
+  Future<void> fetchReactions() async {
+    late final List<Map<String, dynamic>> data;
+    try {
+      data = await supabase.from("reactions").select().eq("messageId", id);
+    } catch (e) {
+      log("Reaction fetch error: $e");
+      return;
+    }
+    for (final row in data) {
+      final String authorId = row["author"];
+      final String reaction = row["reaction"];
+
+      reactions.putIfAbsent(reaction, () => {});
+      reactions[reaction]?.add(authorId);
+    }
   }
 }
 

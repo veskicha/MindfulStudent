@@ -564,18 +564,25 @@ class ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void _onMessageDeletePress() {
-    Future.wait(selectedMessages.map((msg) => msg.delete())).then((_) {
+  Future<void> _onMessageDeletePress() async {
+    try {
+      await Future.wait(selectedMessages.map((msg) => msg.delete()));
       setState(() {
         selectedMessages = [];
       });
-    }).catchError((e) {
-      showError(
-        context,
-        "Delete error",
-        description: e.toString(),
-      );
-    });
+    } catch (e) {
+      setState(() {
+        selectedMessages = [];
+      });
+
+      if (context.mounted) {
+        showError(
+          context,
+          "Delete error",
+          description: e.toString(),
+        );
+      }
+    }
   }
 
   void _onMessageTap(Message msg) {
@@ -610,29 +617,54 @@ class ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final List<ActionIconButton> actions = [];
+    if (selectedMessages.length == 1) {
+      // emoji button
+      actions.add(
+        ActionIconButton(
+          icon: Icons.mood,
+          onPressed: () async {
+            // TODO: emoji selection screen?
+            // Note: requires backend support (emoji needs to be allow-listed)
+            const String emoji = "RED_HEART";
+
+            final reactions = selectedMessages[0].reactions[emoji];
+            if ((reactions ?? {}).contains(profileProvider.userProfile?.id)) {
+              // We already reacted, so remove it i guess
+              await selectedMessages[0].removeReaction("RED_HEART");
+            } else {
+              // Add new reaction
+              await selectedMessages[0].addReaction("RED_HEART");
+            }
+            setState(() {
+              selectedMessages = [];
+            });
+          },
+        ),
+      );
+    }
+    if (selectedMessages.isNotEmpty &&
+        selectedMessages.every((msg) => msg.isSentByMe)) {
+      actions.add(ActionIconButton(
+        icon: Icons.delete_outline,
+        onPressed: _onMessageDeletePress,
+      ));
+    }
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF497077),
-        foregroundColor: Colors.white,
-        title: Row(
-          children: [
-            ProfilePicture(profile: widget.profile),
-            const SizedBox(width: 10.0),
-            Expanded(
-              child: Text(widget.profile.name ?? "Unknown"),
-            )
-          ],
-        ),
-        actions: selectedMessages.isEmpty ||
-                selectedMessages.any((msg) => !msg.isSentByMe)
-            ? null
-            : [
-                IconButton(
-                  icon: const Icon(Icons.delete_outline),
-                  onPressed: _onMessageDeletePress,
-                ),
-              ],
-      ),
+          backgroundColor: const Color(0xFF497077),
+          foregroundColor: Colors.white,
+          title: Row(
+            children: [
+              ProfilePicture(profile: widget.profile),
+              const SizedBox(width: 10.0),
+              Expanded(
+                child: Text(widget.profile.name ?? "Unknown"),
+              )
+            ],
+          ),
+          actions: actions),
       body: Column(
         children: [
           Expanded(
@@ -794,7 +826,7 @@ class _ActionIconButtonState extends State<ActionIconButton> {
       setState(() {
         isActive = true;
       });
-      throw e;
+      log(e.toString());
     });
   }
 
