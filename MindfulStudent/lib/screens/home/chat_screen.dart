@@ -1,5 +1,6 @@
 import 'dart:developer';
 
+import 'package:async/async.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:mindfulstudent/backend/auth.dart';
@@ -8,7 +9,6 @@ import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/provider/chat_provider.dart';
 import 'package:mindfulstudent/util.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
-import 'package:mindfulstudent/widgets/header_bar.dart';
 import 'package:mindfulstudent/widgets/profile_img.dart';
 import 'package:provider/provider.dart';
 
@@ -31,22 +31,183 @@ class ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: const Size.fromHeight(80.0),
-        child: HeaderBar(
-          'Chats',
-          actionIcon: const Icon(Icons.search),
-          onActionPressed: () {},
-        ),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF497077),
+        foregroundColor: Colors.white,
+        title: const Text("Chats"),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.psychology),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ExpertsPage()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.link),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ConnectionsPage()),
+              );
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.add),
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const AddFriendsPage()),
+              );
+            },
+          ),
+        ],
+      ),
+      body: Consumer<ChatProvider>(
+        builder: (context, chatProvider, child) {
+          return ListView(
+            children: chatProvider.chats
+                .map((chat) => ProfileCard(profileFut: chat.getProfile()))
+                .toList(),
+          );
+        },
+      ),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
+      ),
+    );
+  }
+}
+
+class ConnectionsPage extends StatelessWidget {
+  const ConnectionsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF497077),
+        foregroundColor: Colors.white,
+        title: const Text("Connection Requests"),
+      ),
+      body: Consumer<ChatProvider>(
+        builder: (context, chatProvider, child) {
+          final me = profileProvider.userProfile?.id;
+
+          final connections = chatProvider.connections;
+          final incoming =
+              connections.where((conn) => conn.toId == me && !conn.confirmed);
+          final outgoing =
+              connections.where((conn) => conn.fromId == me && !conn.confirmed);
+
+          final List<Widget> page = [];
+          if (incoming.isNotEmpty) {
+            page.addAll([
+              const Text("Incoming requests"),
+              ...incoming.map(
+                (conn) => ProfileCard(
+                  profileFut: Profile.get(conn.fromId),
+                ),
+              )
+            ]);
+          }
+          if (outgoing.isNotEmpty) {
+            page.addAll([
+              const Text("Outgoing requests"),
+              ...outgoing.map(
+                (conn) => ProfileCard(
+                  profileFut: Profile.get(conn.toId),
+                ),
+              )
+            ]);
+          }
+
+          if (page.isEmpty) {
+            return const Text("No connection requests!");
+          }
+
+          return Column(children: page);
+        },
+      ),
+    );
+  }
+}
+
+class AddFriendsPage extends StatefulWidget {
+  const AddFriendsPage({super.key});
+
+  @override
+  State<AddFriendsPage> createState() => _AddFriendsPageState();
+}
+
+class _AddFriendsPageState extends State<AddFriendsPage> {
+  final TextEditingController _controller = TextEditingController();
+  CancelableOperation? _searchOp;
+
+  List<Profile> results = [];
+
+  @override
+  void initState() {
+    super.initState();
+
+    _controller.addListener(_onSearchModify);
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+
+    _controller.removeListener(_onSearchModify);
+    _controller.dispose();
+
+    _searchOp?.cancel();
+  }
+
+  void _onSearchModify() {
+    final text = _controller.text;
+
+    if (text.isEmpty) {
+      _searchOp?.cancel();
+      setState(() {
+        results = [];
+      });
+
+      return;
+    }
+
+    _searchOp?.cancel();
+    _searchOp = CancelableOperation.fromFuture(Profile.find(text));
+    _searchOp?.then((res) {
+      final Set<String> bannedIds = {profileProvider.userProfile?.id ?? ""};
+      for (final conn in chatProvider.connections) {
+        bannedIds.addAll([conn.fromId, conn.toId]);
+      }
+
+      log(res.map((p) => p.name).toList().toString());
+
+      setState(() {
+        results =
+            res.where((profile) => !bannedIds.contains(profile.id)).toList();
+      });
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF497077),
+        foregroundColor: Colors.white,
+        title: const Text("Add Friends"),
       ),
       body: Column(
         children: [
-          // Search Bar
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: TextField(
+              controller: _controller,
               decoration: InputDecoration(
-                hintText: 'Search',
+                hintText: 'Search by name',
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(20.0),
@@ -54,24 +215,89 @@ class ChatPageState extends State<ChatPage> {
               ),
             ),
           ),
-          // Recent Chats List
           Expanded(
-            child: Consumer<ChatProvider>(
-              builder: (context, chatProvider, child) {
-                return ListView(
-                  children: chatProvider.chats
-                      .map((chat) => ProfileCard(profileFut: chat.getProfile()))
-                      .toList(),
-                );
-              },
+            child: Column(
+              children: results
+                  .map(
+                    (res) => ProfileCard(profileFut: Future.value(res)),
+                  )
+                  .toList(),
             ),
-          ),
+          )
         ],
       ),
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
+    );
+  }
+}
+
+class ExpertsPage extends StatefulWidget {
+  const ExpertsPage({super.key});
+
+  @override
+  State<ExpertsPage> createState() => _ExpertsPageState();
+}
+
+class _ExpertsPageState extends State<ExpertsPage> {
+  List<Profile>? healthExperts;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Profile.getHealthExperts().then((profiles) {
+      setState(() {
+        healthExperts = profiles;
+      });
+    }).catchError((e) {
+      if (!context.mounted) return;
+
+      showError(
+        context,
+        "Fetch error",
+        description: e.toString(),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<Profile>? accounts = healthExperts
+        ?.where(
+          (profile) => !chatProvider.connections.any(
+            (conn) =>
+                (conn.fromId == profile.id || conn.toId == profile.id) &&
+                conn.confirmed,
+          ),
+        )
+        .toList();
+
+    late final Widget body;
+    if (accounts == null) {
+      body = const Text("Loading...");
+    } else if (accounts.isEmpty) {
+      body = const Text("No mental health experts found!");
+    } else {
+      body = Column(
+        children: healthExperts!
+            .where(
+              (profile) => !chatProvider.connections.any(
+                (conn) =>
+                    (conn.fromId == profile.id || conn.toId == profile.id) &&
+                    conn.confirmed,
+              ),
+            )
+            .map((profile) => ProfileCard(profileFut: Future.value(profile)))
+            .toList(),
+      );
+    }
+
+    return Scaffold(
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF497077),
+        foregroundColor: Colors.white,
+        title: const Text("Mental Health Experts"),
       ),
+      body: body,
     );
   }
 }
@@ -99,19 +325,125 @@ class ProfileCardState extends State<ProfileCard> {
     });
   }
 
+  Connection? get connection {
+    try {
+      return chatProvider.connections.firstWhere(
+        (conn) => conn.fromId == profile?.id || conn.toId == profile?.id,
+      );
+    } on StateError {
+      return null;
+    }
+  }
+
+  bool get isHealthExpert {
+    return profile?.role == "HEALTH_EXPERT";
+  }
+
+  bool get isIncomingRequest {
+    return connection?.fromId == profile?.id &&
+        !(connection?.confirmed ?? false);
+  }
+
+  bool get isOutgoingRequest {
+    return connection?.toId == profile?.id && !(connection?.confirmed ?? false);
+  }
+
+  bool get isExistingChat {
+    return connection?.confirmed ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
     final profileCopy = profile;
 
     final profileName = profileCopy?.name ?? "Unknown";
-    final lastMsg = (profileCopy == null)
-        ? null
-        : chatProvider.getChatWith(profileCopy.id).messages.lastOrNull;
 
-    String lastMsgSenderStr = "";
-    if (lastMsg != null) {
-      lastMsgSenderStr =
-          "${lastMsg.isSentByMe ? "You" : profileName}: ${lastMsg.content}";
+    // Subtitle under username
+    late final String subtitle;
+    if (isExistingChat) {
+      final lastMsg = (profileCopy == null)
+          ? null
+          : chatProvider.getChatWith(profileCopy.id).messages.lastOrNull;
+      if (lastMsg != null) {
+        subtitle =
+            "${lastMsg.isSentByMe ? "You" : profileName}: ${lastMsg.content}";
+      } else {
+        subtitle = "";
+      }
+    } else {
+      subtitle = "";
+    }
+
+    // On user tap action
+    late final void Function() onTap;
+    if (isExistingChat && profileCopy != null) {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatScreen(profileCopy),
+          ),
+        );
+      };
+    } else {
+      onTap = () {};
+    }
+
+    // On user long press action
+    late final void Function() onHold;
+    if (isExistingChat) {
+      onHold = _showDisconnectConfirmDialog;
+    } else {
+      onHold = () {};
+    }
+
+    // Action buttons
+    final List<Widget> buttons = [];
+    if (isIncomingRequest) {
+      // Accept & deny buttons
+      buttons.add(ActionIconButton(
+        icon: Icons.check,
+        color: Colors.green,
+        onPressed: connection?.accept,
+      ));
+      buttons.add(ActionIconButton(
+        icon: Icons.close,
+        color: Colors.red,
+        onPressed: connection?.deny,
+      ));
+    } else if (isOutgoingRequest) {
+      // Deny (cancel) button
+      buttons.add(ActionIconButton(
+        icon: Icons.close,
+        color: Colors.red,
+        onPressed: connection?.deny,
+      ));
+    } else if (isHealthExpert && !isExistingChat) {
+      // Accept immediate button
+      buttons.add(ActionIconButton(
+        icon: Icons.chat,
+        color: Colors.blue,
+        onPressed: () async {
+          if (profile == null) return;
+          await Connection.request(profile!);
+          if (!context.mounted) return;
+          Navigator.of(context).pop();
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => ChatScreen(profile!)),
+          );
+        },
+      ));
+    } else if (!isExistingChat) {
+      // Request button
+      buttons.add(ActionIconButton(
+        icon: Icons.add,
+        onPressed: () async {
+          if (profile == null) return;
+          await Connection.request(profile!);
+          if (!context.mounted) return;
+          Navigator.of(context).pop();
+        },
+      ));
     }
 
     return ListTile(
@@ -120,21 +452,46 @@ class ProfileCardState extends State<ProfileCard> {
       ),
       title: Text(profileName),
       subtitle: Text(
-        lastMsgSenderStr,
+        subtitle,
         maxLines: 1,
         overflow: TextOverflow.fade,
         softWrap: false,
       ),
-      onTap: profileCopy == null
-          ? null
-          : () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatScreen(profileCopy),
-                ),
-              );
-            },
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: buttons,
+      ),
+      onTap: onTap,
+      onLongPress: onHold,
+    );
+  }
+
+  _showDisconnectConfirmDialog() {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Disconnect?"),
+          content: Text(
+            "Are you sure you wish to disconnect from ${profile?.name}?",
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+              child: const Text("Cancel"),
+            ),
+            TextButton(
+              onPressed: () {
+                connection?.deny();
+                Navigator.of(context).pop();
+              },
+              child: const Text("Yes, disconnect"),
+            ),
+          ],
+        );
+      },
     );
   }
 }
@@ -207,18 +564,25 @@ class ChatScreenState extends State<ChatScreen> {
     });
   }
 
-  void _onMessageDeletePress() {
-    Future.wait(selectedMessages.map((msg) => msg.delete())).then((_) {
+  Future<void> _onMessageDeletePress() async {
+    try {
+      await Future.wait(selectedMessages.map((msg) => msg.delete()));
       setState(() {
         selectedMessages = [];
       });
-    }).catchError((e) {
-      showError(
-        context,
-        "Delete error",
-        description: e.toString(),
-      );
-    });
+    } catch (e) {
+      setState(() {
+        selectedMessages = [];
+      });
+
+      if (context.mounted) {
+        showError(
+          context,
+          "Delete error",
+          description: e.toString(),
+        );
+      }
+    }
   }
 
   void _onMessageTap(Message msg) {
@@ -253,32 +617,54 @@ class ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final List<ActionIconButton> actions = [];
+    if (selectedMessages.length == 1) {
+      // emoji button
+      actions.add(
+        ActionIconButton(
+          icon: Icons.mood,
+          onPressed: () async {
+            // TODO: emoji selection screen?
+            // Note: requires backend support (emoji needs to be allow-listed)
+            const String emoji = "RED_HEART";
+
+            final reactions = selectedMessages[0].reactions[emoji];
+            if ((reactions ?? {}).contains(profileProvider.userProfile?.id)) {
+              // We already reacted, so remove it i guess
+              await selectedMessages[0].removeReaction("RED_HEART");
+            } else {
+              // Add new reaction
+              await selectedMessages[0].addReaction("RED_HEART");
+            }
+            setState(() {
+              selectedMessages = [];
+            });
+          },
+        ),
+      );
+    }
+    if (selectedMessages.isNotEmpty &&
+        selectedMessages.every((msg) => msg.isSentByMe)) {
+      actions.add(ActionIconButton(
+        icon: Icons.delete_outline,
+        onPressed: _onMessageDeletePress,
+      ));
+    }
+
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color(0xFF497077),
-        foregroundColor: Colors.white,
-        title: Row(
-          children: [
-            ProfilePicture(profile: widget.profile),
-            const SizedBox(width: 10.0),
-            Expanded(
-              child: Text(widget.profile.name ?? "Unknown"),
-            )
-          ],
-        ),
-        actions: selectedMessages.isEmpty ||
-                selectedMessages.any((msg) => !msg.isSentByMe)
-            ? null
-            : [
-                Padding(
-                  padding: const EdgeInsets.only(top: 20.0),
-                  child: IconButton(
-                    icon: const Icon(Icons.delete_outline),
-                    onPressed: _onMessageDeletePress,
-                  ),
-                ),
-              ],
-      ),
+          backgroundColor: const Color(0xFF497077),
+          foregroundColor: Colors.white,
+          title: Row(
+            children: [
+              ProfilePicture(profile: widget.profile),
+              const SizedBox(width: 10.0),
+              Expanded(
+                child: Text(widget.profile.name ?? "Unknown"),
+              )
+            ],
+          ),
+          actions: actions),
       body: Column(
         children: [
           Expanded(
@@ -362,8 +748,13 @@ class ChatBubble extends StatelessWidget {
       ),
     );
 
-    final timeStr =
-        DateFormat("HH:mm").format(message.sentAt) + isSelected.toString();
+    // TODO: probably better UI, don't throw everything in the text :D
+    String timeStr = DateFormat("HH:mm").format(message.sentAt);
+    timeStr += "\nSelected: $isSelected";
+    timeStr += "\nReactions:";
+    for (final reaction in message.reactions.entries) {
+      timeStr += "\n  - ${reaction.key}: ${reaction.value.length}";
+    }
 
     late final Row row;
     if (message.isSentByMe) {
@@ -389,7 +780,10 @@ class ChatBubble extends StatelessWidget {
           Flexible(child: bubble),
           Padding(
             padding: const EdgeInsets.only(left: 5.0),
-            child: Text(timeStr),
+            child: Text(
+              timeStr,
+              maxLines: 5,
+            ),
           ),
           const SizedBox(width: 40.0),
         ],
@@ -404,8 +798,52 @@ class ChatBubble extends StatelessWidget {
   }
 }
 
-void main() {
-  runApp(const MaterialApp(
-    home: ChatPage(),
-  ));
+class ActionIconButton extends StatefulWidget {
+  final IconData icon;
+
+  final Future<void> Function()? onPressed;
+  final Color? color;
+
+  const ActionIconButton({
+    required this.icon,
+    this.onPressed,
+    this.color,
+    super.key,
+  });
+
+  @override
+  State<ActionIconButton> createState() => _ActionIconButtonState();
+}
+
+class _ActionIconButtonState extends State<ActionIconButton> {
+  bool isActive = true;
+
+  void _onPress() {
+    final fun = widget.onPressed;
+    if (!isActive || fun == null) return;
+
+    setState(() {
+      isActive = false;
+    });
+
+    fun().then((_) {
+      setState(() {
+        isActive = true;
+      });
+    }).catchError((e) {
+      setState(() {
+        isActive = true;
+      });
+      log(e.toString());
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return IconButton(
+      icon: Icon(widget.icon),
+      color: widget.color,
+      onPressed: isActive ? _onPress : null,
+    );
+  }
 }

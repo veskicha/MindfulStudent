@@ -10,12 +10,20 @@ class Connection {
 
   Connection(this.fromId, this.toId, this.confirmed);
 
+  static Connection fromRowData(Map<String, dynamic> row) {
+    final String fromId = row["source"];
+    final String toId = row["target"];
+    final bool isConfirmed = row["isMutual"] ?? false;
+
+    return Connection(fromId, toId, isConfirmed);
+  }
+
   Future<void> accept() async {
     final Profile? me = profileProvider.userProfile;
     if (me == null) throw Exception("Not logged in yet!");
 
     if (me.id != toId) {
-      throw Exception("Cannot accept outgoing connection request");
+      throw Exception("Cannot accept incoming connection request");
     }
 
     // Already done I guess?
@@ -24,32 +32,43 @@ class Connection {
     await supabase
         .from("connections")
         .update({"isMutual": true})
-        .eq("from", fromId)
-        .eq("to", toId);
+        .eq("source", fromId)
+        .eq("target", toId);
 
     confirmed = true;
     return;
   }
 
-  Future<void> request(Profile user) async {
+  Future<void> deny() async {
     final Profile? me = profileProvider.userProfile;
     if (me == null) throw Exception("Not logged in yet!");
 
-    await supabase.from("connections").insert({"from": me.id, "to": user.id});
+    await supabase
+        .from("connections")
+        .delete()
+        .eq("source", fromId)
+        .eq("target", toId);
+
+    confirmed = true;
+    return;
+  }
+
+  static Future<void> request(Profile user) async {
+    final Profile? me = profileProvider.userProfile;
+    if (me == null) throw Exception("Not logged in yet!");
+
+    await supabase.from("connections").insert({
+      "source": me.id,
+      "target": user.id,
+      "isMutual": user.role == "HEALTH_EXPERT"
+    });
   }
 
   static Future<List<Connection>> fetchAll() async {
     log("Fetching all user connections");
     final res = await supabase.from("connections").select();
 
-    final List<Connection> connections = [];
-    for (final connData in res) {
-      final from = connData["source"];
-      final to = connData["target"];
-
-      connections.add(Connection(from, to, connData["isMutual"]));
-    }
-    return connections;
+    return res.map((row) => Connection.fromRowData(row)).toList();
   }
 }
 
@@ -60,8 +79,9 @@ class Message {
   final DateTime sentAt;
   final String content;
 
-  const Message(
-      this.id, this.authorId, this.recipientId, this.sentAt, this.content);
+  final Map<String, Set<String>> reactions = {};
+
+  Message(this.id, this.authorId, this.recipientId, this.sentAt, this.content);
 
   static Message fromRowData(Map<String, dynamic> row) {
     final String id = row["id"];
@@ -81,6 +101,44 @@ class Message {
 
   Future<void> delete() async {
     await supabase.from("messages").delete().eq("id", id);
+  }
+
+  Future<void> addReaction(String reaction) async {
+    final Profile? me = profileProvider.userProfile;
+    if (me == null) throw Exception("Not logged in yet!");
+
+    await supabase
+        .from("reactions")
+        .insert({"messageId": id, "author": me.id, "reaction": reaction});
+  }
+
+  Future<void> removeReaction(String reaction) async {
+    final Profile? me = profileProvider.userProfile;
+    if (me == null) throw Exception("Not logged in yet!");
+
+    await supabase
+        .from("reactions")
+        .delete()
+        .eq("messageId", id)
+        .eq("author", me.id)
+        .eq("reaction", reaction);
+  }
+
+  Future<void> fetchReactions() async {
+    late final List<Map<String, dynamic>> data;
+    try {
+      data = await supabase.from("reactions").select().eq("messageId", id);
+    } catch (e) {
+      log("Reaction fetch error: $e");
+      return;
+    }
+    for (final row in data) {
+      final String authorId = row["author"];
+      final String reaction = row["reaction"];
+
+      reactions.putIfAbsent(reaction, () => {});
+      reactions[reaction]?.add(authorId);
+    }
   }
 }
 

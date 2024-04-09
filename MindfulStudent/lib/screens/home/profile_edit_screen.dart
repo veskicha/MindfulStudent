@@ -102,7 +102,7 @@ class EditProfilePageState extends State<EditProfilePage> {
         id: curProfile.id,
         name: curProfile.name,
         avatarUrl: curProfile.avatarUrl,
-      );
+          role: curProfile.role);
 
       if (_avatarFile != null) {
         log("Uploading new avatar image");
