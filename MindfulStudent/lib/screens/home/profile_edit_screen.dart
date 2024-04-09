@@ -291,7 +291,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                 alignment: Alignment.center,
                 children: [
                   CircleAvatar(
-                    radius: 50,
+                    radius: 60,
                     backgroundImage: getAvatarImage(),
                     backgroundColor: _avatarFile == null && avatarUrl == null
                         ? const Color(0xFFC8D4D6)
@@ -330,7 +330,7 @@ class EditProfilePageState extends State<EditProfilePage> {
                   ),
                 ],
               ),
-              const SizedBox(height: 70),
+              const SizedBox(height: 50),
               const Text(
                 'Name',
                 style: TextStyle(
