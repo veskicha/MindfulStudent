@@ -85,12 +85,51 @@ class ConnectionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          backgroundColor: const Color(0xFF497077),
-          foregroundColor: Colors.white,
-          title: const Text("Pending Connections"),
-        ),
-        body: null);
+      appBar: AppBar(
+        backgroundColor: const Color(0xFF497077),
+        foregroundColor: Colors.white,
+        title: const Text("Connection Requests"),
+      ),
+      body: Consumer<ChatProvider>(
+        builder: (context, chatProvider, child) {
+          final me = profileProvider.userProfile?.id;
+
+          final connections = chatProvider.connections;
+          final incoming =
+              connections.where((conn) => conn.toId == me && !conn.confirmed);
+          final outgoing =
+              connections.where((conn) => conn.fromId == me && !conn.confirmed);
+
+          final List<Widget> page = [];
+          if (incoming.isNotEmpty) {
+            page.addAll([
+              const Text("Incoming requests"),
+              ...incoming.map(
+                (conn) => ProfileCard(
+                  profileFut: Profile.get(conn.fromId),
+                ),
+              )
+            ]);
+          }
+          if (outgoing.isNotEmpty) {
+            page.addAll([
+              const Text("Outgoing requests"),
+              ...outgoing.map(
+                (conn) => ProfileCard(
+                  profileFut: Profile.get(conn.toId),
+                ),
+              )
+            ]);
+          }
+
+          if (page.isEmpty) {
+            return const Text("No connection requests!");
+          }
+
+          return Column(children: page);
+        },
+      ),
+    );
   }
 }
 
@@ -188,18 +227,55 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
   }
 }
 
-class ExpertsPage extends StatelessWidget {
+class ExpertsPage extends StatefulWidget {
   const ExpertsPage({super.key});
 
   @override
+  State<ExpertsPage> createState() => _ExpertsPageState();
+}
+
+class _ExpertsPageState extends State<ExpertsPage> {
+  List<Profile>? healthExperts;
+
+  @override
+  void initState() {
+    super.initState();
+
+    Profile.getHealthExperts().then((profiles) {
+      setState(() {
+        healthExperts = profiles;
+      });
+    }).catchError((e) {
+      if (!context.mounted) return;
+
+      showError(
+        context,
+        "Fetch error",
+        description: e.toString(),
+      );
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
+    late final Widget body;
+    if (healthExperts == null) {
+      body = const Text("Loading...");
+    } else {
+      body = Column(
+        children: healthExperts!
+            .map((profile) => ProfileCard(profile: profile))
+            .toList(),
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: const Color(0xFF497077),
         foregroundColor: Colors.white,
         title: const Text("Mental Health Experts"),
       ),
-      body: null,
+      body: body,
     );
   }
 }
