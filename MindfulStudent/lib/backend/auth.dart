@@ -11,10 +11,16 @@ class Profile {
   final String id;
   String? name;
   String? avatarUrl;
+  String role;
 
   static final Map<String, Profile> _cache = {};
 
-  Profile({required this.id, required this.name, required this.avatarUrl});
+  Profile({
+    required this.id,
+    required this.name,
+    required this.avatarUrl,
+    required this.role,
+  });
 
   @override
   String toString() {
@@ -32,8 +38,13 @@ class Profile {
   }
 
   static Profile fromRowData(Map<String, dynamic> row) {
+    log(row.toString());
     return Profile(
-        id: row["id"], name: row["name"], avatarUrl: row["avatarUrl"]);
+      id: row["id"],
+      name: row["name"],
+      avatarUrl: row["avatarUrl"],
+      role: row["role"],
+    );
   }
 
   static Future<Profile?> get(String id) async {
@@ -64,7 +75,7 @@ class Profile {
     try {
       data = await supabase
           .from("profiles")
-          .select()
+          .select("id, name, avatarUrl, role")
           .neq("role", "HEALTH_EXPERT")
           .ilike("name", "%$name%");
     } catch (e) {
@@ -78,8 +89,10 @@ class Profile {
   static Future<List<Profile>> getHealthExperts() async {
     late final List<Map<String, dynamic>> data;
     try {
-      data =
-          await supabase.from("profiles").select().eq("role", "HEALTH_EXPERT");
+      data = await supabase
+          .from("profiles")
+          .select("id, name, avatarUrl, role")
+          .eq("role", "HEALTH_EXPERT");
     } catch (e) {
       log(e.toString());
       data = [];

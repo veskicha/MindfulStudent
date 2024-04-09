@@ -258,12 +258,31 @@ class _ExpertsPageState extends State<ExpertsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Profile>? accounts = healthExperts
+        ?.where(
+          (profile) => !chatProvider.connections.any(
+            (conn) =>
+                (conn.fromId == profile.id || conn.toId == profile.id) &&
+                conn.confirmed,
+          ),
+        )
+        .toList();
+
     late final Widget body;
-    if (healthExperts == null) {
+    if (accounts == null) {
       body = const Text("Loading...");
+    } else if (accounts.isEmpty) {
+      body = const Text("No mental health experts found!");
     } else {
       body = Column(
         children: healthExperts!
+            .where(
+              (profile) => !chatProvider.connections.any(
+                (conn) =>
+                    (conn.fromId == profile.id || conn.toId == profile.id) &&
+                    conn.confirmed,
+              ),
+            )
             .map((profile) => ProfileCard(profile: profile))
             .toList(),
       );
@@ -291,7 +310,7 @@ class ProfileCard extends StatefulWidget {
 }
 
 class ProfileCardState extends State<ProfileCard> {
-  Profile? profile;
+  Profile? fetchedProfile;
 
   @override
   void initState() {
@@ -301,25 +320,124 @@ class ProfileCardState extends State<ProfileCard> {
     if (fut != null) {
       fut.then((p) {
         setState(() {
-          profile = p;
+          fetchedProfile = p;
         });
       });
     }
   }
 
+  Profile? get profile {
+    return fetchedProfile ?? widget.profile;
+  }
+
+  Connection? get connection {
+    try {
+      return chatProvider.connections.firstWhere(
+        (conn) => conn.fromId == profile?.id || conn.toId == profile?.id,
+      );
+    } on StateError {
+      return null;
+    }
+  }
+
+  bool get isHealthExpert {
+    return profile?.role == "HEALTH_EXPERT";
+  }
+
+  bool get isIncomingRequest {
+    return connection?.fromId == profile?.id &&
+        !(connection?.confirmed ?? false);
+  }
+
+  bool get isOutgoingRequest {
+    return connection?.toId == profile?.id && !(connection?.confirmed ?? false);
+  }
+
+  bool get isExistingChat {
+    return connection?.confirmed ?? false;
+  }
+
   @override
   Widget build(BuildContext context) {
-    final profileCopy = profile ?? widget.profile;
+    final profileCopy = profile;
 
     final profileName = profileCopy?.name ?? "Unknown";
-    final lastMsg = (profileCopy == null)
-        ? null
-        : chatProvider.getChatWith(profileCopy.id).messages.lastOrNull;
 
-    String lastMsgSenderStr = "";
-    if (lastMsg != null) {
-      lastMsgSenderStr =
-          "${lastMsg.isSentByMe ? "You" : profileName}: ${lastMsg.content}";
+    // Subtitle under username
+    late final String subtitle;
+    if (isExistingChat) {
+      final lastMsg = (profileCopy == null)
+          ? null
+          : chatProvider.getChatWith(profileCopy.id).messages.lastOrNull;
+      if (lastMsg != null) {
+        subtitle =
+            "${lastMsg.isSentByMe ? "You" : profileName}: ${lastMsg.content}";
+      } else {
+        subtitle = "";
+      }
+    } else {
+      subtitle = "";
+    }
+
+    // On user tap action
+    late final void Function() onTap;
+    if (isExistingChat && profileCopy != null) {
+      onTap = () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatScreen(profileCopy),
+          ),
+        );
+      };
+    } else {
+      onTap = () {};
+    }
+
+    // On user long press action
+    late final void Function() onHold;
+    if (isExistingChat) {
+      onHold = () {
+        log("Delete connection");
+      };
+    } else {
+      onHold = () {};
+    }
+
+    // Action buttons
+    final List<Widget> buttons = [];
+    if (isIncomingRequest) {
+      // Accept & deny buttons
+      buttons.add(IconButton(
+        icon: const Icon(Icons.check),
+        color: Colors.green,
+        onPressed: () {},
+      ));
+      buttons.add(IconButton(
+        icon: const Icon(Icons.close),
+        color: Colors.red,
+        onPressed: () {},
+      ));
+    } else if (isOutgoingRequest) {
+      // Deny (cancel) button
+      buttons.add(IconButton(
+        icon: const Icon(Icons.close),
+        color: Colors.red,
+        onPressed: () {},
+      ));
+    } else if (isHealthExpert && !isExistingChat) {
+      // Accept immediate button
+      buttons.add(IconButton(
+        icon: const Icon(Icons.chat),
+        color: Colors.blue,
+        onPressed: () {},
+      ));
+    } else if (!isExistingChat) {
+      // Accept immediate button
+      buttons.add(IconButton(
+        icon: const Icon(Icons.add),
+        onPressed: () {},
+      ));
     }
 
     return ListTile(
@@ -328,21 +446,17 @@ class ProfileCardState extends State<ProfileCard> {
       ),
       title: Text(profileName),
       subtitle: Text(
-        lastMsgSenderStr,
+        subtitle,
         maxLines: 1,
         overflow: TextOverflow.fade,
         softWrap: false,
       ),
-      onTap: profileCopy == null
-          ? null
-          : () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => ChatScreen(profileCopy),
-                ),
-              );
-            },
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: buttons,
+      ),
+      onTap: onTap,
+      onLongPress: onHold,
     );
   }
 }
