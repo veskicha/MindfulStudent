@@ -471,7 +471,7 @@ class ProfileCardState extends State<ProfileCard> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text("Delete account?"),
+          title: const Text("Disconnect?"),
           content: Text(
             "Are you sure you wish to disconnect from ${profile?.name}?",
           ),
@@ -748,8 +748,13 @@ class ChatBubble extends StatelessWidget {
       ),
     );
 
-    final timeStr =
-        DateFormat("HH:mm").format(message.sentAt) + isSelected.toString();
+    // TODO: probably better UI, don't throw everything in the text :D
+    String timeStr = DateFormat("HH:mm").format(message.sentAt);
+    timeStr += "\nSelected: $isSelected";
+    timeStr += "\nReactions:";
+    for (final reaction in message.reactions.entries) {
+      timeStr += "\n  - ${reaction.key}: ${reaction.value.length}";
+    }
 
     late final Row row;
     if (message.isSentByMe) {
@@ -775,7 +780,10 @@ class ChatBubble extends StatelessWidget {
           Flexible(child: bubble),
           Padding(
             padding: const EdgeInsets.only(left: 5.0),
-            child: Text(timeStr),
+            child: Text(
+              timeStr,
+              maxLines: 5,
+            ),
           ),
           const SizedBox(width: 40.0),
         ],

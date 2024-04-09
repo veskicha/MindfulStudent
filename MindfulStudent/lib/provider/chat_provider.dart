@@ -222,6 +222,9 @@ class ChatProvider with ChangeNotifier {
     if (msg == null) return;
 
     msg.reactions[reaction]?.remove(authorId);
+    if (msg.reactions[reaction]?.isEmpty ?? false) {
+      msg.reactions.remove(reaction);
+    }
 
     notifyListeners();
   }
