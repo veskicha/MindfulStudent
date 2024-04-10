@@ -404,25 +404,11 @@ class HomeScreenState extends State<HomeScreen> {
                         },
                       ),
                       FeatureBlock(
-                        title: 'Goals',
-                        imagePath: 'assets/Goals.png',
-                        onTap: () {
-                          // Handle navigation to Goals page
-                        },
-                      ),
-                      FeatureBlock(
                         title: 'Breathing\nExercise',
                         imagePath: 'assets/Goals.png',
                         onTap: () {
                           Navigator.pushReplacementNamed(context, '/breath');
                           // Handle navigation to Breathing excercise page
-                        },
-                      ),
-                      FeatureBlock(
-                        title: 'Books',
-                        imagePath: 'assets/Journal.png',
-                        onTap: () {
-                          // Handle navigation to Books page
                         },
                       ),
                       FeatureBlock(

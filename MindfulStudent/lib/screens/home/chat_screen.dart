@@ -31,45 +31,102 @@ class ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF497077),
-        foregroundColor: Colors.white,
-        title: const Text("Chats"),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.psychology),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ExpertsPage()),
-              );
-            },
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(140), // Adjusted height for extra padding
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
           ),
-          IconButton(
-            icon: const Icon(Icons.link),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const ConnectionsPage()),
-              );
-            },
+          child: AppBar(
+            backgroundColor: const Color(0xFFC8D4D6),
+            centerTitle: true,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Color(0xFF497077)),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(height: 12),
+                Text(
+                  "Chats",
+                  style: TextStyle(
+                    color: Color(0xFF497077),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'Your messages',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(20), // Adjusted for padding
+              child: Padding(
+                padding: const EdgeInsets.only(bottom: 10), // Padding added here
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IconButton(
+                      icon: const Icon(
+                        Icons.psychology,
+                        size: 30,
+                        color: Color(0xFF497077),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const ExpertsPage()),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.link,
+                        size: 30,
+                        color: Color(0xFF497077),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const ConnectionsPage()),
+                        );
+                      },
+                    ),
+                    IconButton(
+                      icon: const Icon(
+                        Icons.add,
+                        size: 30,
+                        color: Color(0xFF497077),
+                      ),
+                      onPressed: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(builder: (_) => const AddFriendsPage()),
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-          IconButton(
-            icon: const Icon(Icons.add),
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(builder: (_) => const AddFriendsPage()),
-              );
-            },
-          ),
-        ],
+        ),
       ),
-      body: Consumer<ChatProvider>(
-        builder: (context, chatProvider, child) {
-          return ListView(
-            children: chatProvider.chats
-                .map((chat) => ProfileCard(profileFut: chat.getProfile()))
-                .toList(),
-          );
-        },
+      body: Padding(
+        padding: const EdgeInsets.only(top: 30),
+        child: Consumer<ChatProvider>(
+          builder: (context, chatProvider, child) {
+            // Rest of your ListView or other body content
+            return ListView(
+              children: chatProvider.chats
+                  .map((chat) => ProfileCard(profileFut: chat.getProfile()))
+                  .toList(),
+            );
+          },
+        ),
       ),
       bottomNavigationBar: BottomNavBar(
         selectedIndex: _selectedIndex,
@@ -85,50 +142,135 @@ class ConnectionsPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF497077),
-        foregroundColor: Colors.white,
-        title: const Text("Connection Requests"),
-      ),
-      body: Consumer<ChatProvider>(
-        builder: (context, chatProvider, child) {
-          final me = profileProvider.userProfile?.id;
-
-          final connections = chatProvider.connections;
-          final incoming =
-              connections.where((conn) => conn.toId == me && !conn.confirmed);
-          final outgoing =
-              connections.where((conn) => conn.fromId == me && !conn.confirmed);
-
-          final List<Widget> page = [];
-          if (incoming.isNotEmpty) {
-            page.addAll([
-              const Text("Incoming requests"),
-              ...incoming.map(
-                (conn) => ProfileCard(
-                  profileFut: Profile.get(conn.fromId),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(100),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+          child: AppBar(
+            backgroundColor: const Color(0xFFC8D4D6),
+            centerTitle: true,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Color(0xFF497077)),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(height: 12),
+                Text(
+                  "Connection Requests",
+                  style: TextStyle(
+                    color: Color(0xFF497077),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-              )
-            ]);
-          }
-          if (outgoing.isNotEmpty) {
-            page.addAll([
-              const Text("Outgoing requests"),
-              ...outgoing.map(
-                (conn) => ProfileCard(
-                  profileFut: Profile.get(conn.toId),
+                Text(
+                  'Manage your connections',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
                 ),
-              )
-            ]);
-          }
-
-          if (page.isEmpty) {
-            return const Text("No connection requests!");
-          }
-
-          return Column(children: page);
-        },
+              ],
+            ),
+          ),
+        ),
       ),
+      body: Padding(
+        padding: const EdgeInsets.only(top: 50),
+        child: Consumer<ChatProvider>(
+          builder: (context, chatProvider, child) {
+            final me = profileProvider.userProfile?.id;
+
+            final connections = chatProvider.connections;
+            final incoming =
+            connections.where((conn) => conn.toId == me && !conn.confirmed);
+            final outgoing =
+            connections.where((conn) => conn.fromId == me && !conn.confirmed);
+
+            final List<Widget> page = [];
+            if (incoming.isNotEmpty) {
+              page.add(
+                const Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        "Incoming requests",
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                            color: Color(0xFF497077)
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Icon(Icons.arrow_back, size: 20, color: Color(0xFF497077)),
+                    ],
+                  ),
+                ),
+              );
+              page.addAll(
+                incoming.map(
+                      (conn) => ProfileCard(
+                    profileFut: Profile.get(conn.fromId),
+                  ),
+                )
+              );
+            }
+
+            if (incoming.isNotEmpty && outgoing.isNotEmpty) {
+              page.add(const SizedBox(height: 50));
+            }
+
+            if (outgoing.isNotEmpty) {
+              page.add(
+                const Center(
+                  child: Column(
+                    children: [
+                      Text(
+                        "Outgoing requests",
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                          color: Color(0xFF497077)
+                        ),
+                      ),
+                      SizedBox(height: 8),
+                      Icon(Icons.arrow_forward, size: 20, color: Color(0xFF497077)),
+                    ],
+                  ),
+                ),
+              );
+              page.addAll(
+                  outgoing.map(
+                        (conn) => ProfileCard(
+                      profileFut: Profile.get(conn.toId),
+                    ),
+                  )
+              );
+            }
+
+            if (page.isEmpty) {
+              return const Center(
+                child: Text(
+                  "No connection requests!",
+                  style: TextStyle(
+                    fontSize: 26,
+                    color: Color(0xFF497077),
+                    fontWeight: FontWeight.bold
+                  ),
+                ),
+              );
+            }
+
+            return ListView(children: page); // Changed to ListView for better scrolling
+          },
+        ),
+      ),
+
+
     );
   }
 }
@@ -195,39 +337,81 @@ class _AddFriendsPageState extends State<AddFriendsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF497077),
-        foregroundColor: Colors.white,
-        title: const Text("Add Friends"),
-      ),
-      body: Column(
-        children: [
-          Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: TextField(
-              controller: _controller,
-              decoration: InputDecoration(
-                hintText: 'Search by name',
-                prefixIcon: const Icon(Icons.search),
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(20.0),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(150),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+          child: AppBar(
+            backgroundColor: const Color(0xFFC8D4D6),
+            centerTitle: true,
+            title: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  "Add Friends",
+                  style: TextStyle(
+                    color: Color(0xFF497077),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'Find new friends here',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(50),
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                child: FractionallySizedBox(
+                  widthFactor: 0.8,
+                  child: TextField(
+                    controller: _controller,
+                    cursorColor: const Color(0xFF497077),
+                    style: const TextStyle(color: Color(0xFF497077)),
+                    decoration: InputDecoration(
+                      filled: true,
+                      fillColor: Colors.white,
+                      hintText: 'Search by name',
+                      hintStyle: TextStyle(color: Colors.grey.withOpacity(0.6)),
+                      prefixIcon: const Icon(Icons.search, color: Color(0xFF497077)),
+                      contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        borderSide: const BorderSide(color: Color(0xFF497077)),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        borderSide: const BorderSide(color: Color(0xFF497077)),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        borderSide: const BorderSide(color: Color(0xFF497077)),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
           ),
-          Expanded(
-            child: Column(
-              children: results
-                  .map(
-                    (res) => ProfileCard(profileFut: Future.value(res)),
-                  )
-                  .toList(),
-            ),
-          )
-        ],
+        ),
+      ),
+      body: Padding(
+        padding: const EdgeInsets.only(top: 50),
+        child: Column(
+          children: results.map((res) => ProfileCard(profileFut: Future.value(res))).toList(),
+        ),
       ),
     );
   }
+
 }
 
 class ExpertsPage extends StatefulWidget {
@@ -273,29 +457,88 @@ class _ExpertsPageState extends State<ExpertsPage> {
 
     late final Widget body;
     if (accounts == null) {
-      body = const Text("Loading...");
+      body = Container(
+        margin: const EdgeInsets.only(top: 50),
+        child: const Center(
+          child: Text(
+            "Loading...",
+            style: TextStyle(
+                color: Color(0xFF497077),
+                fontWeight: FontWeight.bold,
+                fontSize: 22
+            ),
+          ),
+        ),
+      );
     } else if (accounts.isEmpty) {
-      body = const Text("No mental health experts found!");
+      body = Container(
+        margin: const EdgeInsets.only(top: 50),
+        child: const Center(
+          child: Text(
+            "No mental health experts found!",
+            style: TextStyle(
+              color: Color(0xFF497077),
+              fontWeight: FontWeight.bold,
+              fontSize: 22
+            ),
+          ),
+        ),
+      );
     } else {
-      body = Column(
-        children: healthExperts!
-            .where(
-              (profile) => !chatProvider.connections.any(
-                (conn) =>
-                    (conn.fromId == profile.id || conn.toId == profile.id) &&
-                    conn.confirmed,
-              ),
-            )
-            .map((profile) => ProfileCard(profileFut: Future.value(profile)))
-            .toList(),
+      body = Padding(
+        padding: const EdgeInsets.only(top: 50),
+        child: Column(
+          children: healthExperts!
+              .where(
+                (profile) => !chatProvider.connections.any(
+                  (conn) =>
+              (conn.fromId == profile.id || conn.toId == profile.id) &&
+                  conn.confirmed,
+            ),
+          )
+              .map((profile) => ProfileCard(profileFut: Future.value(profile)))
+              .toList(),
+        ),
       );
     }
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: const Color(0xFF497077),
-        foregroundColor: Colors.white,
-        title: const Text("Mental Health Experts"),
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(100),
+        child: ClipRRect(
+          borderRadius: const BorderRadius.only(
+            bottomLeft: Radius.circular(20),
+            bottomRight: Radius.circular(20),
+          ),
+          child: AppBar(
+            backgroundColor: const Color(0xFFC8D4D6),
+            centerTitle: true,
+            leading: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Color(0xFF497077)),
+              onPressed: () => Navigator.of(context).pop(),
+            ),
+            title: const Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(height: 15),
+                Text(
+                  "Mental Health Experts",
+                  style: TextStyle(
+                    color: Color(0xFF497077),
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  'Connect with professionals',
+                  style: TextStyle(
+                    fontSize: 14,
+                    color: Colors.grey,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
       body: body,
     );
@@ -422,7 +665,7 @@ class ProfileCardState extends State<ProfileCard> {
       // Accept immediate button
       buttons.add(ActionIconButton(
         icon: Icons.chat,
-        color: Colors.blue,
+        color: const Color(0xFF497077),
         onPressed: () async {
           if (profile == null) return;
           await Connection.request(profile!);
@@ -437,6 +680,7 @@ class ProfileCardState extends State<ProfileCard> {
       // Request button
       buttons.add(ActionIconButton(
         icon: Icons.add,
+        color: const Color(0xFF497077),
         onPressed: () async {
           if (profile == null) return;
           await Connection.request(profile!);
@@ -450,7 +694,13 @@ class ProfileCardState extends State<ProfileCard> {
       leading: ProfilePicture(
         profile: profileCopy,
       ),
-      title: Text(profileName),
+      title: Text(
+        profileName,
+        style: const TextStyle(
+          color: Color(0xFF497077),
+          fontWeight: FontWeight.bold,
+        ),
+      ),
       subtitle: Text(
         subtitle,
         maxLines: 1,
@@ -652,65 +902,97 @@ class ChatScreenState extends State<ChatScreen> {
     }
 
     return Scaffold(
-      appBar: AppBar(
-          backgroundColor: const Color(0xFF497077),
-          foregroundColor: Colors.white,
+      appBar: PreferredSize(
+        preferredSize: const Size.fromHeight(60),
+        child: AppBar(
+          backgroundColor: const Color(0xFFC8D4D6),
+          foregroundColor: const Color(0xFF497077),
           title: Row(
             children: [
               ProfilePicture(profile: widget.profile),
-              const SizedBox(width: 10.0),
+              const SizedBox(width: 15.0),
               Expanded(
-                child: Text(widget.profile.name ?? "Unknown"),
-              )
-            ],
-          ),
-          actions: actions),
-      body: Column(
-        children: [
-          Expanded(
-            child: Consumer<ChatProvider>(
-              builder: (context, chatProvider, child) {
-                return ListView(
-                  padding: const EdgeInsets.all(8.0),
-                  reverse: true,
-                  children: chat.messages.reversed
-                      .map((msg) => ChatBubble(
-                            msg,
-                            onTap: _onMessageTap,
-                            onHold: _onMessageHold,
-                            isSelected: selectedMessages.contains(msg),
-                          ))
-                      .toList(),
-                );
-              },
-            ),
-          ),
-          Container(
-            padding: const EdgeInsets.all(8.0),
-            color: const Color(0xFFC8D4D6),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: inputController,
-                    decoration: InputDecoration(
-                      hintText: 'Type a message...',
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                      ),
-                    ),
+                child: Text(
+                  widget.profile.name ?? "Unknown",
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
                   ),
                 ),
-                const SizedBox(width: 8.0),
-                IconButton(
-                  icon: const Icon(Icons.send),
-                  onPressed: (!canSend || isSending) ? null : _onSendPressed,
-                ),
-              ],
-            ),
+              ),
+            ],
           ),
-        ],
+          actions: actions,
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(10),
+            child: Container(),
+          ),
+        ),
       ),
+        body: Padding(
+          padding: const EdgeInsets.only(bottom: 20.0, right: 10, left: 10),
+          child: Column(
+            children: [
+              Expanded(
+                child: Consumer<ChatProvider>(
+                  builder: (context, chatProvider, child) {
+                    return ListView(
+                      padding: const EdgeInsets.all(8.0),
+                      reverse: true,
+                      children: chat.messages.reversed
+                          .map((msg) => ChatBubble(
+                        msg,
+                        onTap: _onMessageTap,
+                        onHold: _onMessageHold,
+                        isSelected: selectedMessages.contains(msg),
+                      ))
+                          .toList(),
+                    );
+                  },
+                ),
+              ),
+              Container(
+                padding: const EdgeInsets.all(15.0),
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: inputController,
+                        cursorColor: const Color(0xFF497077),
+                        style: const TextStyle(color: Color(0xFF497077)),
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.white,
+                          hintText: 'Type a message...',
+                          hintStyle: TextStyle(color: Colors.grey.withOpacity(0.6)),
+                          contentPadding: const EdgeInsets.symmetric(vertical: 8.0, horizontal: 10.0),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: const BorderSide(color: Color(0xFFC8D4D6)),
+                          ),
+                          enabledBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: const BorderSide(color: Color(0xFFC8D4D6)),
+                          ),
+                          focusedBorder: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(20.0),
+                            borderSide: const BorderSide(color: Color(0xFFC8D4D6)),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 20.0),
+                    IconButton(
+                      icon: const Icon(Icons.send),
+                      color: const Color(0xFF497077),
+                      onPressed: (!canSend || isSending) ? null : _onSendPressed,
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        )
+
     );
   }
 }
@@ -732,10 +1014,13 @@ class ChatBubble extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // TODO: visually show isSelected property
+    final screenWidth = MediaQuery.of(context).size.width;
+    final bubbleMaxWidth = screenWidth * 0.5;
 
     final bubble = Container(
       margin: const EdgeInsets.symmetric(vertical: 4.0),
       padding: const EdgeInsets.all(8.0),
+      constraints: BoxConstraints(maxWidth: bubbleMaxWidth),
       decoration: BoxDecoration(
         color: message.isSentByMe ? const Color(0xFF497077) : Colors.grey[300],
         borderRadius: BorderRadius.circular(12.0),
@@ -750,23 +1035,26 @@ class ChatBubble extends StatelessWidget {
 
     // TODO: probably better UI, don't throw everything in the text :D
     String timeStr = DateFormat("HH:mm").format(message.sentAt);
-    timeStr += "\nSelected: $isSelected";
-    timeStr += "\nReactions:";
     for (final reaction in message.reactions.entries) {
       timeStr += "\n  - ${reaction.key}: ${reaction.value.length}";
     }
 
     late final Row row;
     if (message.isSentByMe) {
-      // Align right
       row = Row(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
         children: [
           const SizedBox(width: 40.0),
           Padding(
-            padding: const EdgeInsets.only(right: 5.0),
-            child: Text(timeStr),
+            padding: const EdgeInsets.only(right: 6.0),
+            child: Text(
+                timeStr,
+              style: TextStyle(
+                color: Colors.grey[500],
+                fontSize: 11
+              ),
+            ),
           ),
           Flexible(child: bubble),
         ],
@@ -779,10 +1067,14 @@ class ChatBubble extends StatelessWidget {
         children: [
           Flexible(child: bubble),
           Padding(
-            padding: const EdgeInsets.only(left: 5.0),
+            padding: const EdgeInsets.only(left: 7.0),
             child: Text(
               timeStr,
               maxLines: 5,
+              style: TextStyle(
+                  color: Colors.grey[500],
+                  fontSize: 11
+              ),
             ),
           ),
           const SizedBox(width: 40.0),
