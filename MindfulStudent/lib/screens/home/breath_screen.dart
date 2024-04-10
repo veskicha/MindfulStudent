@@ -79,8 +79,7 @@ class CircularTimerPageState extends State<CircularTimerPage> {
 
             if (duration.inSeconds == 0) {
               _counter = 0;
-              return "START";
-
+              return "";
             }
             else if (duration.inSeconds == 1) {
               _counter = 0;
@@ -156,9 +155,7 @@ class CircularTimerPageState extends State<CircularTimerPage> {
           ),
 
           _button(
-
-            title: "Restart",
-
+            title: "Reset",
             onPressed: () => {_controller.reset() , player.pause()},
 
           ),
