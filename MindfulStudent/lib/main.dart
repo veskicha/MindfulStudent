@@ -48,7 +48,7 @@ class MyApp extends StatelessWidget {
           '/sleep': (context) => const SleepTrackingPage(),
           '/profile': (context) => const ProfilePage(),
           '/tasks': (context) => const TaskTrackingPage(),
-          '/breath': (context) => const CircularTimerPage(),
+          '/breath': (context) => const BreathingExercisePage(),
           '/emergency': (context) => const EmergencyContactPage()
         },
       ),
