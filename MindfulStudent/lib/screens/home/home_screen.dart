@@ -19,13 +19,13 @@ class HomeScreen extends StatefulWidget {
 
 class FeatureBlock extends StatelessWidget {
   final String title;
-  final String imagePath;
+  final IconData iconData;  // Changed from imagePath to iconData
   final VoidCallback onTap;
 
   const FeatureBlock({
     super.key,
     required this.title,
-    required this.imagePath,
+    required this.iconData,  // Changed parameter
     required this.onTap,
   });
 
@@ -39,12 +39,9 @@ class FeatureBlock extends StatelessWidget {
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.2),
-              // Shadow color with some opacity
               offset: const Offset(0, 3),
-              // Horizontal and vertical offset of shadow
               blurRadius: 5,
-              // Blur effect
-              spreadRadius: 2, // Spread effect
+              spreadRadius: 2,
             ),
           ],
           borderRadius: BorderRadius.circular(20),
@@ -67,27 +64,30 @@ class FeatureBlock extends StatelessWidget {
                       color: Colors.white,
                       borderRadius: BorderRadius.circular(17),
                     ),
-                    child: Image.asset(
-                      imagePath,
-                      height: 50,
-                      width: 50,
-                      color: const Color(0xFF497077),
-                      filterQuality: FilterQuality.high,
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0), // Adjust padding as needed
+                      child: Icon(
+                        iconData,
+                        size: 27,
+                        color: const Color(0xFF497077),
+                      ),
                     ),
                   ),
+
                   const Padding(
                     padding: EdgeInsets.only(
-                        top: 6.0, left: 0.0, right: 0.0, bottom: 0.0),
+                        top: 8.0, left: 0.0, right: 0.0, bottom: 0.0),
                   ),
                   Text(
                     title,
                     style: const TextStyle(
-                      color: Colors.white, // Text color
-                      fontWeight: FontWeight.bold, // Bold text
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
                       fontSize: 25,
                     ),
                   ),
                 ],
+                
               ),
             ),
           ],
@@ -96,6 +96,7 @@ class FeatureBlock extends StatelessWidget {
     );
   }
 }
+
 
 class HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
@@ -292,7 +293,7 @@ class HomeScreenState extends State<HomeScreen> {
                     children: [
                       FeatureBlock(
                         title: 'Chat',
-                        imagePath: 'assets/Chat.png',
+                        iconData: Icons.chat,
                         onTap: () {
                           Navigator.push(
                               context,
@@ -345,7 +346,7 @@ class HomeScreenState extends State<HomeScreen> {
                       ),
                       FeatureBlock(
                         title: 'Journal',
-                        imagePath: 'assets/Journal.png',
+                        iconData: Icons.book,
                         onTap: () {
                           Navigator.push(
                               context,
@@ -398,14 +399,14 @@ class HomeScreenState extends State<HomeScreen> {
                       ),
                       FeatureBlock(
                         title: 'Sleep',
-                        imagePath: 'assets/Sleep.png',
+                        iconData: Icons.nights_stay,
                         onTap: () {
                           Navigator.pushReplacementNamed(context, '/sleep');
                         },
                       ),
                       FeatureBlock(
                         title: 'Breathing\nExercise',
-                        imagePath: 'assets/Goals.png',
+                        iconData: Icons.air,
                         onTap: () {
                           Navigator.pushReplacementNamed(context, '/breath');
                           // Handle navigation to Breathing excercise page
@@ -413,14 +414,14 @@ class HomeScreenState extends State<HomeScreen> {
                       ),
                       FeatureBlock(
                         title: 'My Tasks',
-                        imagePath: 'assets/Goals.png',
+                        iconData: Icons.task,
                         onTap: () {
                           Navigator.pushReplacementNamed(context, '/tasks');
                         },
                       ),
                       FeatureBlock(
                         title: 'Emergency\nContact',
-                        imagePath: 'assets/Chat.png',
+                        iconData: Icons.contact_emergency,
                         onTap: () {
                           Navigator.pushReplacementNamed(context, '/emergency');
                         },

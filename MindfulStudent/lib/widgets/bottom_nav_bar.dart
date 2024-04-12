@@ -22,10 +22,10 @@ class BottomNavBar extends StatelessWidget {
         Positioned(
           bottom: 15,
           child: Container(
-            width: MediaQuery.of(context).size.width * 0.96,
+            width: MediaQuery.of(context).size.width * 0.94,
             decoration: BoxDecoration(
               color: Colors.transparent,
-              borderRadius: BorderRadius.circular(0), // Rounded corners
+              borderRadius: BorderRadius.circular(0),
               boxShadow: [
                 BoxShadow(
                   color: Colors.black.withOpacity(0.1),
@@ -66,19 +66,19 @@ class BottomNavBar extends StatelessWidget {
                 items: const [
                   BottomNavigationBarItem(
                     icon:
-                        ImageIcon(AssetImage('assets/HomeIcon.png'), size: 24),
+                        ImageIcon(AssetImage('assets/HomeIcon.png'), size: 20),
                     label: 'Home',
                   ),
                   BottomNavigationBarItem(
-                    icon: ImageIcon(AssetImage('assets/Sleep.png'), size: 24),
+                    icon: ImageIcon(AssetImage('assets/Sleep.png'), size: 20),
                     label: 'Sleep',
                   ),
                   BottomNavigationBarItem(
-                    icon: ImageIcon(AssetImage('assets/Chat.png'), size: 24),
+                    icon: ImageIcon(AssetImage('assets/Chat.png'), size: 20),
                     label: 'Chat',
                   ),
                   BottomNavigationBarItem(
-                    icon: ImageIcon(AssetImage('assets/Profile.png'), size: 24),
+                    icon: ImageIcon(AssetImage('assets/Profile.png'), size: 20),
                     label: 'Profile',
                   ),
                 ],

@@ -39,6 +39,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: chatProvider)
       ],
       child: MaterialApp(
+
         navigatorKey: navigatorKey,
         scaffoldMessengerKey: scaffoldMessengerKey,
         home: const SplashScreen(),
@@ -51,6 +52,14 @@ class MyApp extends StatelessWidget {
           '/breath': (context) => const CircularTimerPage(),
           '/emergency': (context) => const EmergencyContactPage()
         },
+        theme: ThemeData(
+          primaryColor: const Color(0xFF497077),
+          textSelectionTheme: TextSelectionThemeData(
+            selectionColor: const Color(0xFF497077).withOpacity(0.3),
+            selectionHandleColor: const Color(0xFF497077),
+            cursorColor: const Color(0xFF497077),
+          ),
+        ),
       ),
     );
   }

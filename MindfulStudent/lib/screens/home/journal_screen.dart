@@ -22,6 +22,18 @@ class JournalScreenState extends State<JournalScreen> {
   bool isTitleEmpty = false;
   bool isContentEmpty = false;
   List<Note> notes = [];
+  IconData? selectedIcon;
+
+
+  final Map<IconData, Color> dayIcons = {
+    Icons.sentiment_very_satisfied: Colors.green,  // Very Happy
+    Icons.sentiment_satisfied: Colors.lightGreen, // Happy
+    Icons.sentiment_neutral: Colors.amber,        // Neutral
+    Icons.sentiment_dissatisfied: Colors.orange,  // Unhappy
+    Icons.sentiment_very_dissatisfied: Colors.red,// Very Unhappy
+  };
+
+
 
   void _onItemTapped(int index) {
     setState(() {
@@ -54,17 +66,71 @@ class JournalScreenState extends State<JournalScreen> {
 
 
 
+  String getMoodString(IconData? icon) {
+    switch (icon) {
+      case Icons.sentiment_very_satisfied:
+        return "Amazing";
+      case Icons.sentiment_satisfied:
+        return "Good";
+      case Icons.sentiment_neutral:
+        return "Moderate";
+      case Icons.sentiment_dissatisfied:
+        return "Bad";
+      case Icons.sentiment_very_dissatisfied:
+        return "Awful";
+      default:
+        return "Not Selected";
+    }
+  }
+
+  IconData getMoodIcon(String mood) {
+    switch (mood) {
+      case "Amazing":
+        return Icons.sentiment_very_satisfied;
+      case "Good":
+        return Icons.sentiment_satisfied;
+      case "Moderate":
+        return Icons.sentiment_neutral;
+      case "Bad":
+        return Icons.sentiment_dissatisfied;
+      case "Awful":
+        return Icons.sentiment_very_dissatisfied;
+      default:
+        return Icons.sentiment_neutral;
+    }
+  }
+
+  Color? getMoodSColor(IconData? icon) {
+    switch (icon) {
+      case Icons.sentiment_very_satisfied:
+        return Colors.green;
+      case Icons.sentiment_satisfied:
+        return Colors.lightGreen;
+      case Icons.sentiment_neutral:
+        return Colors.amber;
+      case Icons.sentiment_dissatisfied:
+        return Colors.orange;
+      case Icons.sentiment_very_dissatisfied:
+        return Colors.red;
+      default:
+        return Colors.grey[300];
+    }
+  }
+
+
+
   void _saveNote() {
     final String title = noteController.text;
     final String content = anotherController.text;
     final DateTime now = DateTime.now();
+    final String mood = getMoodString(selectedIcon);
 
     // Save to local list
     setState(() {
-      notes.add(Note(title,content, now));
+      notes.add(Note(title,content, now, mood));
     });
 
-    _saveNoteToDatabase(title, content, now);
+    _saveNoteToDatabase(title, content, now, mood);
 
     noteController.clear();
     anotherController.clear();
@@ -72,7 +138,7 @@ class JournalScreenState extends State<JournalScreen> {
     Navigator.of(context).pop();
   }
 
-  Future<void> _saveNoteToDatabase(String title, String content, DateTime date) async {
+  Future<void> _saveNoteToDatabase(String title, String content, DateTime date, String mood) async {
     final userId = Auth.user?.id;
     if (userId == null) return;
 
@@ -86,6 +152,7 @@ class JournalScreenState extends State<JournalScreen> {
             'content': content,
             'created_at': formattedDate,
             'user_id': userId,
+            'mood': mood,
           })
           .select();
 
@@ -98,7 +165,7 @@ class JournalScreenState extends State<JournalScreen> {
     bool titleIsEmpty = noteController.text.isEmpty;
     bool contentIsEmpty = anotherController.text.isEmpty;
 
-    if (titleIsEmpty || contentIsEmpty) {
+    if (titleIsEmpty || contentIsEmpty || selectedIcon == null) {
       setState(() {
         isTitleEmpty = titleIsEmpty;
         isContentEmpty = contentIsEmpty;
@@ -125,6 +192,7 @@ class JournalScreenState extends State<JournalScreen> {
             noteData['title'],
             noteData['content'],
             DateTime.parse(noteData['created_at']),
+            noteData['mood'],
           );
         }));
 
@@ -149,32 +217,116 @@ class JournalScreenState extends State<JournalScreen> {
             ),
           ),
           content: Padding(
-            padding: const EdgeInsets.only(top: 40.0),
+            padding: const EdgeInsets.only(top: 40.0, bottom: 20),
             child: SingleChildScrollView(
               child: ListBody(
                 children: <Widget>[
                   Text(note.content),
-                  const SizedBox(height: 30),
                 ],
               ),
+
             ),
+
           ),
 
           actions: <Widget>[
-            TextButton(
-              child: const Text(
-                'Close',
-                style: TextStyle(color: Color(0xFF497077)),
-              ),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.delete, color: Color(0xFF497077), size: 20,),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                    _confirmDelete(note);
+                  },
+                ),
+                TextButton(
+                  child: const Text(
+                    'Close',
+                    style: TextStyle(color: Color(0xFF497077)),
+                  ),
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                ),
+              ],
             ),
           ],
         );
       },
     );
   }
+
+
+  void _confirmDelete(Note note) {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text(
+            "Delete Note",
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF497077),
+            ),
+          ),
+          content: const Text("Are you sure you want to delete this note?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text(
+                "No",
+                style: TextStyle(color: Color(0xFF497077)),
+              ),
+            ),
+            TextButton(
+              onPressed: () {
+                _deleteNoteFromDatabase(note);
+                Navigator.of(context).pop();
+              },
+              child: const Text(
+                "Yes",
+                style: TextStyle(color: Color(0xFF497077), fontWeight: FontWeight.bold),
+              ),
+            ),
+          ],
+          actionsAlignment: MainAxisAlignment.spaceBetween,
+        );
+      },
+    );
+  }
+
+  Future<void> _deleteNoteFromDatabase(Note noteToDelete) async {
+    final userId = Auth.user?.id;
+    if (userId == null) return;
+
+
+    try {
+      await Supabase.instance.client
+          .from('journal')
+          .delete()
+          .match({
+        'title': noteToDelete.title,
+        'content': noteToDelete.content,
+        'user_id': userId,
+        'mood': noteToDelete.mood,
+      })
+          .select();
+
+
+      setState(() {
+        notes.removeWhere((note) => note.isEqual(noteToDelete));
+      });
+
+    } catch (e) {
+      // Handle error
+      print("Error deleting note: $e");
+    }
+  }
+
+
+
+
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(
@@ -225,6 +377,7 @@ class JournalScreenState extends State<JournalScreen> {
           noteData['title'],
           noteData['content'],
           DateTime.parse(noteData['created_at']),
+          noteData['mood'],
         );
       }));
 
@@ -241,96 +394,136 @@ class JournalScreenState extends State<JournalScreen> {
   void _showNoteDialog(BuildContext context) {
 
     double screenWidth = MediaQuery.of(context).size.width;
-    double screenHeight = MediaQuery.of(context).size.height;
 
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text(
-            'Give your thoughts for the day',
-            style: TextStyle(
-              color: Color(0xFF497077),
-              fontSize: 20,
-            ),
-          ),
-          content: SizedBox(
-            width: screenWidth * 0.8,
-            height: screenHeight* 0.4,
-            child: Column(
-              children: [
-                const SizedBox(height: 40),
-                TextFormField(
-                  controller: noteController,
-                  decoration: InputDecoration(
-                    hintText: 'Title',
-                    hintStyle: TextStyle(
-                      color: Colors.grey[500],
-                    ),
-                    enabledBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: isTitleEmpty ? Colors.red : const Color(0xFFC8D4D6),
+        return StatefulBuilder(  // Add StatefulBuilder here
+            builder: (BuildContext context, StateSetter setState) {
+              return AlertDialog(
+                title: const Text(
+                  'Give your thoughts for the day',
+                  style: TextStyle(
+                    color: Color(0xFF497077),
+                    fontSize: 20,
+                  ),
+                ),
+                content: SingleChildScrollView(
+                child: SizedBox(
+                  width: screenWidth * 0.8,
+                  child: Column(
+                    children: [
+                      const SizedBox(height: 40),
+                      TextFormField(
+                        controller: noteController,
+                        cursorColor: const Color(0xFF497077),
+                        style: const TextStyle(color: Color(0xFF497077)),
+                        decoration: InputDecoration(
+                          hintText: 'Title',
+                          hintStyle: TextStyle(
+                            color: Colors.grey[500],
+                          ),
+                          enabledBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: isTitleEmpty ? Colors.red : const Color(0xFFC8D4D6),
+                            ),
+                          ),
+                          focusedBorder: UnderlineInputBorder(
+                            borderSide: BorderSide(
+                                color: isTitleEmpty ? Colors.red : const  Color(0xFFC8D4D6)),
+                          ),
+                        ),
+                        maxLines: null,
                       ),
-                    ),
-                    focusedBorder: UnderlineInputBorder(
-                      borderSide: BorderSide(
-                          color: isTitleEmpty ? Colors.red : const  Color(0xFFC8D4D6)),
-                    ),
+                      const SizedBox(height: 60),
+                      Container(
+                        height: 100,
+                        padding: const EdgeInsets.all(8),
+                        decoration: BoxDecoration(
+                          border: Border.all(color: const Color(0xFFC8D4D6)),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: TextFormField(
+                          controller: anotherController,
+                          cursorColor: const Color(0xFF497077),
+                          style: const TextStyle(color: Color(0xFF497077)),
+                          decoration: InputDecoration(
+                            hintText: 'Enter your thoughts',
+                            border: InputBorder.none,
+                            hintStyle: TextStyle(color: Colors.grey[500]),
+                          ),
+                          keyboardType: TextInputType.multiline,
+                          maxLines: null,
+                        ),
+                      ),
+                      const SizedBox(height: 50),
+                      const Text(
+                        'How was your day?',
+                        style: TextStyle(
+                          color: Color(0xFF497077),
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: dayIcons.entries.map((entry) {
+                          bool isSelected = selectedIcon == entry.key;
+                          return GestureDetector(
+                            onTap: () {
+                              setState(() {
+                                selectedIcon = entry.key;
+                              });
+
+                            },
+                            child: CircleAvatar(
+                              backgroundColor: isSelected ? entry.value : Colors.grey[200],
+                              child: Icon(
+                                entry.key,
+                                color: isSelected ? Colors.white : entry.value,
+                              ),
+                            ),
+                          );
+                        }).toList(),
+                      ),
+                      const SizedBox(height: 30),
+                    ],
                   ),
-                  maxLines: null,
                 ),
-                const SizedBox(height: 60),
-                Container(
-                  height: 100,
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: const Color(0xFFC8D4D6)),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: TextFormField(
-                    controller: anotherController,
-                    decoration: InputDecoration(
-                      hintText: 'Enter your thoughts',
-                      border: InputBorder.none,
-                      hintStyle: TextStyle(color: Colors.grey[500]),
-                    ),
-                    keyboardType: TextInputType.multiline,
-                    maxLines: null,
-                  ),
-                ),
-              ],
-            ),
-          ),
+              ),
 
 
-          actions: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                TextButton(
-                  child: const Text(
-                    'Cancel',
-                    style: TextStyle(color: Color(0xFF497077)),
+                actions: [
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      TextButton(
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(color: Color(0xFF497077)),
+                        ),
+                        onPressed: () {
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                      TextButton(
+                        child: const Text(
+                          'Save',
+                          style: TextStyle(color: Color(0xFF497077)),
+                        ),
+                        onPressed: () {
+                          _handleSave();
+                        },
+                      ),
+                    ],
                   ),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-                TextButton(
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(color: Color(0xFF497077)),
-                  ),
-                  onPressed: () {
-                    _handleSave();
-                  },
-                ),
-              ],
-            ),
-          ],
-        );
-      },
-    );
+                ],
+              );
+            }
+          );
+        },
+      );
   }
 
 
@@ -514,7 +707,7 @@ class JournalScreenState extends State<JournalScreen> {
                         onTap: () => _showNoteDetails(note),
                     child: Card(
                       color: Colors.white,
-                      elevation: 3,
+                      elevation: 2,
                       child: Padding(
                         padding: const EdgeInsets.all(15),
                         child: Column(
@@ -538,16 +731,26 @@ class JournalScreenState extends State<JournalScreen> {
                                 overflow: TextOverflow.fade,
                               ),
                             ),
-                            Align(
-                              alignment: Alignment.bottomRight,
-                              child: Text(
-                                DateFormat('dd-MM-yyyy').format(note.date),
-                                style: TextStyle(
-                                    color: Colors.grey[600],
-                                  fontSize: 12
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                                CircleAvatar(
+                                  radius: 10,
+                                  backgroundColor: getMoodSColor(getMoodIcon(note.mood)),
+                                  child: Icon(
+                                    getMoodIcon(note.mood),
+                                    size: 16,
+                                    color: Colors.white,
+                                  ),
                                 ),
-
-                              ),
+                                Text(
+                                  DateFormat('dd-MM-yyyy').format(note.date),
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ],
                             ),
                           ],
                         ),
@@ -576,6 +779,11 @@ class Note {
   String title;
   String content;
   DateTime date;
+  String mood;
 
-  Note(this.title, this.content, this.date);
+  Note(this.title, this.content, this.date, this.mood);
+
+  bool isEqual(Note other) {
+    return title == other.title && content == other.content && date == other.date && mood == other.mood;
+  }
 }
