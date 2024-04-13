@@ -87,7 +87,7 @@ class Message {
     final String id = row["id"];
     final String from = row["from"];
     final String to = row["to"];
-    final DateTime sentAt = DateTime.parse(row["created_at"]);
+    final DateTime sentAt = DateTime.parse(row["created_at"]).toLocal();
     final String content = row["text"];
 
     return Message(id, from, to, sentAt, content);

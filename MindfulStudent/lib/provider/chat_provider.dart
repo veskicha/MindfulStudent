@@ -140,8 +140,11 @@ class ChatProvider with ChangeNotifier {
       });
       _connections.remove(oldConn);
 
-      final connChats = _chats.where((chat) =>
-          chat.otherId == connection.fromId || chat.otherId == connection.toId);
+      final connChats = _chats
+          .where((chat) =>
+              chat.otherId == connection.fromId ||
+              chat.otherId == connection.toId)
+          .toList();
       for (final chat in connChats) {
         _chats.remove(chat);
         notifyListeners();
