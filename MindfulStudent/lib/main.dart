@@ -9,6 +9,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'backend/auth.dart';
 import 'firebase_options.dart';
 import 'provider/sleep_data_provider.dart';
+import 'provider/task_provider.dart';
 import 'provider/user_profile_provider.dart';
 import 'screens/home/chat_screen.dart';
 import 'screens/home/emergency_contact.dart';
@@ -36,7 +37,8 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider.value(value: profileProvider),
         ChangeNotifierProvider.value(value: sleepDataProvider),
-        ChangeNotifierProvider.value(value: chatProvider)
+        ChangeNotifierProvider.value(value: chatProvider),
+        ChangeNotifierProvider(create: (context) => TaskProvider()),
       ],
       child: MaterialApp(
         navigatorKey: navigatorKey,
