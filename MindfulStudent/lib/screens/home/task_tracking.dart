@@ -1,18 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:mindfulstudent/backend/tasks.dart';
+import 'package:mindfulstudent/provider/task_provider.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
+import 'package:provider/provider.dart';
 
 class TaskTrackingPage extends StatefulWidget {
-  const TaskTrackingPage({super.key});
+  const TaskTrackingPage({Key? key}) : super(key: key);
 
   @override
-  TaskTrackingPageState createState() => TaskTrackingPageState();
+  _TaskTrackingPageState createState() => _TaskTrackingPageState();
 }
 
-class TaskTrackingPageState extends State<TaskTrackingPage> {
+class _TaskTrackingPageState extends State<TaskTrackingPage> {
   int _selectedIndex = 0;
-  final List<Map<String, dynamic>> _pendingTasks = [];
-  final List<Map<String, dynamic>> _completedTasks = [];
   final TextEditingController _taskController = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<TaskProvider>(context, listen: false).fetchTasks();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +76,7 @@ class TaskTrackingPageState extends State<TaskTrackingPage> {
                                       hintText: 'Add a new task',
                                       border: InputBorder.none,
                                     ),
-                                    onSubmitted: (_) => _addTask(),
+                                    onSubmitted: (_) => _addTask(context),
                                   ),
                                 ),
                               ],
@@ -78,19 +85,27 @@ class TaskTrackingPageState extends State<TaskTrackingPage> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      if (_pendingTasks.isNotEmpty)
-                        _buildTasksSection(
-                          'Pending Tasks:',
-                          _pendingTasks,
-                          false,
-                        ),
+                      Consumer<TaskProvider>(
+                        builder: (context, taskProvider, _) {
+                          return _buildTasksSection(
+                            'Pending Tasks:',
+                            taskProvider.pendingTasks,
+                            false,
+                            taskProvider,
+                          );
+                        },
+                      ),
                       const SizedBox(height: 16),
-                      if (_completedTasks.isNotEmpty)
-                        _buildTasksSection(
-                          'Completed Tasks:',
-                          _completedTasks,
-                          true,
-                        ),
+                      Consumer<TaskProvider>(
+                        builder: (context, taskProvider, _) {
+                          return _buildTasksSection(
+                            'Completed Tasks:',
+                            taskProvider.completedTasks,
+                            true,
+                            taskProvider,
+                          );
+                        },
+                      ),
                     ],
                   ),
                 ),
@@ -108,8 +123,9 @@ class TaskTrackingPageState extends State<TaskTrackingPage> {
 
   Widget _buildTasksSection(
     String title,
-    List<Map<String, dynamic>> tasks,
+    List<Task> tasks,
     bool completed,
+    TaskProvider taskProvider,
   ) {
     return Column(
       children: [
@@ -140,13 +156,12 @@ class TaskTrackingPageState extends State<TaskTrackingPage> {
               child: Row(
                 children: [
                   GestureDetector(
-                    onTap: () =>
-                        _toggleTaskCompletion(index, task['completed']),
+                    onTap: () => taskProvider.toggleTaskCompletion(task),
                     child: Icon(
-                      task['completed']
+                      task.completed
                           ? Icons.check_circle
                           : Icons.radio_button_unchecked,
-                      color: task['completed']
+                      color: task.completed
                           ? const Color(0xFF497077)
                           : Colors.grey,
                     ),
@@ -157,23 +172,22 @@ class TaskTrackingPageState extends State<TaskTrackingPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          task['title'],
+                          task.title,
                           style: TextStyle(
                             fontSize: 16,
-                            color: task['completed']
+                            color: task.completed
                                 ? const Color(0xFF497077)
                                 : Colors.black,
-                            decoration: task['completed']
+                            decoration: task.completed
                                 ? TextDecoration.lineThrough
                                 : TextDecoration.none,
                           ),
                         ),
                         DropdownButton<String>(
-                          value: task['reminder'] ?? 'None',
+                          value: task.reminder ?? 'None',
                           onChanged: (value) {
-                            setState(() {
-                              task['reminder'] = value;
-                            });
+                            taskProvider.updateTaskReminder(
+                                task, value ?? 'None');
                           },
                           items: <String>[
                             'None',
@@ -196,7 +210,7 @@ class TaskTrackingPageState extends State<TaskTrackingPage> {
                   ),
                   IconButton(
                     icon: const Icon(Icons.delete),
-                    onPressed: () => _deleteTask(index, task['completed']),
+                    onPressed: () => taskProvider.deleteTask(task),
                   ),
                 ],
               ),
@@ -213,39 +227,11 @@ class TaskTrackingPageState extends State<TaskTrackingPage> {
     });
   }
 
-  void _addTask() {
+  void _addTask(BuildContext context) {
     if (_taskController.text.isNotEmpty) {
-      setState(() {
-        _pendingTasks.add({
-          'title': _taskController.text,
-          'completed': false,
-        });
-        _taskController.clear();
-      });
+      final taskProvider = Provider.of<TaskProvider>(context, listen: false);
+      taskProvider.addTask(_taskController.text);
+      _taskController.clear();
     }
-  }
-
-  void _toggleTaskCompletion(int index, bool completed) {
-    setState(() {
-      final task = completed ? _completedTasks[index] : _pendingTasks[index];
-      task['completed'] = !completed;
-      if (completed) {
-        _completedTasks.removeAt(index);
-        _pendingTasks.add(task);
-      } else {
-        _pendingTasks.removeAt(index);
-        _completedTasks.add(task);
-      }
-    });
-  }
-
-  void _deleteTask(int index, bool completed) {
-    setState(() {
-      if (completed) {
-        _completedTasks.removeAt(index);
-      } else {
-        _pendingTasks.removeAt(index);
-      }
-    });
   }
 }

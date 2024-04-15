@@ -1,176 +1,17 @@
-import 'package:audioplayers/audioplayers.dart';
-import 'package:circular_countdown_timer/circular_countdown_timer.dart';
 import 'package:flutter/material.dart';
+import 'dart:async';
+
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 
-
-class CircularTimerPage extends StatefulWidget {
-  const CircularTimerPage({super.key});
+class BreathingExercisePage extends StatefulWidget {
+  const BreathingExercisePage({Key? key}) : super(key: key);
 
   @override
-  CircularTimerPageState createState() => CircularTimerPageState();
+  _BreathingExercisePageState createState() => _BreathingExercisePageState();
 }
 
-class CircularTimerPageState extends State<CircularTimerPage> {
+class _BreathingExercisePageState extends State<BreathingExercisePage> {
   int _selectedIndex = 0;
-  final int _duration = 24;
-  int _counter = 0;
-  Duration _previousDuration = const Duration(seconds: 0);
-  AudioPlayer player = AudioPlayer();
-  final CountDownController _controller = CountDownController();
-  @override
-  void initState() {
-    super.initState();
-    player.setSource(AssetSource('rainy-day-in-town-with-birds-singing-194011.mp3'));
-  }
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: CircularCountDownTimer(
-          // Countdown duration in Seconds.
-          duration: _duration,
-          // Countdown initial elapsed Duration in Seconds.
-          initialDuration: 0,
-          // Controls (i.e Start, Pause, Resume, Restart) the Countdown Timer.
-          controller: _controller,
-          // Width of the Countdown Widget.
-          width: MediaQuery.of(context).size.width / 2,
-          // Height of the Countdown Widget.
-          height: MediaQuery.of(context).size.height / 2,
-          // Ring Color for Countdown Widget.
-          ringColor: const Color(0xFF497077),
-          // Ring Gradient for Countdown Widget.
-          ringGradient: null,
-          // Filling Color for Countdown Widget.
-          fillColor: Colors.white,
-          // Filling Gradient for Countdown Widget.
-          fillGradient: null,
-          // Background Color for Countdown Widget.
-          backgroundColor: const Color(0xFFC8D4D6),
-          // Background Gradient for Countdown Widget.
-          backgroundGradient: null,
-          // Border Thickness of the Countdown Ring.
-          strokeWidth: 20.0,
-          // Begin and end contours with a flat edge and no extension.
-          strokeCap: StrokeCap.round,
-          // Text Style for Countdown Text.
-          textStyle: const TextStyle(
-            fontSize: 23.0,
-            color: Colors.black,
-            fontWeight: FontWeight.bold,
-          ),
-          // Format for the Countdown Text.
-          textFormat: CountdownTextFormat.S,
-          // Handles Countdown Timer (true for Reverse Countdown (max to 0), false for Forward Countdown (0 to max)).
-          isReverse: false,
-          // Handles Animation Direction (true for Reverse Animation, false for Forward Animation).
-          isReverseAnimation: false,
-          // Handles visibility of the Countdown Text.
-          isTimerTextShown: true,
-          // Handles the timer start.
-          autoStart: false,
-
-          onComplete: () => _controller.reset(),
-
-
-
-          timeFormatterFunction: (defaultFormatterFunction, duration) {
-
-            if (duration.inSeconds == 0) {
-              _counter = 0;
-              return "";
-            }
-            else if (duration.inSeconds == 1) {
-              _counter = 0;
-              return "INHALE";
-
-            }
-            else if(duration.inSeconds == 6){
-              _counter = 0;
-              return "HOLD";
-            }
-            else if(duration.inSeconds == 14){
-              _counter = 0;
-              return "EXHALE";
-            }
-            else if(duration.inSeconds == 23){
-              _counter = 0;
-              _controller.restart(duration: _duration);
-            }
-            else {
-              // Check if the duration has changed by one second
-              if (duration.inSeconds != _previousDuration.inSeconds) {
-                _counter++; // Increment the counter
-              }
-              _previousDuration = duration; // Update the previous duration
-              return _counter.toString();
-
-            }
-
-          },
-
-        ),
-
-      ),
-
-      floatingActionButton: Row(
-
-        mainAxisAlignment: MainAxisAlignment.center,
-
-        children: [
-
-          const SizedBox(
-
-            width: 40,
-
-          ),
-
-          _button(
-
-            title: "Start",
-
-            onPressed: () => {_controller.resume(), player.resume()},
-
-          ),
-
-          const SizedBox(
-
-            width: 10,
-
-          ),
-
-          _button(
-
-            title: "Pause",
-
-            onPressed: () => {_controller.pause(), player.pause()},
-
-          ),
-
-          const SizedBox(
-
-            width: 10,
-
-          ),
-
-          _button(
-            title: "Reset",
-            onPressed: () => {_controller.reset() , player.pause()},
-
-          ),
-
-        ],
-
-      ),
-      bottomNavigationBar: BottomNavBar(
-        selectedIndex: _selectedIndex,
-        onItemTapped: _onItemTapped,
-      ),
-
-    );
-
-  }
 
   void _onItemTapped(int index) {
     setState(() {
@@ -178,32 +19,166 @@ class CircularTimerPageState extends State<CircularTimerPage> {
     });
   }
 
-  Widget _button({required String title, VoidCallback? onPressed}) {
+  late Timer _timer;
+  int _elapsedSeconds = 0;
+  int _exerciseDuration = 23;
+  List<String> _imagePaths = [
+    'assets/BreatheIn.jpg',
+    'assets/Hold.png',
+    'assets/BreatheOut.png',
+  ];
+  String _currentImagePath = 'assets/Breathing.jpg';
+  String _displayText = "Let's start your breathing exercise!";
+  String _timerText = '';
+  bool _isTimerRunning = false;
 
-    return Expanded(
-
-      child: ElevatedButton(
-
-        style: ButtonStyle(
-
-          backgroundColor: MaterialStateProperty.all(const Color(0xFF497077)),
-
-        ),
-
-        onPressed: onPressed,
-
-        child: Text(
-
-          title,
-          style: const TextStyle(color: Color(0xFFC8D4D6)),
-        ),
-
-      ),
-
-    );
-
+  @override
+  void initState() {
+    super.initState();
   }
 
+  @override
+  void dispose() {
+    if (_timer.isActive) {
+      _timer.cancel();
+    }
+    super.dispose();
+  }
+
+  void _toggleTimer() {
+    setState(() {
+      _isTimerRunning = !_isTimerRunning;
+      if (_isTimerRunning) {
+        _startTimer();
+      } else {
+        _stopTimer();
+      }
+    });
+  }
+
+  void _resetTimer() {
+    setState(() {
+      _stopTimer();
+      _elapsedSeconds = 0;
+      _displayText = "Let's start your breathing exercise!";
+      _currentImagePath = 'assets/BreatheIn.jpg';
+      _timerText = '';
+    });
+  }
+
+  void _startTimer() {
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _elapsedSeconds++;
+
+        if (_elapsedSeconds <= 7) {
+          _displayText = 'Inhale';
+          _currentImagePath = _imagePaths[0];
+        } else if (_elapsedSeconds <= 15) {
+          _displayText = 'Hold';
+          _currentImagePath = _imagePaths[1];
+        } else {
+          _displayText = 'Exhale';
+          _currentImagePath = _imagePaths[2];
+        }
+
+        if (_elapsedSeconds >= _exerciseDuration) {
+          _elapsedSeconds = 0;
+        }
+      });
+    });
+  }
+
+  void _stopTimer() {
+    _timer.cancel();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(
+          'Breathing Exercise',
+          style: TextStyle(color: Color(0xFF497077)),
+        ),
+        backgroundColor: Color(0xFFC8D4D6),
+        centerTitle: true,
+      ),
+      backgroundColor: Colors.white,
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Stack(
+              alignment: Alignment.center,
+              children: [
+                // Visual Timer
+                SizedBox(
+                  width: 300,
+                  height: 300,
+                  child: CircularProgressIndicator(
+                    value: _elapsedSeconds / _exerciseDuration,
+                    strokeWidth: 10,
+                    backgroundColor: Color(0xFFC8D4D6),
+                    valueColor:
+                        AlwaysStoppedAnimation<Color>(Color(0xFF497077)),
+                  ),
+                ),
+                // Image
+                ClipOval(
+                  child: Image.asset(
+                    _currentImagePath,
+                    width: 200,
+                    height: 200,
+                    fit: BoxFit.cover,
+                  ),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+            Text(
+              _displayText,
+              style: TextStyle(
+                fontSize: 24,
+                fontFamily: 'assets/Poppins',
+                color: Color(0xFF497077),
+              ),
+            ),
+            SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                FloatingActionButton(
+                  onPressed: _toggleTimer,
+                  tooltip: _isTimerRunning ? 'Pause' : 'Start',
+                  child: Icon(
+                    _isTimerRunning ? Icons.pause : Icons.play_arrow,
+                    color: Color(0xFF497077),
+                  ),
+                  backgroundColor: Color(0xFFC8D4D6),
+                ),
+                SizedBox(width: 20),
+                FloatingActionButton(
+                  onPressed: _resetTimer,
+                  tooltip: 'Restart',
+                  child: Icon(Icons.refresh, color: Color(0xFF497077)),
+                  backgroundColor: Color(0xFFC8D4D6),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+      bottomNavigationBar: BottomNavBar(
+        selectedIndex: _selectedIndex,
+        onItemTapped: _onItemTapped,
+      ),
+    );
+  }
 }
 
-
+void main() {
+  runApp(MaterialApp(
+    home: BreathingExercisePage(),
+  ));
+}
