@@ -1,16 +1,16 @@
-import 'package:flutter/material.dart';
 import 'dart:async';
 
+import 'package:flutter/material.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 
 class BreathingExercisePage extends StatefulWidget {
-  const BreathingExercisePage({Key? key}) : super(key: key);
+  const BreathingExercisePage({super.key});
 
   @override
-  _BreathingExercisePageState createState() => _BreathingExercisePageState();
+  BreathingExercisePageState createState() => BreathingExercisePageState();
 }
 
-class _BreathingExercisePageState extends State<BreathingExercisePage> {
+class BreathingExercisePageState extends State<BreathingExercisePage> {
   int _selectedIndex = 0;
 
   void _onItemTapped(int index) {
@@ -21,15 +21,14 @@ class _BreathingExercisePageState extends State<BreathingExercisePage> {
 
   late Timer _timer;
   int _elapsedSeconds = 0;
-  int _exerciseDuration = 23;
-  List<String> _imagePaths = [
+  final int _exerciseDuration = 23;
+  final List<String> _imagePaths = [
     'assets/BreatheIn.jpg',
     'assets/Hold.png',
     'assets/BreatheOut.png',
   ];
   String _currentImagePath = 'assets/Breathing.jpg';
   String _displayText = "Let's start your breathing exercise!";
-  String _timerText = '';
   bool _isTimerRunning = false;
 
   @override
@@ -62,12 +61,11 @@ class _BreathingExercisePageState extends State<BreathingExercisePage> {
       _elapsedSeconds = 0;
       _displayText = "Let's start your breathing exercise!";
       _currentImagePath = 'assets/BreatheIn.jpg';
-      _timerText = '';
     });
   }
 
   void _startTimer() {
-    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
       setState(() {
         _elapsedSeconds++;
 
@@ -97,11 +95,11 @@ class _BreathingExercisePageState extends State<BreathingExercisePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(
+        title: const Text(
           'Breathing Exercise',
           style: TextStyle(color: Color(0xFF497077)),
         ),
-        backgroundColor: Color(0xFFC8D4D6),
+        backgroundColor: const Color(0xFFC8D4D6),
         centerTitle: true,
       ),
       backgroundColor: Colors.white,
@@ -119,9 +117,9 @@ class _BreathingExercisePageState extends State<BreathingExercisePage> {
                   child: CircularProgressIndicator(
                     value: _elapsedSeconds / _exerciseDuration,
                     strokeWidth: 10,
-                    backgroundColor: Color(0xFFC8D4D6),
+                    backgroundColor: const Color(0xFFC8D4D6),
                     valueColor:
-                        AlwaysStoppedAnimation<Color>(Color(0xFF497077)),
+                        const AlwaysStoppedAnimation<Color>(Color(0xFF497077)),
                   ),
                 ),
                 // Image
@@ -135,34 +133,34 @@ class _BreathingExercisePageState extends State<BreathingExercisePage> {
                 ),
               ],
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Text(
               _displayText,
-              style: TextStyle(
+              style: const TextStyle(
                 fontSize: 24,
                 fontFamily: 'assets/Poppins',
                 color: Color(0xFF497077),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 FloatingActionButton(
                   onPressed: _toggleTimer,
                   tooltip: _isTimerRunning ? 'Pause' : 'Start',
+                  backgroundColor: const Color(0xFFC8D4D6),
                   child: Icon(
                     _isTimerRunning ? Icons.pause : Icons.play_arrow,
-                    color: Color(0xFF497077),
+                    color: const Color(0xFF497077),
                   ),
-                  backgroundColor: Color(0xFFC8D4D6),
                 ),
-                SizedBox(width: 20),
+                const SizedBox(width: 20),
                 FloatingActionButton(
                   onPressed: _resetTimer,
                   tooltip: 'Restart',
-                  child: Icon(Icons.refresh, color: Color(0xFF497077)),
-                  backgroundColor: Color(0xFFC8D4D6),
+                  backgroundColor: const Color(0xFFC8D4D6),
+                  child: const Icon(Icons.refresh, color: Color(0xFF497077)),
                 ),
               ],
             ),
@@ -178,7 +176,7 @@ class _BreathingExercisePageState extends State<BreathingExercisePage> {
 }
 
 void main() {
-  runApp(MaterialApp(
+  runApp(const MaterialApp(
     home: BreathingExercisePage(),
   ));
 }

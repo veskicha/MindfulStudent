@@ -50,18 +50,13 @@ class Task {
 
 class TaskManager {
   static Future<Task?> createTask(String title) async {
-    final res = await supabase
-        .from("tasks")
-        .insert({"title": title, "completed": false, "reminder": "None"});
+    final data = await supabase.from("tasks").insert(
+        {"title": title, "completed": false, "reminder": "None"}).select();
 
-    if (res.error != null) {
-      // Handle error
-      print("Error creating task: ${res.error?.message}");
+    if (data.isEmpty) {
+      log("Error creating task");
       return null;
     }
-
-    final List<Map<String, dynamic>>? data = res as List<Map<String, dynamic>>;
-    if (data == null || data.isEmpty) return null;
 
     final task = Task.fromRowData(data[0]);
     return task;
@@ -69,16 +64,13 @@ class TaskManager {
 
   static Future<List<Task>> fetchAllTasks() async {
     log("Fetching all tasks");
-    final res = await supabase.from("tasks").select();
+    final data = await supabase.from("tasks").select();
 
-    if (res.isEmpty || res == null) {
+    if (data.isEmpty) {
       // Handle error
-      print("Error fetching tasks: Result is empty or null");
+      log("Error fetching tasks: Result is empty or null");
       return [];
     }
-
-    final List<Map<String, dynamic>>? data = res as List<Map<String, dynamic>>;
-    if (data == null) return [];
 
     return data.map((row) => Task.fromRowData(row)).toList();
   }

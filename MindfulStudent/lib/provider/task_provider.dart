@@ -1,3 +1,5 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/tasks.dart';
 
@@ -6,6 +8,7 @@ class TaskProvider extends ChangeNotifier {
   final List<Task> _completedTasks = [];
 
   List<Task> get pendingTasks => _pendingTasks;
+
   List<Task> get completedTasks => _completedTasks;
 
   Future<void> fetchTasks() async {
@@ -13,13 +16,13 @@ class TaskProvider extends ChangeNotifier {
     _completedTasks.clear();
 
     final tasks = await TaskManager.fetchAllTasks();
-    tasks.forEach((task) {
+    for (final task in tasks) {
       if (task.completed) {
         _completedTasks.add(task);
       } else {
         _pendingTasks.add(task);
       }
-    });
+    }
 
     notifyListeners();
   }
@@ -30,7 +33,7 @@ class TaskProvider extends ChangeNotifier {
       _pendingTasks.add(newTask);
       notifyListeners();
     } else {
-      print("Error adding task: Unable to create task");
+      log("Error adding task: Unable to create task");
     }
   }
 

@@ -1,10 +1,13 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:mindfulstudent/backend/auth.dart';
 import 'package:mindfulstudent/provider/user_profile_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+
 import '../../widgets/bottom_nav_bar.dart';
-import 'package:intl/intl.dart';
 
 class JournalScreen extends StatefulWidget {
   const JournalScreen({super.key});
@@ -317,16 +320,11 @@ class JournalScreenState extends State<JournalScreen> {
       setState(() {
         notes.removeWhere((note) => note.isEqual(noteToDelete));
       });
-
     } catch (e) {
       // Handle error
-      print("Error deleting note: $e");
+      log("Error deleting note: $e");
     }
   }
-
-
-
-
 
   Future<void> _selectDate(BuildContext context) async {
     final DateTime? pickedDate = await showDatePicker(

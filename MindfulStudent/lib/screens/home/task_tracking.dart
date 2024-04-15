@@ -5,13 +5,13 @@ import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
 
 class TaskTrackingPage extends StatefulWidget {
-  const TaskTrackingPage({Key? key}) : super(key: key);
+  const TaskTrackingPage({super.key});
 
   @override
-  _TaskTrackingPageState createState() => _TaskTrackingPageState();
+  TaskTrackingPageState createState() => TaskTrackingPageState();
 }
 
-class _TaskTrackingPageState extends State<TaskTrackingPage> {
+class TaskTrackingPageState extends State<TaskTrackingPage> {
   int _selectedIndex = 0;
   final TextEditingController _taskController = TextEditingController();
 
@@ -184,7 +184,7 @@ class _TaskTrackingPageState extends State<TaskTrackingPage> {
                           ),
                         ),
                         DropdownButton<String>(
-                          value: task.reminder ?? 'None',
+                          value: task.reminder,
                           onChanged: (value) {
                             taskProvider.updateTaskReminder(
                                 task, value ?? 'None');
