@@ -873,7 +873,7 @@ class ChatScreenState extends State<ChatScreen> {
       // emoji button
       actions.add(
         ActionIconButton(
-          icon: Icons.mood,
+          icon: Icons.favorite,
           onPressed: () async {
             // TODO: emoji selection screen?
             // Note: requires backend support (emoji needs to be allow-listed)
@@ -1008,6 +1008,10 @@ class ChatBubble extends StatelessWidget {
   final void Function(Message)? onHold;
   final bool isSelected;
 
+  static const emojiTable = {
+    "RED_HEART": "❤️",
+  };
+
   const ChatBubble(
     this.message, {
     this.onTap,
@@ -1018,7 +1022,6 @@ class ChatBubble extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // TODO: visually show isSelected property
     final screenWidth = MediaQuery.of(context).size.width;
     final bubbleMaxWidth = screenWidth * 0.5;
 
@@ -1038,14 +1041,16 @@ class ChatBubble extends StatelessWidget {
       ),
     );
 
-    // TODO: probably better UI, don't throw everything in the text :D
-    String timeStr = DateFormat("HH:mm").format(message.sentAt);
-    for (final reaction in message.reactions.entries) {
-      timeStr += "\n  - ${reaction.key}: ${reaction.value.length}";
-    }
+    String statusStr = DateFormat("HH:mm").format(message.sentAt);
 
     late final Row row;
     if (message.isSentByMe) {
+      // Align right
+      statusStr += " ";
+      for (final reaction in message.reactions.entries) {
+        statusStr += (emojiTable[reaction.key] ?? "") * reaction.value.length;
+      }
+
       row = Row(
         mainAxisAlignment: MainAxisAlignment.end,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -1054,7 +1059,7 @@ class ChatBubble extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(right: 6.0),
             child: Text(
-              timeStr,
+              statusStr,
               style: TextStyle(color: Colors.grey[500], fontSize: 11),
             ),
           ),
@@ -1063,6 +1068,12 @@ class ChatBubble extends StatelessWidget {
       );
     } else {
       // Align left
+      statusStr = " $statusStr";
+      for (final reaction in message.reactions.entries) {
+        statusStr = (emojiTable[reaction.key] ?? "") * reaction.value.length +
+            statusStr;
+      }
+
       row = Row(
         mainAxisAlignment: MainAxisAlignment.start,
         crossAxisAlignment: CrossAxisAlignment.end,
@@ -1071,7 +1082,7 @@ class ChatBubble extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(left: 7.0),
             child: Text(
-              timeStr,
+              statusStr,
               maxLines: 5,
               style: TextStyle(color: Colors.grey[500], fontSize: 11),
             ),
@@ -1084,7 +1095,18 @@ class ChatBubble extends StatelessWidget {
     return GestureDetector(
       onTap: onTap == null ? null : () => onTap!(message),
       onLongPress: onHold == null ? null : () => onHold!(message),
-      child: row,
+      child: Stack(
+        children: !isSelected
+            ? [row]
+            : [
+                row,
+                Positioned.fill(
+                  child: Container(
+                    color: Colors.lightBlueAccent.withOpacity(0.2),
+                  ),
+                ),
+              ],
+      ),
     );
   }
 }

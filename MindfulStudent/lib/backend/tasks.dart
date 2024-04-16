@@ -3,33 +3,70 @@ import 'dart:developer';
 import 'package:mindfulstudent/main.dart';
 
 class Task {
-  final int id;
+  final String id;
   final String title;
-  bool completed;
-  String reminder;
+  DateTime? completedAt;
+  String? reminder;
 
-  Task(this.id, this.title, this.completed, this.reminder);
+  Task(this.id, this.title, this.completedAt, this.reminder);
 
   static Task fromRowData(Map<String, dynamic> row) {
-    final int id = row["id"];
+    final String id = row["id"];
     final String title = row["title"];
-    final bool completed = row["completed"];
-    final String reminder = row["reminder"];
+    final String? completedAt = row["completed_at"];
+    final String? reminder = row["reminder"];
 
-    return Task(id, title, completed, reminder);
+    return Task(
+      id,
+      title,
+      completedAt == null ? null : DateTime.parse(completedAt).toLocal(),
+      reminder,
+    );
+  }
+
+  bool get completed {
+    final now = DateTime.now();
+    final comp = completedAt;
+
+    if (comp == null) return false;
+
+    if (reminder == "DAILY") {
+      // Not completed if the day is different
+      return now.year == comp.year &&
+          now.month == comp.month &&
+          now.day == comp.day;
+    } else if (reminder == "WEEKLY") {
+      // Not completed if not done yet this week
+      final weekStart = now
+          .copyWith(
+            hour: 0,
+            minute: 0,
+            second: 0,
+            millisecond: 0,
+            microsecond: 0,
+          )
+          .subtract(Duration(days: now.weekday - 1));
+      return comp.isAfter(weekStart);
+    } else if (reminder == "MONTHLY") {
+      return now.year == comp.year && now.month == comp.month;
+    }
+
+    return true;
   }
 
   Future<void> markAsCompleted() async {
-    completed = true;
-    await supabase.from("tasks").update({"completed": true}).eq("id", id);
+    completedAt = DateTime.now();
+    await supabase
+        .from("tasks")
+        .update({"completed_at": completedAt.toString()}).eq("id", id);
   }
 
   Future<void> markAsPending() async {
-    completed = false;
-    await supabase.from("tasks").update({"completed": false}).eq("id", id);
+    completedAt = null;
+    await supabase.from("tasks").update({"completed_at": null}).eq("id", id);
   }
 
-  Future<void> updateReminder(String newReminder) async {
+  Future<void> updateReminder(String? newReminder) async {
     reminder = newReminder;
     await supabase.from("tasks").update({"reminder": newReminder}).eq("id", id);
   }
@@ -42,7 +79,7 @@ class Task {
     await supabase.from("tasks").upsert({
       "id": id,
       "title": title,
-      "completed": completed,
+      "completed": completedAt,
       "reminder": reminder,
     });
   }
@@ -51,7 +88,7 @@ class Task {
 class TaskManager {
   static Future<Task?> createTask(String title) async {
     final data = await supabase.from("tasks").insert(
-        {"title": title, "completed": false, "reminder": "None"}).select();
+        {"title": title, "completed_at": null, "reminder": null}).select();
 
     if (data.isEmpty) {
       log("Error creating task");
@@ -65,12 +102,6 @@ class TaskManager {
   static Future<List<Task>> fetchAllTasks() async {
     log("Fetching all tasks");
     final data = await supabase.from("tasks").select();
-
-    if (data.isEmpty) {
-      // Handle error
-      log("Error fetching tasks: Result is empty or null");
-      return [];
-    }
 
     return data.map((row) => Task.fromRowData(row)).toList();
   }
