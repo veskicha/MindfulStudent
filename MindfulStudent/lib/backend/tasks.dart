@@ -51,7 +51,7 @@ class Task {
       return now.year == comp.year && now.month == comp.month;
     }
 
-    return false;
+    return true;
   }
 
   Future<void> markAsCompleted() async {
