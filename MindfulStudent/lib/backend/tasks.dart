@@ -13,15 +13,45 @@ class Task {
   static Task fromRowData(Map<String, dynamic> row) {
     final String id = row["id"];
     final String title = row["title"];
-    final DateTime? completedAt = row["completed_at"];
+    final String? completedAt = row["completed_at"];
     final String? reminder = row["reminder"];
 
-    return Task(id, title, completedAt, reminder);
+    return Task(
+      id,
+      title,
+      completedAt == null ? null : DateTime.parse(completedAt).toLocal(),
+      reminder,
+    );
   }
 
   bool get completed {
-    // TODO: adjust based on last completion time
-    return completedAt != null;
+    final now = DateTime.now();
+    final comp = completedAt;
+
+    if (comp == null) return false;
+
+    if (reminder == "DAILY") {
+      // Not completed if the day is different
+      return now.year == comp.year &&
+          now.month == comp.month &&
+          now.day == comp.day;
+    } else if (reminder == "WEEKLY") {
+      // Not completed if not done yet this week
+      final weekStart = now
+          .copyWith(
+            hour: 0,
+            minute: 0,
+            second: 0,
+            millisecond: 0,
+            microsecond: 0,
+          )
+          .subtract(Duration(days: now.weekday - 1));
+      return comp.isAfter(weekStart);
+    } else if (reminder == "MONTHLY") {
+      return now.year == comp.year && now.month == comp.month;
+    }
+
+    return false;
   }
 
   Future<void> markAsCompleted() async {
