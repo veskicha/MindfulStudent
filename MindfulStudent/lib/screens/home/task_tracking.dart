@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mindfulstudent/backend/tasks.dart';
+import 'package:mindfulstudent/main.dart';
 import 'package:mindfulstudent/provider/task_provider.dart';
 import 'package:mindfulstudent/widgets/bottom_nav_bar.dart';
 import 'package:provider/provider.dart';
@@ -14,12 +15,6 @@ class TaskTrackingPage extends StatefulWidget {
 class TaskTrackingPageState extends State<TaskTrackingPage> {
   int _selectedIndex = 0;
   final TextEditingController _taskController = TextEditingController();
-
-  @override
-  void initState() {
-    super.initState();
-    Provider.of<TaskProvider>(context, listen: false).fetchTasks();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -90,8 +85,6 @@ class TaskTrackingPageState extends State<TaskTrackingPage> {
                           return _buildTasksSection(
                             'Pending Tasks:',
                             taskProvider.pendingTasks,
-                            false,
-                            taskProvider,
                           );
                         },
                       ),
@@ -101,8 +94,6 @@ class TaskTrackingPageState extends State<TaskTrackingPage> {
                           return _buildTasksSection(
                             'Completed Tasks:',
                             taskProvider.completedTasks,
-                            true,
-                            taskProvider,
                           );
                         },
                       ),
@@ -121,12 +112,9 @@ class TaskTrackingPageState extends State<TaskTrackingPage> {
     );
   }
 
-  Widget _buildTasksSection(
-    String title,
-    List<Task> tasks,
-    bool completed,
-    TaskProvider taskProvider,
-  ) {
+  Widget _buildTasksSection(String title, List<Task> tasks) {
+    if (tasks.isEmpty) return const Column();
+
     return Column(
       children: [
         Center(

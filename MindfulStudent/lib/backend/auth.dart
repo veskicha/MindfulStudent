@@ -119,6 +119,7 @@ class Auth {
               chatProvider.init();
             });
             sleepDataProvider.updateData();
+            taskProvider.fetchTasks();
           }
           break;
         case (AuthChangeEvent.signedOut):

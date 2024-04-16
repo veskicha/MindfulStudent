@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(value: profileProvider),
         ChangeNotifierProvider.value(value: sleepDataProvider),
         ChangeNotifierProvider.value(value: chatProvider),
-        ChangeNotifierProvider(create: (context) => TaskProvider()),
+        ChangeNotifierProvider.value(value: taskProvider),
       ],
       child: MaterialApp(
 
@@ -76,3 +76,4 @@ final supabase = Supabase.instance.client;
 final profileProvider = UserProfileProvider();
 final sleepDataProvider = SleepDataProvider();
 final chatProvider = ChatProvider();
+final taskProvider = TaskProvider();
