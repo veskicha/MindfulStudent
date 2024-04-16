@@ -38,7 +38,13 @@ class TaskProvider extends ChangeNotifier {
   }
 
   void toggleTaskCompletion(Task task) async {
-    task.completed = !task.completed;
+    late final Future<void> fut;
+    if (task.completed) {
+      fut = task.markAsPending();
+    } else {
+      fut = task.markAsCompleted();
+    }
+
     if (task.completed) {
       _pendingTasks.remove(task);
       _completedTasks.add(task);
@@ -48,10 +54,10 @@ class TaskProvider extends ChangeNotifier {
     }
     notifyListeners();
 
-    await task.save();
+    await fut;
   }
 
-  void updateTaskReminder(Task task, String newReminder) async {
+  void updateTaskReminder(Task task, String? newReminder) async {
     task.reminder = newReminder;
     notifyListeners();
 

@@ -16,6 +16,13 @@ class TaskTrackingPageState extends State<TaskTrackingPage> {
   int _selectedIndex = 0;
   final TextEditingController _taskController = TextEditingController();
 
+  final freqTable = {
+    null: "None",
+    "DAILY": "Daily",
+    "WEEKLY": "Weekly",
+    "MONTHLY": "Monthly"
+  };
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -174,19 +181,18 @@ class TaskTrackingPageState extends State<TaskTrackingPage> {
                         DropdownButton<String>(
                           value: task.reminder,
                           onChanged: (value) {
-                            taskProvider.updateTaskReminder(
-                                task, value ?? 'None');
+                            taskProvider.updateTaskReminder(task, value);
                           },
-                          items: <String>[
-                            'None',
-                            'Daily',
-                            'Weekly',
-                            'Monthly',
-                          ].map<DropdownMenuItem<String>>((String value) {
+                          items: <String?>[
+                            null,
+                            "DAILY",
+                            "WEEKLY",
+                            "MONTHLY",
+                          ].map<DropdownMenuItem<String>>((String? value) {
                             return DropdownMenuItem<String>(
                               value: value,
                               child: Text(
-                                value,
+                                freqTable[value] ?? "Unknown",
                                 style:
                                     const TextStyle(color: Color(0xFF497077)),
                               ),
