@@ -13,7 +13,7 @@ class EmergencyContactPage extends StatefulWidget {
 }
 
 class EmergencyContactPageState extends State<EmergencyContactPage> {
-  int _selectedIndex = 3; // Default selected index
+  int _selectedIndex = 0; // Default selected index
 
   String? _selectedFruit;
   final List<String> _fruits = [
@@ -65,7 +65,8 @@ class EmergencyContactPageState extends State<EmergencyContactPage> {
                 const Positioned(
                   top: 40,
                   child: Text(
-                    'Emergency Contact Information',
+                    'Emergency Contact\nInformation',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
