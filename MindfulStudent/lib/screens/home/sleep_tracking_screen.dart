@@ -457,7 +457,7 @@ class TimeRangeBox extends StatelessWidget {
     );
   }
 
-  String fmtTimeOfDay(TimeOfDay? time) => time == null
+  static String fmtTimeOfDay(TimeOfDay? time) => time == null
       ? "Unknown"
       : "${time.hour.toString().padLeft(2, '0')}"
           ":${time.minute.toString().padLeft(2, '0')}";
