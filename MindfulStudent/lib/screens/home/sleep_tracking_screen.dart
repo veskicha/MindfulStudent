@@ -27,26 +27,29 @@ class SleepChart extends StatelessWidget {
     final minVal = bars.map((bar) => bar?.fromY ?? 0).fold(0.0, math.min);
     final maxVal = bars.map((bar) => bar?.toY ?? 0).fold(0.0, math.max);
 
-    return SizedBox(
-      width: bars.length * 100 + 50,
-      height: MediaQuery.of(context).size.height * 0.35,
-      child: Padding(
-        padding: const EdgeInsets.all(20),
-        child: BarChart(
-          BarChartData(
-            barGroups: barGroups,
-            titlesData: titlesData,
-            minY: minVal ~/ _accuracy * _accuracy,
-            maxY: (maxVal ~/ _accuracy + 1) * _accuracy,
-            gridData: const FlGridData(show: false),
-            borderData: FlBorderData(
-              show: true,
-              border: Border.all(
-                color: const Color(0xFFC8D4D6),
-                width: 1,
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: SizedBox(
+        width: bars.length * 50 + 80,
+        height: MediaQuery.of(context).size.height * 0.35,
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: BarChart(
+            BarChartData(
+              barGroups: barGroups,
+              titlesData: titlesData,
+              minY: minVal ~/ _accuracy * _accuracy,
+              maxY: (maxVal ~/ _accuracy + 1) * _accuracy,
+              gridData: const FlGridData(show: false),
+              borderData: FlBorderData(
+                show: true,
+                border: Border.all(
+                  color: const Color(0xFFC8D4D6),
+                  width: 1,
+                ),
               ),
+              barTouchData: BarTouchData(enabled: false),
             ),
-            barTouchData: BarTouchData(enabled: false),
           ),
         ),
       ),
@@ -76,6 +79,32 @@ class SleepChart extends StatelessWidget {
 
   FlTitlesData get titlesData {
     var relevantHours = getRelevantHours(barGroups);
+    final sideTitles = AxisTitles(
+      sideTitles: SideTitles(
+        showTitles: true,
+        reservedSize: 50,
+        getTitlesWidget: (double value, TitleMeta meta) {
+          var hourDateTime = DateTime.fromMillisecondsSinceEpoch(value.toInt());
+          var formattedHour = DateFormat('h a').format(hourDateTime);
+
+          if (relevantHours.contains(hourDateTime.hour)) {
+            return SideTitleWidget(
+              axisSide: meta.axisSide,
+              child: Text(
+                formattedHour,
+                style: const TextStyle(
+                  color: Color(0xFF497077),
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            );
+          } else {
+            return const SizedBox.shrink();
+          }
+        },
+      ),
+    );
 
     return FlTitlesData(
       show: true,
@@ -96,35 +125,8 @@ class SleepChart extends StatelessWidget {
           ),
         ),
       ),
-      leftTitles: AxisTitles(
-        sideTitles: SideTitles(
-          showTitles: true,
-          reservedSize: 50,
-          getTitlesWidget: (double value, TitleMeta meta) {
-            var hourDateTime = DateTime.fromMillisecondsSinceEpoch(value.toInt());
-            var formattedHour = DateFormat('h a').format(hourDateTime);
-
-            if (relevantHours.contains(hourDateTime.hour)) {
-              return SideTitleWidget(
-                axisSide: meta.axisSide,
-                child: Text(
-                  formattedHour,
-                  style: const TextStyle(
-                    color: Color(0xFF497077),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 12,
-                  ),
-                ),
-              );
-            } else {
-              return const SizedBox.shrink();
-            }
-          },
-        ),
-      ),
-      rightTitles: const AxisTitles(
-        sideTitles: SideTitles(showTitles: false),
-      ),
+      leftTitles: sideTitles,
+      rightTitles: sideTitles,
       topTitles: const AxisTitles(
         sideTitles: SideTitles(showTitles: false),
       ),
@@ -164,7 +166,8 @@ class SleepChart extends StatelessWidget {
     var hours = <int>{};
     for (var group in barGroups) {
       var barRod = group.barRods[0];
-      var fromHour = DateTime.fromMillisecondsSinceEpoch(barRod.fromY.toInt()).hour;
+      var fromHour =
+          DateTime.fromMillisecondsSinceEpoch(barRod.fromY.toInt()).hour;
       var toHour = DateTime.fromMillisecondsSinceEpoch(barRod.toY.toInt()).hour;
       for (var hour = fromHour; hour <= toHour; hour++) {
         hours.add(hour);
@@ -315,7 +318,6 @@ class SleepTrackingPageState extends State<SleepTrackingPage> {
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
-
                   children: [
                     const Text(
                       'Your optimal bedtime',
@@ -456,11 +458,4 @@ class TimeRangeBox extends StatelessWidget {
       ),
     );
   }
-
-  static String fmtTimeOfDay(TimeOfDay? time) => time == null
-      ? "Unknown"
-      : "${time.hour.toString().padLeft(2, '0')}"
-          ":${time.minute.toString().padLeft(2, '0')}";
-
-
 }
