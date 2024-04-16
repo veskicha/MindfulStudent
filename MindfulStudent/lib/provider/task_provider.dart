@@ -46,23 +46,26 @@ class TaskProvider extends ChangeNotifier {
       _completedTasks.remove(task);
       _pendingTasks.add(task);
     }
-    await task.save();
     notifyListeners();
+
+    await task.save();
   }
 
   void updateTaskReminder(Task task, String newReminder) async {
     task.reminder = newReminder;
-    await task.updateReminder(newReminder);
     notifyListeners();
+
+    await task.updateReminder(newReminder);
   }
 
   void deleteTask(Task task) async {
-    await task.delete();
     if (task.completed) {
       _completedTasks.remove(task);
     } else {
       _pendingTasks.remove(task);
     }
     notifyListeners();
+
+    await task.delete();
   }
 }
